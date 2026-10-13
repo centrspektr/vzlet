@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Клуб БПЛА Взлёт: рейтинг пилотов, шпаргалки по FPV, тесты, калькуляторы и тренажёр стиков.">
 <title>Взлёт — дашборд клуба</title>
 <style>
   :root{
@@ -193,6 +194,109 @@
   .addlap label{display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--dim); text-transform:uppercase;}
   .addlap input,.addlap select{font:inherit; font-size:14px; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px 8px; width:100%;}
   footer{color:var(--dim); font-size:12px; text-align:center; margin-top:20px;}
+
+/* ===== Академия пилота ===== */
+.vt{position:sticky;top:8px;z-index:60;display:flex;gap:4px;padding:5px;margin:0 0 16px;background:color-mix(in srgb,var(--panel) 88%,transparent);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:14px;overflow-x:auto;scrollbar-width:none}
+.vt button{position:relative;z-index:1;flex:1;min-width:max-content;border:none;background:none;color:var(--dim);font:600 14px 'Segoe UI',system-ui,sans-serif;padding:10px 14px;border-radius:10px;cursor:pointer;transition:color .3s;white-space:nowrap}
+.vt button.on{color:#04121b}
+.vti{position:absolute;top:5px;bottom:5px;left:5px;width:0;border-radius:10px;background:linear-gradient(135deg,#00d4ff,#0077ff);box-shadow:0 6px 22px rgba(0,180,255,.45);transition:left .45s cubic-bezier(.5,1.5,.5,1),width .45s cubic-bezier(.5,1.5,.5,1)}
+.vtab{animation:vtin .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes vtin{from{opacity:0;transform:translateY(18px)}}
+.ahero{position:relative;height:260px;border-radius:18px;overflow:hidden;margin-bottom:16px;border:1px solid var(--line);isolation:isolate}
+.ahero{background:radial-gradient(80% 120% at 85% 50%,#123049,#0d1117 70%)}
+.ah-ph{position:absolute;top:-6%;bottom:-6%;right:0;width:min(62%,560px);z-index:-2;animation:ahzoom 18s ease-in-out infinite alternate;-webkit-mask-image:linear-gradient(90deg,transparent,#000 35%);mask-image:linear-gradient(90deg,transparent,#000 35%)}
+.ah-ph img{width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+@keyframes ahzoom{to{transform:scale(1.07) translate(-2%,1%)}}
+.ahero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(13,17,23,.9) 0%,rgba(13,17,23,.45) 50%,rgba(13,17,23,0) 100%)}
+.ah-scan{position:absolute;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)}
+.ah-scan::after{content:"";position:absolute;left:0;right:0;height:80px;background:linear-gradient(transparent,rgba(0,212,255,.12),transparent);animation:scan 4s linear infinite}
+@keyframes scan{from{top:-80px}to{top:100%}}
+.ah-osd{position:absolute;top:14px;right:16px;display:flex;gap:14px;font:700 13px ui-monospace,Consolas,monospace;color:#e8f6ff;text-shadow:0 0 6px #000}
+.ah-osd .rec{color:#ff4d5e;animation:blink 1.2s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.ah-tx{position:absolute;left:24px;bottom:22px;right:24px;max-width:560px}
+.ah-tx small{font-weight:800;letter-spacing:3px;color:var(--accent);font-size:12px}
+.ah-tx h2{font-size:clamp(28px,5vw,44px);line-height:1.05;margin:6px 0;background:linear-gradient(90deg,#fff,#7de9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ah-tx p{color:#c7d4e0}
+.ah-xp{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:13px;font-weight:700}
+.ah-xp .bar{flex:1;max-width:220px;height:8px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden}
+.ah-xp .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#00d4ff,#3fb950);border-radius:9px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+@media(max-width:600px){.ah-ph{width:100%;-webkit-mask-image:none;mask-image:none;opacity:.55}.ahero{height:250px}.ah-osd{font-size:11px;gap:8px;right:10px}.ah-tx{left:16px;right:16px;bottom:16px}}
+/* шпаргалки */
+.srow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.srow input{flex:1;min-width:200px;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit}
+.srow input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.15)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-bottom:16px;align-items:start}
+.ch{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;animation:chin .5s backwards cubic-bezier(.2,.8,.2,1)}
+@keyframes chin{from{opacity:0;transform:translateY(20px) scale(.97)}}
+.ch:hover{border-color:color-mix(in srgb,var(--accent) 60%,var(--line));transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.ch>button{display:flex;align-items:center;gap:12px;width:100%;padding:16px;border:none;background:none;color:var(--text);cursor:pointer;text-align:left;font:inherit}
+.ch .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,rgba(0,212,255,.18),rgba(0,119,255,.18));border:1px solid rgba(0,212,255,.25);flex-shrink:0;transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
+.ch.open .ic,.ch:hover .ic{transform:rotate(-10deg) scale(1.1)}
+.ch .tt{flex:1} .ch .tt b{display:block;font-size:16px} .ch .tt small{color:var(--dim);font-size:12px}
+.ch .ar{color:var(--dim);transition:transform .35s} .ch.open .ar{transform:rotate(180deg);color:var(--accent)}
+.ch .bd{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s cubic-bezier(.2,.8,.2,1)}
+.ch.open .bd{grid-template-rows:1fr} .ch .bd>div{overflow:hidden} .ch .bd>div>div{padding:0 16px 16px}
+.kv{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:8px 0;border-top:1px dashed var(--line);font-size:14px} .kv b{color:var(--accent)}
+.tip,.warn{margin-top:10px;font-size:13.5px;padding:10px 12px;border-radius:10px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2)} .warn{background:rgba(248,81,73,.08);border-color:rgba(248,81,73,.3);color:#ffb3ad}
+.cl{padding-left:20px;font-size:14px} .cl li{padding:4px 0}
+.sticks{display:grid;grid-template-columns:1fr 1fr;gap:10px} .sticks div{background:var(--panel2);border-radius:12px;padding:12px;font-size:13.5px;display:flex;flex-direction:column;gap:4px} .sticks b{color:var(--accent)}
+.volt{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px} .volt div{background:var(--panel2);border-radius:10px;padding:8px;text-align:center} .volt b{display:block;font-size:15px;white-space:nowrap;color:var(--ok)} .volt span{font-size:11px;color:var(--dim)} .volt .bad b{color:var(--bad)}
+.trk{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px dashed var(--line);font-size:14px} .trk b{min-width:92px;color:var(--accent)} .trk span{flex:1} .trk i{font-style:normal;color:var(--warn)}
+.dict{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:13.5px} .dict b{color:var(--accent)}
+@media(max-width:600px){.dict,.sticks{grid-template-columns:1fr}.volt{grid-template-columns:repeat(2,1fr)}.kv{grid-template-columns:90px 1fr}}
+/* тренажёр */
+.trn{padding:16px}
+.trn-h{display:flex;gap:16px;justify-content:space-between;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px} .trn-h h3{font-size:18px;margin-bottom:4px}
+.trn-s{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:13px} .trn-s b{color:var(--accent);font-variant-numeric:tabular-nums}
+.trn-w{position:relative;height:420px;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 50%,#132235,#0a111b);border:1px solid var(--line);touch-action:none;user-select:none;-webkit-user-select:none}
+.trn-w canvas{position:absolute;inset:0;width:100%;height:100%}
+.alt{position:absolute;right:12px;top:12px;bottom:12px;width:10px;border-radius:9px;background:rgba(255,255,255,.08);display:flex;align-items:flex-end} .alt i{width:100%;border-radius:9px;background:linear-gradient(#3fb950,#00d4ff);height:30%;transition:height .1s}
+.alt span{position:absolute;right:16px;bottom:0;font-size:10px;color:var(--dim);writing-mode:vertical-rl;transform:rotate(180deg)}
+.stk{position:absolute;bottom:14px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.06);border:2px solid rgba(0,212,255,.35);touch-action:none}
+.stk.l{left:14px} .stk.r{right:34px}
+.stk i{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#7de9ff,#0077ff);box-shadow:0 4px 16px rgba(0,180,255,.6)}
+.stk small{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:10.5px;color:var(--dim);white-space:nowrap}
+@media(max-width:600px){.trn-w{height:440px}.stk{width:96px;height:96px}.stk.r{right:28px}}
+/* тесты */
+.qlv{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:16px}
+.ql{position:relative;overflow:hidden;padding:20px;border-radius:18px;border:1px solid var(--line);background:var(--panel);cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s;text-align:left;color:var(--text);font:inherit}
+.ql:hover{transform:translateY(-4px);border-color:var(--lc);box-shadow:0 16px 40px color-mix(in srgb,var(--lc) 25%,transparent)}
+.ql .e{font-size:44px;display:block;animation:flt 3s ease-in-out infinite} @keyframes flt{50%{transform:translateY(-6px)}}
+.ql b{display:block;font-size:20px;margin:6px 0 2px} .ql small{color:var(--dim)}
+.ql .st{margin-top:10px;font-size:20px;letter-spacing:2px} .ql::after{content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:var(--lc);opacity:.12;filter:blur(10px)}
+.qbox{padding:22px}
+.qtop{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px;font-size:13px;color:var(--dim)}
+.qprog{height:6px;border-radius:9px;background:var(--panel2);overflow:hidden;margin-bottom:18px} .qprog i{display:block;height:100%;background:var(--lc,var(--accent));transition:width .5s}
+.qq{font-size:clamp(18px,3vw,23px);font-weight:700;margin-bottom:16px;animation:vtin .4s}
+.qa{display:grid;gap:10px}
+.qa button{display:flex;align-items:center;gap:12px;text-align:left;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:15px;cursor:pointer;transition:transform .2s,border-color .2s,background .3s;animation:vtin .4s backwards}
+.qa button:nth-child(2){animation-delay:.05s}.qa button:nth-child(3){animation-delay:.1s}.qa button:nth-child(4){animation-delay:.15s}
+.qa button:hover:not(:disabled){border-color:var(--accent);transform:translateX(4px)}
+.qa button i{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.06);font-style:normal;font-weight:800;flex-shrink:0}
+.qa button.ok{background:rgba(63,185,80,.18);border-color:var(--ok);animation:okp .5s} .qa button.no{background:rgba(248,81,73,.15);border-color:var(--bad);animation:shk .4s}
+@keyframes okp{40%{transform:scale(1.03)}} @keyframes shk{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.qend{text-align:center;padding:10px 0} .qend .big{font-size:64px;font-weight:800;background:linear-gradient(90deg,#00d4ff,#3fb950);-webkit-background-clip:text;background-clip:text;color:transparent}
+.qend .stars{font-size:38px;letter-spacing:6px} .qend .stars span{display:inline-block;animation:stp .6s backwards cubic-bezier(.3,1.8,.5,1)} .qend .stars span:nth-child(2){animation-delay:.2s} .qend .stars span:nth-child(3){animation-delay:.4s}
+@keyframes stp{from{transform:scale(0) rotate(-90deg)}}
+/* калькуляторы */
+.calcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.calc h3{font-size:17px;margin-bottom:10px} .calc label{display:block;font-size:13px;color:var(--dim);margin-top:8px}
+.calc input[type=number]{display:block;width:100%;margin-top:4px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit;font-size:16px}
+.calc input[type=range]{width:calc(100% - 50px);vertical-align:middle;accent-color:#00d4ff;margin-top:8px} .calc output{display:inline-block;width:44px;text-align:right;font-weight:800;color:var(--accent)}
+.res{margin-top:14px;padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(0,119,255,.08));border:1px solid rgba(0,212,255,.25)} .res b{display:block;font-size:24px;color:#7de9ff;font-variant-numeric:tabular-nums} .res small{color:var(--dim)}
+.cells{display:flex;gap:4px;margin-top:12px;height:46px;align-items:flex-end} .cells i{flex:1;height:100%;border-radius:6px 6px 3px 3px;background:linear-gradient(#3fb950,#00d4ff);animation:cellin .4s backwards cubic-bezier(.3,1.6,.5,1);position:relative} .cells i::before{content:"";position:absolute;top:-5px;left:30%;right:30%;height:5px;border-radius:2px 2px 0 0;background:#8b98a5}
+@keyframes cellin{from{transform:scaleY(0);transform-origin:bottom}}
+.meter{height:12px;border-radius:9px;background:var(--panel2);margin-top:14px;overflow:hidden} .meter i{display:block;height:100%;border-radius:9px;transition:width .6s cubic-bezier(.2,.8,.2,1),background .6s}
+.rb{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px} .rb button{padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:12.5px;cursor:pointer;transition:.25s} .rb button b{display:block;font-size:15px}
+.rb button.busy{background:rgba(248,81,73,.2);border-color:var(--bad)} .rb button.free{background:rgba(63,185,80,.2);border-color:var(--ok);box-shadow:0 0 14px rgba(63,185,80,.35)}
+/* значки */
+.bdg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:12px}
+.bd1{padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--panel2);text-align:center;transition:.3s} .bd1 .e{font-size:42px;display:block;filter:grayscale(1);opacity:.35;transition:.5s} .bd1 b{display:block;margin-top:6px} .bd1 small{color:var(--dim);font-size:12px}
+.bd1.got{border-color:rgba(210,153,34,.6);background:linear-gradient(160deg,rgba(210,153,34,.15),var(--panel2));box-shadow:0 10px 30px rgba(210,153,34,.15)} .bd1.got .e{filter:none;opacity:1;animation:flt 3s ease-in-out infinite}
+#pop{position:fixed;left:50%;top:22%;z-index:9999;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;padding:22px 30px;border-radius:20px;background:linear-gradient(135deg,#1c2330,#0d1117);border:1px solid rgba(210,153,34,.6);box-shadow:0 20px 70px rgba(0,0,0,.6),0 0 40px rgba(210,153,34,.3);text-align:center;transition:.5s cubic-bezier(.3,1.6,.5,1)}
+#pop.on{opacity:1;transform:translate(-50%,-50%) scale(1)} #pop .e{font-size:54px} #pop small{display:block;color:var(--warn);font-weight:800;letter-spacing:2px}
+@media (prefers-reduced-motion: reduce){.vtab,.ch,.ql .e,.ah-ph,.ah-scan::after,.qa button,.bd1.got .e{animation:none !important}}
 </style>
 </head>
 <body>
@@ -213,6 +317,58 @@
     <button class="btn primary" onclick="openModal()">📖 Справка</button>
   </div>
 </header>
+
+<nav class="vt" id="vt"><span class="vti" id="vti"></span>
+  <button data-t="club" class="on">🏁 Клуб</button><button data-t="learn">📚 Шпаргалки</button><button data-t="quiz">🧠 Тесты</button><button data-t="calc">🧮 Калькуляторы</button><button data-t="me">🎖 Мои значки</button>
+</nav>
+<section class="ahero" id="ahero" hidden>
+  <div class="ah-ph"><img src="drone.webp" alt=""></div><div class="ah-scan"></div>
+  <div class="ah-osd"><span id="osdV">16.8V</span><span>⏱ <b id="osdT">00:00</b></span><span>📶 <b id="osdL">99</b></span><span class="rec">● REC</span></div>
+  <div class="ah-tx"><small>АКАДЕМИЯ ПИЛОТА</small><h2 id="ahT">Шпаргалки</h2><p id="ahP">Всё главное о дронах - коротко и по делу.</p><div class="ah-xp"><span id="ahLvl">🐣 Курсант</span><div class="bar"><i id="ahBar"></i></div><b id="ahXp">0 XP</b></div></div>
+</section>
+
+<div class="vtab" id="t-learn" hidden>
+  <div class="srow"><input id="cq" placeholder="Поиск: аккумулятор, Acro, пропеллер…"><div class="chips" id="cchips"></div></div>
+  <div class="cgrid" id="cgrid"></div>
+  <div class="card trn">
+    <div class="trn-h"><div><h3>🕹 Тренажёр стиков</h3><p class="muted">Режим Angle, Mode 2. Двигай стики пальцами или клавишами: <b>W/S</b> газ, <b>A/D</b> поворот, <b>стрелки</b> наклоны. Собери 10 огней!</p></div><div class="trn-s"><span>Огни: <b id="tGot">0</b>/10</span><span>Время: <b id="tTime">0.0</b> с</span><span>Рекорд: <b id="tBest">-</b></span><button class="btn primary" id="tStart">▶ Старт</button></div></div>
+    <div class="trn-w"><canvas id="tcv"></canvas><div class="alt"><i id="tAlt"></i><span>высота</span></div>
+      <div class="stk l" data-s="l"><i></i><small>газ · поворот</small></div><div class="stk r" data-s="r"><i></i><small>тангаж · крен</small></div></div>
+  </div>
+</div>
+
+<div class="vtab" id="t-quiz" hidden>
+  <div class="qlv" id="qlv"></div>
+  <div class="card qbox" id="qbox" hidden></div>
+</div>
+
+<div class="vtab" id="t-calc" hidden>
+  <div class="calcs">
+    <div class="card calc" data-c="time"><h3>⏱ Время полёта</h3>
+      <label>Ёмкость, мАч<input type="number" id="c1a" value="1500" min="50"></label><label>Средний ток, А<input type="number" id="c1b" value="20" min="0.1" step="0.1"></label>
+      <div class="res"><b id="c1r"></b><small>с запасом: используем 80% ёмкости, чтобы не пересадить аккумулятор</small></div></div>
+    <div class="card calc" data-c="lipo"><h3>🔋 Напряжение пачки</h3>
+      <label>Число банок (S)<input type="range" id="c2a" min="1" max="6" value="4"><output id="c2o">4S</output></label><label>Ёмкость, мАч<input type="number" id="c2b" value="1500"></label>
+      <div class="cells" id="c2cells"></div><div class="res"><b id="c2r"></b><small id="c2s"></small></div></div>
+    <div class="card calc" data-c="twr"><h3>💪 Тяговооружённость</h3>
+      <label>Вес дрона со всем, г<input type="number" id="c3a" value="650"></label><label>Тяга одного мотора, г<input type="number" id="c3b" value="1300"></label><label>Моторов<input type="number" id="c3c" value="4" min="1"></label>
+      <div class="meter"><i id="c3m"></i></div><div class="res"><b id="c3r"></b><small id="c3s"></small></div></div>
+    <div class="card calc" data-c="charge"><h3>⚡ Ток зарядки</h3>
+      <label>Ёмкость, мАч<input type="number" id="c4a" value="1500"></label><label>Сила тока, C<input type="range" id="c4b" min="0.5" max="2" step="0.5" value="1"><output id="c4o">1C</output></label>
+      <div class="res"><b id="c4r"></b><small>1C - безопасный режим для большинства LiPo</small></div></div>
+    <div class="card calc" data-c="rpm"><h3>🌀 Обороты мотора</h3>
+      <label>KV мотора<input type="number" id="c5a" value="2000"></label><label>Аккумулятор (S)<input type="range" id="c5b" min="1" max="6" value="4"><output id="c5o">4S</output></label>
+      <div class="res"><b id="c5r"></b><small>без нагрузки, при полном заряде (4,2 В на банку)</small></div></div>
+    <div class="card calc" data-c="vtx"><h3>📡 Частоты Raceband</h3>
+      <p class="muted">Нажми на каналы, которые заняты, - подскажу свободные подальше от них.</p><div class="rb" id="rb"></div><div class="res"><b id="c6r">Выбери каналы соседей</b><small>чем дальше по частоте, тем меньше помех</small></div></div>
+  </div>
+</div>
+
+<div class="vtab" id="t-me" hidden>
+  <div class="card"><h3>🎖 Мои значки</h3><p class="muted">Прогресс хранится на этом устройстве.</p><div class="bdg" id="bdg"></div></div>
+</div>
+
+<div class="vtab" id="t-club">
 
 <div class="banner hidden coach-only" id="setup">
   <b>Таблица ещё не подключена</b> — показаны данные-образец.<br>
@@ -279,6 +435,7 @@
     <div class="chips" id="moreChips"></div>
     <p class="muted" id="moreHint">Выберите, что редактировать.</p>
   </details>
+</div>
 </div>
 <div id="toast"></div>
 <div class="modal" id="pmodal" onclick="if(event.target===this)closePilot()">
@@ -963,5 +1120,231 @@ setInterval(()=>{ if(sheetId() && !document.hidden && !document.querySelector('.
 </script>
 <a id="toSchool" href="../" title="На портал Спектра">&#8592; СПЕКТР</a>
 <style>#toSchool{position:fixed; left:14px; bottom:14px; z-index:9999; display:inline-flex; align-items:center; gap:6px; padding:10px 16px; border-radius:999px; font:700 14px system-ui,sans-serif; text-decoration:none; color:#fff; background:linear-gradient(135deg,#3b5bfd,#8b5cf6); box-shadow:0 8px 22px rgba(59,91,253,.4); transition:transform .2s}#toSchool:hover{transform:translateY(-2px)}@media print{#toSchool{display:none}}</style>
+<script>
+/* ===== Академия пилота: данные ===== */
+const CHEATS=[
+ {id:'modes',e:'🎛',t:'Режимы полёта',c:'База',h:`
+  <div class="kv"><b>Angle (Self-level)</b><span>Дрон сам держит горизонт. Отпустил стик - выровнялся. Режим для первых полётов.</span></div>
+  <div class="kv"><b>Horizon</b><span>Как Angle, но при полном отклонении стика делает переворот. Переходный режим.</span></div>
+  <div class="kv"><b>Acro (Rate)</b><span>Дрон держит тот угол, который ты задал, и сам не выравнивается. На нём летают фристайл и гонки.</span></div>
+  <div class="kv"><b>Air mode</b><span>Моторы сохраняют управляемость даже при нулевом газе - важно для трюков.</span></div>
+  <p class="tip">💡 Начинай с Angle в симуляторе, затем переходи на Acro.</p>`},
+ {id:'sticks',e:'🕹',t:'Стики (Mode 2)',c:'База',h:`
+  <div class="sticks"><div><b>Левый стик</b><span>↕ Газ (Throttle) - высота</span><span>↔ Рыскание (Yaw) - поворот на месте</span></div>
+  <div><b>Правый стик</b><span>↕ Тангаж (Pitch) - наклон вперёд/назад</span><span>↔ Крен (Roll) - наклон влево/вправо</span></div></div>
+  <p class="tip">💡 Попробуй это в "Тренажёре стиков" ниже - там всё видно сразу.</p>`},
+ {id:'check',e:'✅',t:'Чек-лист перед полётом',c:'Безопасность',h:`<ol class="cl">
+  <li>Аккумулятор заряжен, не вздут, разъём целый.</li><li>Пропеллеры целые, затянуты, стоят по направлению вращения.</li>
+  <li>Антенны видео и приёмника на месте и не повреждены.</li><li>Канал видео не совпадает с каналом соседа.</li>
+  <li>Failsafe проверен: при потере сигнала моторы отключаются.</li><li>Рядом нет людей, животных и проводов.</li>
+  <li>Арминг - только когда дрон на земле и ты готов к полёту.</li><li>Есть наблюдатель, который следит за дроном и обстановкой.</li></ol>`},
+ {id:'lipo',e:'🔋',t:'Аккумуляторы LiPo',c:'Техника',h:`
+  <div class="volt"><div><b>4,2 В</b><span>полный заряд банки</span></div><div><b>3,7 В</b><span>номинал банки</span></div><div><b>~3,8 В</b><span>хранение</span></div><div class="bad"><b>3,5 В</b><span>пора садиться</span></div></div>
+  <div class="kv"><b>S</b><span>число банок последовательно: 1S = 3,7 В, 4S = 14,8 В, 6S = 22,2 В (номинал).</span></div>
+  <div class="kv"><b>мАч</b><span>ёмкость: чем больше, тем дольше полёт, но тяжелее аккумулятор.</span></div>
+  <div class="kv"><b>C</b><span>токоотдача. Заряжать безопасно током 1C: 1500 мАч → 1,5 А.</span></div>
+  <p class="warn">⚠ Вздутый или пробитый аккумулятор не используем. Заряжаем только балансирным зарядным, на негорючей поверхности и под присмотром.</p>`},
+ {id:'props',e:'🌀',t:'Пропеллеры и моторы',c:'Техника',h:`
+  <div class="kv"><b>5x4.3x3</b><span>диаметр 5 дюймов × шаг 4,3 дюйма × 3 лопасти.</span></div>
+  <div class="kv"><b>CW / CCW</b><span>по часовой и против часовой. Перепутал - дрон перевернётся при взлёте.</span></div>
+  <div class="kv"><b>Props in / out</b><span>направление вращения пропеллеров внутрь или наружу - задаётся в настройках.</span></div>
+  <div class="kv"><b>KV мотора</b><span>обороты без нагрузки на 1 вольт. 2000 KV × 16,8 В ≈ 33 600 об/мин.</span></div>`},
+ {id:'video',e:'📡',t:'Видео и частоты',c:'Техника',h:`
+  <div class="kv"><b>5,8 ГГц</b><span>основной диапазон аналогового FPV-видео.</span></div>
+  <div class="kv"><b>Raceband</b><span>8 каналов для гонок: R1 5658, R2 5695, R3 5732, R4 5769, R5 5806, R6 5843, R7 5880, R8 5917 МГц.</span></div>
+  <div class="kv"><b>Цифровое видео</b><span>DJI, Walksnail, HDZero - чётче картинка, но дороже оборудование.</span></div>
+  <p class="tip">💡 Для 4 пилотов часто используют R1, R2, R7, R8 - каналы, которые меньше мешают друг другу.</p>`},
+ {id:'classes',e:'📏',t:'Классы дронов',c:'Техника',h:`
+  <div class="kv"><b>Tiny Whoop 65-75 мм</b><span>маленькие дроны с защитой пропеллеров, для зала и первых полётов.</span></div>
+  <div class="kv"><b>2,5-3"</b><span>синевупы (с защитой, для съёмки) и лёгкие "зубочистки" для быстрых полётов.</span></div>
+  <div class="kv"><b>5"</b><span>классический класс для фристайла и гонок на улице.</span></div>
+  <div class="kv"><b>7" и больше</b><span>дальние полёты, длинное время в воздухе.</span></div>`},
+ {id:'tricks',e:'🌪',t:'Трюки фристайла',c:'Полёт',h:`
+  <div class="trk"><b>Flip</b><span>переворот через тангаж</span><i>★</i></div>
+  <div class="trk"><b>Roll</b><span>бочка через крен</span><i>★</i></div>
+  <div class="trk"><b>Yaw spin</b><span>вращение вокруг своей оси</span><i>★★</i></div>
+  <div class="trk"><b>Power loop</b><span>петля над препятствием с газом</span><i>★★</i></div>
+  <div class="trk"><b>Split-S</b><span>полубочка, затем полупетля вниз с разворотом</span><i>★★★</i></div>
+  <div class="trk"><b>Dive</b><span>пикирование вдоль здания или дерева</span><i>★★★</i></div>
+  <p class="tip">💡 Каждый трюк сначала отрабатываем в симуляторе.</p>`},
+ {id:'rules',e:'🛡',t:'Правила безопасности',c:'Безопасность',h:`<ol class="cl">
+  <li>Не летаем над людьми, дорогами и чужими домами.</li><li>Не летаем рядом с аэропортами, ЛЭП и в местах, где полёты запрещены.</li>
+  <li>Держим дистанцию до зрителей, особенно при взлёте и посадке.</li><li>При потере видео - сразу дизарм или посадка.</li>
+  <li>После аварии сначала дизарм, потом подходим к дрону.</li><li>Перед полётами на улице уточняем у тренера, где и когда можно летать: правила в регионах меняются.</li></ol>`},
+ {id:'dict',e:'📖',t:'Словарь пилота',c:'База',h:`<div class="dict">
+  <p><b>Арминг</b> - разблокировка моторов.</p><p><b>Дизарм</b> - отключение моторов.</p><p><b>Failsafe</b> - реакция на потерю сигнала пульта.</p>
+  <p><b>FC</b> - полётный контроллер, "мозг" дрона.</p><p><b>ESC</b> - регулятор оборотов моторов.</p><p><b>VTX</b> - видеопередатчик.</p>
+  <p><b>OSD</b> - данные поверх видео: напряжение, таймер.</p><p><b>PID</b> - алгоритм стабилизации дрона.</p><p><b>Betaflight</b> - популярная прошивка для FPV.</p>
+  <p><b>ELRS</b> - ExpressLRS, система радиоуправления.</p><p><b>Propwash</b> - тряска в собственном потоке воздуха.</p><p><b>Гейт</b> - ворота на гоночной трассе.</p></div>`}
+];
+const QUIZ={
+ novice:{n:'Новичок',e:'🐣',c:'#3fb950',q:[
+  ['Что означает FPV?',['Вид от первого лица','Быстрый полёт','Свободный режим полёта','Видеозапись полёта'],0],
+  ['В режиме Mode 2 левый стик управляет…',['газом и поворотом (рысканием)','креном и тангажом','только газом','камерой'],0],
+  ['Какой режим полёта сам выравнивает дрон по горизонту?',['Acro','Angle','Air mode','Turtle'],1],
+  ['Что такое арминг?',['Разблокировка моторов перед полётом','Зарядка аккумулятора','Настройка камеры','Посадка'],0],
+  ['Сколько вольт на банке полностью заряженного LiPo?',['3,0 В','3,7 В','4,2 В','5,0 В'],2],
+  ['Что делать со вздувшимся аккумулятором?',['Летать аккуратно','Разрядить и снова зарядить','Не использовать и сдать на утилизацию','Проколоть, чтобы выпустить воздух'],2],
+  ['Как называется наклон дрона вперёд-назад?',['Крен','Тангаж','Рыскание','Газ'],1],
+  ['Можно ли летать над людьми?',['Да, если низко','Да, если быстро','Нет','Только на соревнованиях'],2],
+  ['Что такое failsafe?',['Режим трюков','Реакция дрона на потерю сигнала пульта','Защита пропеллеров','Таймер полёта'],1],
+  ['Кто должен находиться рядом с пилотом во время полёта?',['Никто','Наблюдатель','Оператор камеры','Судья'],1]]},
+ pilot:{n:'Пилот',e:'🚁',c:'#00d4ff',q:[
+  ['Что значит 4S на аккумуляторе?',['4 банки последовательно, около 14,8 В','4000 мАч','4 часа работы','4 разъёма'],0],
+  ['Напряжение хранения банки LiPo примерно…',['3,0 В','3,8 В','4,2 В','4,5 В'],1],
+  ['Пропеллер 5x4.3x3. Что означает последняя цифра?',['Шаг','Диаметр','Количество лопастей','Вес'],2],
+  ['KV мотора показывает…',['мощность в ваттах','обороты без нагрузки на 1 вольт','вес мотора','ток мотора'],1],
+  ['Чем отличается режим Acro?',['Дрон сам выравнивается','Дрон держит заданный угол и не выравнивается сам','Дрон летит по GPS','Моторы выключены'],1],
+  ['Обычная частота аналогового FPV-видео…',['2,4 ГГц','900 МГц','5,8 ГГц','433 МГц'],2],
+  ['Безопасный ток зарядки 1C для аккумулятора 1500 мАч…',['15 А','1,5 А','0,15 А','150 А'],1],
+  ['Что такое OSD?',['Данные поверх видео: напряжение, таймер','Тип мотора','Прошивка пульта','Тип рамы'],0],
+  ['Зачем нужен балансировочный разъём?',['Чтобы выравнивать напряжение банок при зарядке','Для подключения камеры','Для крепления','Для видеопередатчика'],0],
+  ['Что будет, если поставить пропеллеры не того направления?',['Дрон полетит быстрее','Ничего','Дрон перевернётся при попытке взлёта','Сядет аккумулятор'],2]]},
+ ace:{n:'Ас',e:'🏆',c:'#d29922',q:[
+  ['Что такое PID в полётном контроллере?',['Алгоритм стабилизации дрона','Тип антенны','Номер пилота','Вид пропеллера'],0],
+  ['Трюк "полубочка, затем полупетля вниз с разворотом" называется…',['Power loop','Split-S','Yaw spin','Flip'],1],
+  ['Propwash - это…',['тряска дрона в собственном потоке воздуха','износ пропеллеров','поломка мотора','помехи видео'],0],
+  ['Air mode нужен, чтобы…',['дрон держал управляемость при нулевом газе','дрон летал без пульта','экономить заряд','включать камеру'],0],
+  ['Тяговооружённость 4:1 означает…',['тяга моторов в 4 раза больше веса дрона','4 мотора','4 минуты полёта','вес в 4 раза больше тяги'],0],
+  ['Частота канала R1 в Raceband…',['5658 МГц','5800 МГц','5917 МГц','2400 МГц'],0],
+  ['Какие каналы часто советуют для 4 пилотов?',['R1, R2, R7, R8','R1, R1, R2, R2','R4, R5, R6, R7','Любые соседние'],0],
+  ['ESC - это…',['регулятор оборотов мотора','полётный контроллер','видеопередатчик','приёмник'],0],
+  ['ELRS (ExpressLRS) - это…',['система радиоуправления','прошивка камеры','тип аккумулятора','трюк'],0],
+  ['Что делаем сразу после аварии?',['Дизарм, потом подходим к дрону','Пробуем взлететь снова','Выключаем очки','Ничего'],0]]}
+};
+const BADGES=[
+ ['novice','🐣','Первый взлёт','Сдать тест "Новичок" на 8+'],
+ ['pilot','🚁','Пилот','Сдать тест "Пилот" на 8+'],
+ ['ace','🏆','Ас теории','Сдать тест "Ас" на 8+'],
+ ['perfect','💎','Без ошибок','Любой тест на 10 из 10'],
+ ['reader','📚','Знаток','Открыть 6 шпаргалок'],
+ ['trainer','🕹','Ловкие пальцы','Собрать 10 огней в тренажёре'],
+ ['speed','⚡','Молния','Собрать 10 огней быстрее 30 секунд'],
+ ['calc','🧮','Инженер','Воспользоваться 3 калькуляторами']];
+
+
+/* ===== Академия пилота: логика ===== */
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const RED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const KEY='vzlet_academy';
+let A={best:{},read:[],tr:{best:null,n10:false},calc:[],badges:[]};
+try{A=Object.assign(A,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(A))}catch(e){}};
+const LV=[[0,'🐣 Курсант'],[100,'🛫 Стажёр'],[200,'🚁 Пилот'],[300,'🎯 Пилот-инструктор'],[400,'🏆 Ас']];
+function xp(){let x=0;Object.values(A.best).forEach(v=>x+=v*10);x+=Math.min(A.read.length,10)*5;if(A.tr.best)x+=30;if(A.tr.n10)x+=20;x+=A.calc.length*10;return x}
+function lvl(x){let i=0;LV.forEach((l,k)=>{if(x>=l[0])i=k});return i}
+function renderXP(){const x=xp(),i=lvl(x),a=LV[i][0],b=LV[i+1]?LV[i+1][0]:a+100;$('#ahLvl').textContent=LV[i][1];$('#ahXp').textContent=x+' XP';$('#ahBar').style.width=Math.min(100,(x-a)/(b-a)*100)+'%'}
+/* ---------- значки ---------- */
+function pop(e,t){let p=$('#pop');if(!p){p=document.createElement('div');p.id='pop';document.body.appendChild(p)}p.innerHTML=`<small>НОВЫЙ ЗНАЧОК</small><div class="e">${e}</div><b>${t}</b>`;p.classList.add('on');confetti();clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('on'),2600)}
+function award(id){if(A.badges.includes(id))return;A.badges.push(id);save();const b=BADGES.find(x=>x[0]===id);if(b)pop(b[1],b[2]);renderBadges();renderXP()}
+function checkBadges(){['novice','pilot','ace'].forEach(k=>{if((A.best[k]||0)>=8)award(k)});if(Object.values(A.best).some(v=>v===10))award('perfect');if(A.read.length>=6)award('reader');if(A.tr.n10)award('trainer');if(A.tr.best&&A.tr.best<30)award('speed');if(A.calc.length>=3)award('calc')}
+function renderBadges(){$('#bdg').innerHTML=BADGES.map(b=>`<div class="bd1 ${A.badges.includes(b[0])?'got':''}"><span class="e">${b[1]}</span><b>${b[2]}</b><small>${b[3]}</small></div>`).join('')}
+function confetti(){if(RED)return;const C=['#00d4ff','#3fb950','#d29922','#f85149','#a371f7','#fff'];for(let i=0;i<70;i++){const d=document.createElement('i'),x=innerWidth/2,y=innerHeight*.25,a=Math.random()*6.28,v=120+Math.random()*320;d.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:${6+Math.random()*6}px;height:${4+Math.random()*5}px;background:${C[i%6]};z-index:10000;pointer-events:none;border-radius:2px`;document.body.appendChild(d);d.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*v}px,${Math.sin(a)*v+260}px) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:1300+Math.random()*700,easing:'cubic-bezier(.2,.7,.4,1)'}).onfinish=()=>d.remove()}}
+/* ---------- вкладки ---------- */
+const HERO={learn:['Шпаргалки','Всё главное о дронах - коротко и по делу.'],quiz:['Тесты','Три уровня: от новичка до аса. Проверь себя!'],calc:['Калькуляторы','Время полёта, аккумуляторы, тяга, частоты.'],me:['Мои значки','Собери все значки и стань асом теории.']};
+let TAB='club';
+function moveVti(){const b=$('#vt button.on'),i=$('#vti');if(!b)return;i.style.left=b.offsetLeft+'px';i.style.width=b.offsetWidth+'px';const n=$('#vt');if(n.scrollWidth>n.clientWidth)n.scrollTo({left:b.offsetLeft-(n.clientWidth-b.offsetWidth)/2,behavior:'smooth'})}
+function show(t,push){TAB=t;$$('#vt button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));moveVti();
+  $$('.vtab').forEach(v=>v.hidden=v.id!=='t-'+t);const h=$('#ahero');h.hidden=t==='club';
+  if(t!=='club'){$('#ahT').textContent=HERO[t][0];$('#ahP').textContent=HERO[t][1];h.style.animation='none';h.offsetWidth;h.style.animation='vtin .5s cubic-bezier(.2,.8,.2,1)';renderXP()}
+  if(t==='learn')trSize();if(t==='me')renderBadges();
+  if(push)try{history.replaceState(null,'',t==='club'?location.pathname:'#'+t)}catch(e){}
+  if(push)window.scrollTo({top:0,behavior:'smooth'})}
+$$('#vt button').forEach(b=>b.onclick=()=>show(b.dataset.t,true));addEventListener('resize',moveVti);
+/* OSD */
+const t0=Date.now();setInterval(()=>{if(TAB==='club')return;const s=(Date.now()-t0)/1000;$('#osdT').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');$('#osdV').textContent=(16.8-((s/6)%20)*.1).toFixed(1)+'V';$('#osdL').textContent=95+Math.floor(Math.random()*5)},1000);
+/* ---------- шпаргалки ---------- */
+let cat='Все',cq='';
+function renderCheats(){const cats=['Все',...new Set(CHEATS.map(c=>c.c))];
+  $('#cchips').innerHTML=cats.map(c=>`<button class="chip ${c===cat?'on':''}" data-c="${c}">${c}</button>`).join('');
+  $$('#cchips .chip').forEach(b=>b.onclick=()=>{cat=b.dataset.c;renderCheats()});
+  const L=CHEATS.filter(c=>(cat==='Все'||c.c===cat)&&(!cq||(c.t+' '+c.h.replace(/<[^>]+>/g,' ')).toLowerCase().includes(cq)));
+  $('#cgrid').innerHTML=L.map((c,i)=>`<div class="ch" data-id="${c.id}" style="animation-delay:${i*50}ms"><button><span class="ic">${c.e}</span><span class="tt"><b>${c.t}</b><small>${c.c}${A.read.includes(c.id)?' · ✓ прочитано':''}</small></span><span class="ar">▾</span></button><div class="bd"><div><div>${c.h}</div></div></div></div>`).join('')||'<p class="muted">Ничего не нашлось.</p>';
+  $$('.ch>button').forEach(b=>b.onclick=()=>{const ch=b.parentElement,id=ch.dataset.id;ch.classList.toggle('open');if(ch.classList.contains('open')&&!A.read.includes(id)){A.read.push(id);save();renderXP();checkBadges();b.querySelector('small').textContent+=' · ✓ прочитано'}})}
+$('#cq').oninput=e=>{cq=e.target.value.trim().toLowerCase();renderCheats()};
+/* ---------- тренажёр стиков ---------- */
+const cv=$('#tcv'),cx=cv.getContext('2d');let W=0,H=0,dpr=Math.min(devicePixelRatio||1,2);
+const D={x:.5,y:.6,vx:0,vy:0,h:0,z:0,trail:[]};const IN={t:0,yw:0,p:0,r:0},KB={};
+let game={on:false,got:0,t:0,tg:null,start:0},raf=0,last=0;
+function trSize(){const r=cv.getBoundingClientRect();if(!r.width)return;W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);if(!raf)loop(performance.now())}
+addEventListener('resize',()=>{if(TAB==='learn')trSize()});
+function newTarget(){game.tg={x:.12+Math.random()*.7,y:.12+Math.random()*.6,ph:0}}
+function stickBind(el,side){const k=el.querySelector('i');let id=null;
+  const set=(e)=>{const r=el.getBoundingClientRect(),cxp=r.left+r.width/2,cyp=r.top+r.height/2,R=r.width/2-12;let dx=(e.clientX-cxp)/R,dy=(e.clientY-cyp)/R;const m=Math.hypot(dx,dy);if(m>1){dx/=m;dy/=m}
+    k.style.transform=`translate(${dx*R}px,${dy*R}px)`;if(side==='l'){IN.t=-dy;IN.yw=dx}else{IN.p=-dy;IN.r=dx}};
+  el.addEventListener('pointerdown',e=>{id=e.pointerId;el.setPointerCapture(id);set(e);e.preventDefault()});
+  el.addEventListener('pointermove',e=>{if(e.pointerId===id)set(e)});
+  const up=e=>{if(e.pointerId!==id)return;id=null;k.style.transform='';if(side==='l'){IN.t=0;IN.yw=0}else{IN.p=0;IN.r=0}};
+  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)}
+stickBind($('.stk.l'),'l');stickBind($('.stk.r'),'r');
+addEventListener('keydown',e=>{if(TAB!=='learn'||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;KB[e.key.toLowerCase()]=1;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});
+addEventListener('keyup',e=>{KB[e.key.toLowerCase()]=0});
+$('#tStart').onclick=()=>{Object.assign(D,{x:.5,y:.6,vx:0,vy:0,h:0,z:0,trail:[]});game={on:true,got:0,t:0,start:performance.now()};newTarget();$('#tGot').textContent='0';$('#tStart').textContent='↻ Заново'};
+$('#tBest').textContent=A.tr.best?A.tr.best.toFixed(1)+' с':'-';
+function step(dt){
+  const kt=(KB['w']?1:0)-(KB['s']?1:0)||(KB['ц']?1:0)-(KB['ы']?1:0),ky=(KB['d']?1:0)-(KB['a']?1:0)||(KB['в']?1:0)-(KB['ф']?1:0),kp=(KB['arrowup']?1:0)-(KB['arrowdown']?1:0),kr=(KB['arrowright']?1:0)-(KB['arrowleft']?1:0);
+  const T=IN.t||kt,Y=IN.yw||ky,P=IN.p||kp,R=IN.r||kr;
+  D.z=Math.max(0,Math.min(1,D.z+T*dt*.6));D.h+=Y*dt*2.6;
+  const air=D.z>.05,fx=Math.sin(D.h),fy=-Math.cos(D.h),rx=Math.cos(D.h),ry=Math.sin(D.h);
+  if(air){D.vx+=(fx*P+rx*R)*dt*.9;D.vy+=(fy*P+ry*R)*dt*.9}
+  const damp=Math.pow(air?.35:.02,dt);D.vx*=damp;D.vy*=damp;D.x+=D.vx*dt;D.y+=D.vy*dt*(W/H||1);
+  if(D.x<.03||D.x>.93){D.vx*=-.5;D.x=Math.max(.03,Math.min(.93,D.x))} if(D.y<.05||D.y>.95){D.vy*=-.5;D.y=Math.max(.05,Math.min(.95,D.y))}
+  if(air&&Math.hypot(D.vx,D.vy)>.01){D.trail.push([D.x,D.y]);if(D.trail.length>40)D.trail.shift()}else if(D.trail.length)D.trail.shift();
+  $('#tAlt').style.height=(D.z*100)+'%';
+  if(game.on){game.t=(performance.now()-game.start)/1000;$('#tTime').textContent=game.t.toFixed(1);const tg=game.tg;tg.ph+=dt;
+    if(Math.hypot((tg.x-D.x)*W,(tg.y-D.y)*H)<34&&D.z>.15){game.got++;$('#tGot').textContent=game.got;burst(tg.x*W,tg.y*H);
+      if(game.got>=10){game.on=false;const t=game.t;if(!A.tr.best||t<A.tr.best)A.tr.best=t;A.tr.n10=true;save();$('#tBest').textContent=A.tr.best.toFixed(1)+' с';confetti();checkBadges();renderXP()}else newTarget()}}
+}
+const P=[];function burst(x,y){for(let i=0;i<18;i++){const a=Math.random()*6.28,v=60+Math.random()*120;P.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1})}}
+function draw(t){cx.clearRect(0,0,W,H);cx.strokeStyle='rgba(0,212,255,.07)';cx.lineWidth=1;for(let x=0;x<W;x+=40){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke()}for(let y=0;y<H;y+=40){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke()}
+  if(game.on&&game.tg){const g=game.tg,X=g.x*W,Y=g.y*H,pr=1+Math.sin(g.ph*4)*.12;cx.strokeStyle='#d29922';cx.lineWidth=4;cx.globalAlpha=.9;cx.beginPath();cx.arc(X,Y,22*pr,0,6.28);cx.stroke();cx.globalAlpha=.25;cx.fillStyle='#d29922';cx.beginPath();cx.arc(X,Y,30*pr,0,6.28);cx.fill();cx.globalAlpha=1;cx.fillStyle='#ffe28a';cx.beginPath();cx.arc(X,Y,6,0,6.28);cx.fill();
+    const dx=X-D.x*W,dy=Y-D.y*H,dd=Math.hypot(dx,dy);if(dd>80){const a=Math.atan2(dy,dx),ax=D.x*W+Math.cos(a)*56,ay=D.y*H+Math.sin(a)*56;cx.fillStyle='rgba(210,153,34,.8)';cx.save();cx.translate(ax,ay);cx.rotate(a);cx.beginPath();cx.moveTo(10,0);cx.lineTo(-6,-7);cx.lineTo(-6,7);cx.fill();cx.restore()}}
+  cx.strokeStyle='rgba(0,212,255,.35)';cx.lineWidth=3;cx.lineCap='round';cx.beginPath();D.trail.forEach(([x,y],i)=>{i?cx.lineTo(x*W,y*H):cx.moveTo(x*W,y*H)});cx.stroke();
+  const X=D.x*W,Y=D.y*H,s=1+D.z*.6;cx.fillStyle='rgba(0,0,0,.45)';cx.beginPath();cx.ellipse(X+D.z*26,Y+D.z*34,26*s*.8,22*s*.8,0,0,6.28);cx.fill();
+  cx.save();cx.translate(X,Y);cx.rotate(D.h);cx.scale(s,s);cx.strokeStyle='#c9d1d9';cx.lineWidth=5;cx.beginPath();cx.moveTo(-16,-16);cx.lineTo(16,16);cx.moveTo(16,-16);cx.lineTo(-16,16);cx.stroke();
+  [[-16,-16],[16,-16],[16,16],[-16,16]].forEach(([px,py],i)=>{cx.fillStyle=i<2?'rgba(0,212,255,.35)':'rgba(248,81,73,.35)';cx.beginPath();cx.arc(px,py,11,0,6.28);cx.fill();if(D.z>.02){cx.strokeStyle=i<2?'#7de9ff':'#ff9a93';cx.lineWidth=2;const a=t*.05*(i%2?1:-1);cx.beginPath();cx.moveTo(px+Math.cos(a)*11,py+Math.sin(a)*11);cx.lineTo(px-Math.cos(a)*11,py-Math.sin(a)*11);cx.stroke()}});
+  cx.fillStyle='#0d1117';cx.strokeStyle='#00d4ff';cx.lineWidth=2;cx.beginPath();cx.roundRect?cx.roundRect(-8,-11,16,22,5):cx.rect(-8,-11,16,22);cx.fill();cx.stroke();cx.fillStyle='#3fb950';cx.beginPath();cx.arc(0,-8,2.5,0,6.28);cx.fill();cx.restore();
+  for(let i=P.length-1;i>=0;i--){const p=P[i];p.x+=p.vx/60;p.y+=p.vy/60;p.l-=.03;if(p.l<=0){P.splice(i,1);continue}cx.globalAlpha=p.l;cx.fillStyle='#ffd166';cx.fillRect(p.x,p.y,4,4)}cx.globalAlpha=1;
+  if(!game.on&&!game.got){cx.fillStyle='rgba(230,237,243,.8)';cx.font='600 15px Segoe UI,system-ui';cx.textAlign='center';cx.fillText('Нажми "Старт", подними дрон газом и лети к огням',W/2,40)}}
+function loop(ts){raf=requestAnimationFrame(loop);if(TAB!=='learn'||document.hidden){last=ts;return}const dt=Math.min(.05,(ts-last)/1000||0);last=ts;step(dt);draw(ts)}
+/* ---------- тесты ---------- */
+function renderLevels(){$('#qlv').innerHTML=Object.entries(QUIZ).map(([k,q])=>{const b=A.best[k];return `<button class="ql" data-k="${k}" style="--lc:${q.c}"><span class="e">${q.e}</span><b>${q.n}</b><small>${q.q.length} вопросов${b!=null?` · лучший результат ${b}/10`:''}</small><div class="st">${stars(b)}</div></button>`}).join('');$$('.ql').forEach(b=>b.onclick=()=>startQuiz(b.dataset.k))}
+const stars=b=>{const n=b==null?0:b>=10?3:b>=8?2:b>=5?1:0;return '★'.repeat(n)+'<span style="opacity:.25">'+'★'.repeat(3-n)+'</span>'};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let Q=null;
+function startQuiz(k){const L=QUIZ[k];Q={k,i:0,ok:0,list:shuf(L.q).map(([q,ans,c])=>{const o=shuf(ans.map((a,i)=>({a,ok:i===c})));return{q,o}})};$('#qbox').hidden=false;$('#qbox').style.setProperty('--lc',L.c);$('#qlv').hidden=true;renderQ();$('#qbox').scrollIntoView({behavior:'smooth',block:'start'})}
+function renderQ(){const L=QUIZ[Q.k],it=Q.list[Q.i];$('#qbox').innerHTML=`<div class="qtop"><span>${L.e} ${L.n} · вопрос ${Q.i+1} из ${Q.list.length}</span><span>✔ ${Q.ok}</span></div><div class="qprog"><i style="width:${Q.i/Q.list.length*100}%"></i></div><div class="qq">${it.q}</div><div class="qa">${it.o.map((o,i)=>`<button data-i="${i}"><i>${'АБВГ'[i]}</i>${o.a}</button>`).join('')}</div>`;
+  $$('.qa button').forEach(b=>b.onclick=()=>{const o=it.o[+b.dataset.i];$$('.qa button').forEach(x=>{x.disabled=true;if(it.o[+x.dataset.i].ok)x.classList.add('ok')});if(o.ok)Q.ok++;else b.classList.add('no');setTimeout(()=>{Q.i++;Q.i<Q.list.length?renderQ():endQuiz()},o.ok?800:1500)})}
+function endQuiz(){const L=QUIZ[Q.k],s=Q.ok,prev=A.best[Q.k];if(prev==null||s>prev)A.best[Q.k]=s;save();
+  const msg=s===10?'Идеально! Ты настоящий ас.':s>=8?'Отлично! Уровень пройден.':s>=5?'Неплохо! Загляни в шпаргалки и попробуй ещё.':'Есть над чем поработать. Шпаргалки помогут!';
+  $('#qbox').innerHTML=`<div class="qend"><div class="stars">${stars(s).replace(/★/g,'<span>★</span>')}</div><div class="big">${s}/10</div><p>${msg}</p><div style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="btn primary" id="qAgain">↻ Ещё раз</button><button class="btn" id="qBack">← Все уровни</button>${s<8?'<button class="btn" id="qLearn">📚 Шпаргалки</button>':''}</div></div>`;
+  if(s>=8)confetti();$('#qAgain').onclick=()=>startQuiz(Q.k);$('#qBack').onclick=()=>{$('#qbox').hidden=true;$('#qlv').hidden=false;renderLevels()};if($('#qLearn'))$('#qLearn').onclick=()=>show('learn',true);checkBadges();renderXP()}
+/* ---------- калькуляторы ---------- */
+const v=id=>parseFloat($('#'+id).value)||0, nf=(n,d=1)=>n.toLocaleString('ru-RU',{maximumFractionDigits:d});
+const RB=[5658,5695,5732,5769,5806,5843,5880,5917];let busy=new Set();
+function calc(){
+  {const m=v('c1a')/1000*.8/(v('c1b')||1)*60,mm=Math.floor(m),ss=Math.round((m-mm)*60);$('#c1r').textContent=isFinite(m)?`${mm} мин ${ss} с`:'-'}
+  {const S=v('c2a');$('#c2o').textContent=S+'S';$('#c2r').textContent=`${nf(S*3.7)} В номинал · ${nf(S*4.2)} В полный`;$('#c2s').textContent=`хранение ≈ ${nf(S*3.8)} В · садиться при ≈ ${nf(S*3.5)} В · энергия ${nf(S*3.7*v('c2b')/1000)} Вт·ч`;
+    const c=$('#c2cells');if(c.children.length!==S)c.innerHTML=Array.from({length:S},(_, i)=>`<i style="animation-delay:${i*60}ms"></i>`).join('')}
+  {const r=v('c3b')*v('c3c')/(v('c3a')||1);$('#c3r').textContent=isFinite(r)?nf(r)+' : 1':'-';const m=$('#c3m');m.style.width=Math.min(100,r/12*100)+'%';
+    const [col,t]=r<2?['#f85149','мало: дрон будет вялым и опасным']:r<4?['#d29922','для спокойных полётов и съёмки']:r<8?['#3fb950','отлично для фристайла']:['#00d4ff','очень мощно - гоночный уровень'];m.style.background=col;$('#c3s').textContent=t}
+  {const C=v('c4b');$('#c4o').textContent=nf(C)+'C';$('#c4r').textContent=nf(v('c4a')/1000*C,2)+' А'}
+  {const S=v('c5b');$('#c5o').textContent=S+'S';$('#c5r').textContent=nf(v('c5a')*S*4.2,0)+' об/мин'}
+  {$('#rb').innerHTML=RB.map((f,i)=>{let cls=busy.has(i)?'busy':'';return `<button data-i="${i}" class="${cls}"><b>R${i+1}</b>${f}</button>`}).join('');
+    if(busy.size){const free=RB.map((f,i)=>({i,d:busy.has(i)?-1:Math.min(...[...busy].map(j=>Math.abs(f-RB[j])))})).filter(x=>x.d>=0).sort((a,b)=>b.d-a.d);
+      const top=free.filter(x=>x.d===free[0]?.d||x.d>=37*3).slice(0,2);top.forEach(x=>$(`#rb [data-i="${x.i}"]`).classList.add('free'));$('#c6r').textContent=top.length?'Советую: '+top.map(x=>'R'+(x.i+1)).join(' или '):'Свободных каналов нет'}
+    else $('#c6r').textContent='Выбери каналы соседей';
+    $$('#rb button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;busy.has(i)?busy.delete(i):busy.add(i);used('vtx');calc()})}
+}
+function used(c){if(!A.calc.includes(c)){A.calc.push(c);save();checkBadges();renderXP()}}
+$$('.calc').forEach(el=>el.addEventListener('input',()=>{used(el.dataset.c);calc()}));
+/* ---------- старт ---------- */
+renderCheats();renderLevels();renderBadges();calc();renderXP();
+const h=location.hash.slice(1);if(HERO[h])show(h,false);else show('club',false);
+setTimeout(moveVti,300);document.fonts&&document.fonts.ready.then(moveVti);
+})();
+
+</script>
 </body>
 </html>
