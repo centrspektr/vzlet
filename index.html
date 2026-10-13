@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Взлёт — дашборд клуба</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2330;
+    --line:#2a3441; --text:#e6edf3; --dim:#8b98a5;
+    --accent:#00d4ff; --ok:#3fb950; --warn:#d29922; --bad:#f85149;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; padding:20px; line-height:1.5;}
+  @media(max-width:600px){ body{padding:12px 16px;} }
+  header{display:flex; justify-content:space-between; align-items:center; padding:16px 20px; background:var(--panel);
+    border:1px solid var(--line); border-radius:14px; margin-bottom:16px; flex-wrap:wrap; gap:12px;}
+  .logo{display:flex; align-items:center; gap:12px;}
+  .logo-badge{width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,var(--accent),#0077ff);
+    display:grid; place-items:center; font-weight:800; font-size:18px; color:#04121b;}
+  .logo h1{font-size:20px;} .grant-note{font-size:14px; font-weight:500; color:var(--accent); white-space:nowrap;}
+  .logo p{color:var(--dim); font-size:13px;}
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .btn{cursor:pointer; font:inherit; font-size:13px; padding:8px 14px; background:var(--panel2); color:var(--text);
+    border:1px solid var(--line); border-radius:8px; transition:.15s; text-decoration:none;}
+  .btn:hover{border-color:var(--accent); color:var(--accent);}
+  .btn.primary{background:linear-gradient(135deg,#00d4ff,#0077ff); color:#04121b; border-color:transparent; font-weight:600;}
+  .btn.primary:hover{color:#04121b; opacity:.9;}
+  .status{font-size:12px; color:var(--dim); display:flex; align-items:center; gap:6px;}
+  .status i{width:8px; height:8px; border-radius:50%; background:var(--dim); display:inline-block;}
+  .status.ok i{background:var(--ok);} .status.warn i{background:var(--warn);} .status.load i{background:var(--accent);}
+
+  .banner{background:#2b2210; border:1px solid #5a4516; color:#f0d58a; border-radius:12px; padding:12px 16px; margin-bottom:16px; font-size:13px;}
+  .banner b{color:#ffe7a6;}
+  .banner input{width:100%; margin-top:8px; padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font:inherit;}
+  .banner .row{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;}
+  .banner .row input{flex:1; min-width:200px; margin:0;}
+  .hidden{display:none !important;}
+
+  .grid{display:grid; gap:16px; grid-template-columns:repeat(12,1fr);}
+  .col-12{grid-column:span 12;} .col-3{grid-column:span 3;} .col-4{grid-column:span 4;} .col-6{grid-column:span 6;} .col-8{grid-column:span 8;}
+  @media(max-width:980px){ .col-3{grid-column:span 6;} .col-4,.col-6,.col-8{grid-column:span 12;} }
+  @media(max-width:520px){ .col-3{grid-column:span 12;} }
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px; min-width:0;}
+  details.card > summary{list-style:none; cursor:pointer; font-size:14px; text-transform:uppercase; letter-spacing:.5px; color:var(--dim);
+    display:flex; justify-content:space-between; align-items:center; user-select:none;}
+  details.card > summary::-webkit-details-marker{display:none;}
+  details.card > summary::after{content:'▾'; transition:transform .2s;}
+  details.card[open] > summary::after{transform:rotate(180deg);}
+  details.card[open] > summary{margin-bottom:14px;}
+  .counter{color:var(--accent); font-weight:600; margin-left:8px; margin-right:auto;}
+  .empty{color:var(--dim); font-size:13px; padding:6px 0;}
+
+  .kpi{display:flex; flex-direction:column; gap:4px;}
+  .kpi .num{font-size:32px; font-weight:700; color:var(--accent);}
+  .kpi .label{color:var(--dim); font-size:13px;}
+  .kpi small{color:var(--dim); font-size:12px;}
+
+  .event{display:flex; gap:12px; padding:10px 0; border-bottom:1px dashed var(--line);}
+  .event:last-child{border-bottom:none;}
+  .date-box{min-width:54px; text-align:center; background:var(--panel2); border-radius:8px; padding:6px 4px; border:1px solid var(--line);}
+  .date-box .d{font-size:18px; font-weight:700; display:block;}
+  .date-box .m{font-size:11px; color:var(--dim); text-transform:uppercase;}
+  .event-info{flex:1; min-width:0;}
+  .event-info b{display:block; font-size:14px;}
+  .event-info .place{font-size:12px; color:var(--dim); display:block;}
+  .tags{margin-top:4px;}
+  .tag{display:inline-block; font-size:11px; padding:2px 8px; border-radius:6px; margin-right:6px;}
+  .tag.sim{background:#0b2f3d; color:#6cd4ff;} .tag.real{background:#3d1d0b; color:#ffab6c;} .tag.neutral{background:var(--panel2); color:var(--dim);}
+  .tag.soon{background:#12351c; color:#7ee39a;}
+
+  .task{display:flex; align-items:flex-start; gap:10px; padding:6px 0; font-size:14px;}
+  .task .box{width:16px; height:16px; border-radius:4px; border:1.5px solid var(--dim); flex-shrink:0; margin-top:3px; display:grid; place-items:center; font-size:11px;}
+  .task.done .box{background:var(--accent); border-color:var(--accent); color:#04121b;}
+  .task.done .txt{color:var(--dim); text-decoration:line-through;}
+  .progress{height:6px; background:var(--panel2); border-radius:3px; overflow:hidden; margin-bottom:10px;}
+  .progress i{display:block; height:100%; background:var(--ok);}
+
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th,td{text-align:left; padding:8px 6px; border-bottom:1px solid var(--line);}
+  th{color:var(--dim); font-weight:500; font-size:12px; text-transform:uppercase;}
+  td.rank{width:36px; color:var(--dim);}
+  td.rank.top{color:var(--accent); font-weight:700;}
+  .bar{height:8px; background:var(--panel2); border-radius:4px; overflow:hidden; min-width:70px; flex:1;}
+  .bar i{display:block; height:100%; background:linear-gradient(90deg,var(--accent),#0077ff);}
+  .rating-cell{display:flex; align-items:center; gap:10px;}
+  .rating-cell b{width:28px; text-align:right;}
+  .tscroll{overflow-x:auto;}
+  .chips{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;}
+  .chip{cursor:pointer; font:inherit; font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--panel2); color:var(--dim);}
+  .chip.on{border-color:var(--accent); color:var(--accent); background:#0b2f3d;}
+  .lap{font-variant-numeric:tabular-nums;} .lap small{color:var(--dim); font-size:11px; display:block;}
+  .track{margin-bottom:14px;} .track:last-child{margin-bottom:0;}
+  .track h4{font-size:14px; margin-bottom:6px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .podium{display:flex; justify-content:space-between; gap:10px; padding:5px 0; border-bottom:1px dashed var(--line); font-size:14px;}
+  .podium:last-child{border-bottom:none;}
+  .podium .p{color:var(--dim); width:22px;} .podium .n{flex:1;}
+  tr.ours td{background:rgba(0,212,255,.07);} tr.ours td:nth-child(2){color:var(--accent); font-weight:600;}
+  .muted{color:var(--dim); font-size:13px;} .muted a{color:var(--accent);}
+
+  .news-item{display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px dashed var(--line); font-size:14px;}
+  .news-item:last-child{border-bottom:none;}
+  .news-item .nd{color:var(--dim); font-size:12px; min-width:74px; padding-top:1px;}
+  .news-item a{color:var(--accent);}
+
+  .sched-row{display:flex; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line); align-items:flex-start;}
+  .sched-row:last-child{border-bottom:none;}
+  .sched-row.today .sched-day{border-color:var(--accent);}
+  .sched-day{min-width:56px; text-align:center; background:var(--panel2); border-radius:8px; padding:6px 4px; border:1px solid var(--line);}
+  .sched-day .d{font-size:15px; font-weight:700; display:block;}
+  .sched-day .t{font-size:11px; color:var(--dim);}
+  .sched-body{flex:1;}
+
+  .info-block{font-size:13px; color:var(--dim); line-height:1.7;}
+  .info-block b{color:var(--text); font-weight:600;}
+  .info-block ul{margin-left:18px; margin-top:6px;}
+  .st p{margin-bottom:8px; font-size:14px;} .st b{color:var(--dim); font-weight:500;}
+
+  .modal{position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:flex-start; justify-content:center;
+    padding:40px 16px; z-index:100; overflow-y:auto;}
+  .modal.open{display:flex;}
+  .logo-badge{user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; cursor:default}
+  .hlrow,.hlhead{display:grid; grid-template-columns:2fr 1.6fr 1fr 1fr auto; gap:8px; align-items:center; margin-bottom:8px}
+  .hlhead{font-size:12px; color:var(--dim); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px}
+  .hlrow input,.hlrow select{width:100%; min-width:0}
+  @media (max-width:640px){ .hlhead{display:none} .hlrow{grid-template-columns:1fr 1fr auto; padding:10px; border:1px solid var(--line); border-radius:10px} .hlrow .hl-name{grid-column:1/-1} .hlrow .hl-track{grid-column:1/-1} }
+
+  .modal-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; max-width:900px; width:100%; padding:24px; position:relative;}
+  .modal-card h2{font-size:20px; margin-bottom:4px;}
+  .modal-card .sub{color:var(--dim); font-size:13px; margin-bottom:20px;}
+  .modal-card h3{font-size:13px; text-transform:uppercase; letter-spacing:.5px; color:var(--dim); margin:20px 0 10px;}
+  .close-x{position:absolute; top:16px; right:16px; background:transparent; border:none; color:var(--dim); font-size:22px; cursor:pointer;}
+  .contact-card{padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--panel2); margin-bottom:8px;}
+  .contact-card .c-name{font-weight:600; font-size:15px;}
+  .contact-card .c-role{color:var(--accent); font-size:13px;}
+  .contact-card .c-org{color:var(--dim); font-size:12px;}
+  .contact-card .c-contact{font-size:13px; margin-top:4px;}
+  .link-item{padding:8px 0; border-bottom:1px dashed var(--line); font-size:14px;}
+  .link-item:last-child{border-bottom:none;}
+  .link-item a{color:var(--accent); text-decoration:none;}
+  .link-item span{color:var(--dim);} .link-item small{display:block; color:var(--dim); font-size:12px; margin-top:2px;}
+  .lgroup{font-size:13px; color:var(--text); margin:14px 0 2px; padding-top:6px;} .lgroup:first-child{margin-top:0;}
+  .tabs{display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid var(--line); margin-bottom:16px;}
+  .tab{cursor:pointer; font:inherit; font-size:14px; padding:8px 14px; background:none; border:none; border-bottom:2px solid transparent; color:var(--dim); margin-bottom:-1px;}
+  .tab.on{color:var(--accent); border-bottom-color:var(--accent);}
+  .cls-grid{display:grid; gap:12px; grid-template-columns:repeat(auto-fill,minmax(250px,1fr));}
+  .cls{border:1px solid var(--line); border-radius:12px; background:var(--panel2); padding:14px;}
+  .cls h4{font-size:20px; color:var(--accent); margin-bottom:8px;}
+  .cls dl{display:grid; grid-template-columns:auto 1fr; gap:4px 10px; font-size:13px;}
+  .cls dt{color:var(--dim);} .cls p{font-size:13px; margin-top:10px; color:var(--text); border-top:1px dashed var(--line); padding-top:8px;}
+  .rule{padding:10px 0; border-bottom:1px dashed var(--line); font-size:14px;} .rule:last-child{border-bottom:none;}
+  .rule b{display:block; color:var(--accent); font-size:13px; text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px;}
+  .edit{margin-left:10px; font-size:12px; text-transform:none; letter-spacing:0; color:var(--dim); text-decoration:none; border:1px solid var(--line); border-radius:6px; padding:1px 8px;}
+  .edit:hover{color:var(--accent); border-color:var(--accent);}
+  .coach-badge{font-size:11px; padding:2px 8px; border-radius:6px; background:#3d1d0b; color:#ffab6c; margin-left:8px; vertical-align:middle;}
+  details.editing > :not(summary):not(.editor){display:none !important;}
+  .editor{display:flex; flex-direction:column; gap:10px;}
+  .erow{position:relative; display:grid; gap:8px; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); background:var(--panel2);
+    border:1px solid var(--line); border-radius:10px; padding:10px 38px 10px 10px;}
+  .erow label{display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.3px;}
+  .erow label.wide{grid-column:1/-1;}
+  .erow input,.erow select,.erow textarea{font:inherit; font-size:14px; text-transform:none; letter-spacing:0; color:var(--text); background:var(--bg);
+    border:1px solid var(--line); border-radius:6px; padding:6px 8px; width:100%;}
+  .erow textarea{min-height:60px; resize:vertical;}
+  .erow input:focus,.erow select:focus,.erow textarea:focus{outline:none; border-color:var(--accent);}
+  .erow .del{position:absolute; top:6px; right:6px; background:none; border:none; color:var(--dim); font-size:16px; cursor:pointer; padding:4px 6px;}
+  .erow .del:hover{color:var(--bad);}
+  .ebar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; position:sticky; bottom:0; background:var(--panel); padding-top:6px;}
+  .ebar .sp{flex:1;}
+  .edit{cursor:pointer; background:none; font:inherit; white-space:nowrap;}
+  .edit.on{color:var(--accent); border-color:var(--accent);}
+  #toast{position:fixed; bottom:20px; left:50%; transform:translate(-50%,20px); background:var(--panel2); border:1px solid var(--line); color:var(--text);
+    padding:10px 18px; border-radius:10px; font-size:14px; opacity:0; transition:.25s; pointer-events:none; z-index:200; max-width:90vw;}
+  #toast.show{opacity:1; transform:translate(-50%,0);} #toast.bad{border-color:var(--bad);} #toast.ok{border-color:var(--ok);}
+  .grant{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; padding:12px 16px; border-radius:12px;
+    background:linear-gradient(90deg,rgba(0,212,255,.12),rgba(0,119,255,.06)); border:1px solid rgba(0,212,255,.35); font-size:14px;}
+  .grant b{color:var(--accent);}
+  .grant-badge{font-size:12px; font-weight:700; letter-spacing:.3px; padding:4px 10px; border-radius:999px; background:var(--accent); color:#04121b; white-space:nowrap;}
+  #pilots tr{cursor:pointer;} #pilots tr:hover td{background:rgba(255,255,255,.03);}
+  #pilots .pname{border-bottom:1px dotted var(--dim);} #pilots td.trk{color:var(--dim); font-size:13px;}
+  .sortlbl{font-size:12px; color:var(--dim); align-self:center; margin-right:2px;}
+  .pstats{display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 16px;}
+  .pstat{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:8px 12px; min-width:110px;}
+  .pstat b{display:block; font-size:18px; color:var(--accent);} .pstat span{font-size:12px; color:var(--dim);}
+  .ptrack{border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px; background:var(--panel2);}
+  .ptrack h4{display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:15px; margin-bottom:4px;}
+  .ptrack .prog{font-size:13px; color:var(--dim); margin-bottom:8px;} .ptrack .prog b{color:var(--ok);}
+  .ptrack svg{width:100%; height:70px; display:block; margin-bottom:6px;}
+  .ptrack table{font-size:13px;} .ptrack td,.ptrack th{padding:5px 6px;}
+  .dfast{color:var(--ok);} .dslow{color:var(--bad);} .best{color:var(--accent); font-weight:700;}
+  .addlap{display:grid; gap:8px; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); align-items:end; margin-top:8px;}
+  .addlap label{display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--dim); text-transform:uppercase;}
+  .addlap input,.addlap select{font:inherit; font-size:14px; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px 8px; width:100%;}
+  footer{color:var(--dim); font-size:12px; text-align:center; margin-top:20px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-badge">ВЗ</div>
+    <div>
+      <h1>Клуб «Взлёт» <span class="grant-note">(при поддержке Росмолодёжь.Гранты)</span> <span class="coach-badge coach-only">тренер</span></h1>
+      <p>FPV-тренировки · с. Иртыш · Черлакский район · Омская область</p>
+    </div>
+  </div>
+  <div class="toolbar">
+    <span class="status" id="status"><i></i><span>загрузка…</span></span>
+    <button class="btn coach-only" onclick="loadData(true)">↻ Обновить</button>
+    <a class="btn coach-only" id="editBtn" target="_blank" href="#" title="Открыть Google Таблицу">▦ Таблица</a>
+    <button class="btn" id="lockBtn" onclick="lockClick()" style="display:none">✎ Войти</button>
+    <button class="btn primary" onclick="openModal()">📖 Справка</button>
+  </div>
+</header>
+
+<div class="banner hidden coach-only" id="setup">
+  <b>Таблица ещё не подключена</b> — показаны данные-образец.<br>
+  Вставьте ссылку на Google Таблицу (доступ «Все, у кого есть ссылка → Читатель»):
+  <div class="row">
+    <input id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/...">
+    <button class="btn primary" onclick="connectSheet()">Подключить</button>
+  </div>
+</div>
+<div class="banner hidden coach-only" id="err"></div>
+
+<div class="grid" id="kpi-grid"></div>
+
+<div class="grid" style="margin-top:16px;">
+  <details class="card col-8" open data-tab="События">
+    <summary>Ближайшие события <span class="counter" id="c-events"></span></summary>
+    <div id="events"></div>
+  </details>
+  <details class="card col-4" open data-tab="Задачи">
+    <summary>Задачи клуба <span class="counter" id="c-tasks"></span></summary>
+    <div id="tasks"></div>
+  </details>
+  <details class="card col-8" open data-tab="Пилоты">
+    <summary>Рейтинг пилотов <span class="counter" id="c-pilots"></span></summary>
+    <div class="chips" id="trackChips"></div>
+    <div class="chips" id="sortChips"></div>
+    <div class="coach-only" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn primary" onclick="openSession()">＋ Записать заезд группы</button><button class="btn" onclick="editTracks()">✎ Список трасс</button></div>
+    <p class="muted" style="margin:-4px 0 8px">Нажмите на пилота — откроется его история заездов. Рейтинг считается автоматически: <a href="#" onclick="openModal();showRatingHelp();return false">как?</a></p>
+    <div class="tscroll">
+      <table>
+        <thead><tr><th>#</th><th>Пилот</th><th>Класс</th><th>Налёт, ч</th><th>Трасса</th><th title='В последнем заезде'>Аварии</th><th id='lapHead'>Лучший круг</th><th>Рейтинг</th></tr></thead>
+        <tbody id="pilots"></tbody>
+      </table>
+    </div>
+  </details>
+  <details class="card col-4" open data-tab="Расписание">
+    <summary>Расписание недели <span class="counter" id="c-schedule"></span></summary>
+    <div id="schedule"></div>
+  </details>
+  <details class="card col-6" open data-tab="Новости">
+    <summary>Новости и документы <span class="counter" id="c-news"></span></summary>
+    <div id="news"></div>
+  </details>
+  <details class="card col-6" open data-tab="Статус">
+    <summary>Статус лицензии и федерации</summary>
+    <div class="st" id="status-block"></div>
+  </details>
+  <details class="card col-6" open data-tab="Заезды">
+    <summary>Рекорды трасс <span class="counter" id="c-tracks"></span></summary>
+    <div id="tracks"></div>
+  </details>
+  <details class="card col-6" open data-tab="Рейтинг России">
+    <summary>Рейтинг пилотов России <span class="counter" id="c-rus"></span></summary>
+    <div class="tscroll"><table><thead><tr><th>#</th><th>Пилот</th><th>Регион</th><th>Очки</th></tr></thead><tbody id="rus"></tbody></table></div>
+    <p class="muted" id="rus-note" style="margin-top:10px"></p>
+  </details>
+  <details class="card col-12" open id="fgd-card">
+    <summary>Новости Федерации гонок дронов России <span class="counter" id="c-fgd"></span></summary>
+    <div id="fgd"></div>
+    <p class="muted" style="margin-top:10px">Обновляется автоматически из <a href="https://t.me/droneracingfederation" target="_blank" rel="noopener">Telegram-канала ФГД России</a> каждые 3 часа.</p>
+  </details>
+  <details class="card col-12 coach-only" data-tab="more">
+    <summary>Другие разделы: плитки, контакты, ссылки, справка</summary>
+    <div class="chips" id="moreChips"></div>
+    <p class="muted" id="moreHint">Выберите, что редактировать.</p>
+  </details>
+</div>
+<div id="toast"></div>
+<div class="modal" id="pmodal" onclick="if(event.target===this)closePilot()">
+  <div class="modal-card"><button class="close-x" onclick="closePilot()">✕</button><div id="pbody"></div></div>
+</div>
+
+<footer id="footer"></footer>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-card">
+    <button class="close-x" onclick="closeModal()">✕</button>
+    <h2>Справка клуба «Взлёт»</h2>
+    <p class="sub">Контакты, классы дронов и главные правила соревнований</p>
+    <div class="tabs">
+      <button class="tab on" data-p="p-contacts">Контакты и ресурсы</button>
+      <button class="tab" data-p="p-classes">Классы дронов</button>
+      <button class="tab" data-p="p-rules">Правила соревнований</button>
+    </div>
+    <div class="pane" id="p-contacts">
+      <h3>Ключевые контакты</h3>
+      <div id="contacts"></div>
+      <h3>Ключевые ресурсы</h3>
+      <div id="links"></div>
+      <h3>Соревнования в регионе</h3>
+      <div class="info-block"><p>«АэроСТЕМ» (Омск, Фиджитал-центр), «Кванторейс» (Тюмень), первенство ЦФО. Онлайн: «Пилоты будущего», чемпионат России по компьютерному спорту («Квадросим»).</p>
+      <p style="margin-top:8px"><b>Лицензия «Квадросим»</b> даёт клубу статус официальной площадки и доступ к сетевым турнирам.</p></div>
+    </div>
+    <div class="pane hidden" id="p-classes"><div class="cls-grid" id="classes"></div></div>
+    <div class="pane hidden" id="p-rules"><div class="rule" id="rating-help"><b>Как считается рейтинг пилота в клубе</b>В каждом заезде группы (одна дата + одна трасса) самый быстрый получает 100 очков, остальные — 100 × (лучшее время ÷ своё время). За каждую аварию минус 5 очков. Рейтинг — среднее за последние 5 заездов пилота. Если заездов ещё нет, показывается рейтинг, введённый вручную (серым).</div><div id="rules"></div></div>
+    <div class="coach-only" style="margin-top:24px; display:flex; gap:8px; flex-wrap:wrap;">
+      <a class="btn" id="sheetLink" target="_blank" href="#">✎ Открыть таблицу</a>
+      <button class="btn" onclick="disconnect()">Сменить таблицу</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   НАСТРОЙКА: ID Google Таблицы.
+   Вставьте сюда ID (часть ссылки между /d/ и /edit) — тогда
+   дашборд у всех сразу открывается с вашими данными.
+   ============================================================ */
+const SHEET_ID = '1GNVM7smAVzjOVK77FzJ_HfDQ9lI85DCSt0idMU8GJqk';
+const ROLE = (()=>{ try{ return sessionStorage.getItem('vzlet_role')||''; }catch(e){ return ''; } })();  // admin | helper | ''
+const MODE = ROLE==='admin' ? 'coach' : 'public';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDO0jGc8TCvXuDEgbUEIn0N6jPRAD8HcuscR3gSzhLEyYpx4PilYBYmisS7cJICbZ_Pw/exec';  // адрес Apps Script, через который тренерская версия сохраняет правки   // 'coach' — версия тренера, 'public' — для группы
+
+const REFRESH_MIN = 5;            // автообновление, минут
+const LS_KEY = 'vzlet_sheet_id';
+const CACHE_KEY = 'vzlet_cache_v2';
+const SHEETS = ['Пилоты','События','Задачи','Расписание','Новости','Ссылки','Контакты','Показатели','Статус','Заезды','Рейтинг России','Классы','Правила','Новости ФГД','Трассы'];
+const FALLBACK = {"Пилоты": [{"Пилот": "Софья Л.", "Класс": "75 мм", "Налёт, ч": 15, "Лучший круг": "00:49.3", "Рейтинг": 60}, {"Пилот": "Егор В.", "Класс": "75 мм", "Налёт, ч": 11, "Лучший круг": "00:53.8", "Рейтинг": 45}, {"Пилот": "Никита П.", "Класс": "75 мм", "Налёт, ч": 6, "Лучший круг": "01:02.4", "Рейтинг": 22}, {"Пилот": "Артём Н.", "Класс": "75 мм", "Налёт, ч": 0, "Лучший круг": "00:37.8", "Рейтинг": 72}, {"Пилот": "Глеб Н.", "Класс": "75 мм", "Налёт, ч": 0, "Лучший круг": "—", "Рейтинг": 70}, {"Пилот": "Анастасия Н.", "Класс": "75 мм", "Налёт, ч": 0, "Лучший круг": "—", "Рейтинг": 60}], "События": [{"Дата": "28.09.2026", "Название": "Чемпионат «АэроСТЕМ» — 2 этап", "Место": "Омск, Фиджитал-центр · регистрация открыта", "Тип": "реал", "Метка": "класс мини"}, {"Дата": "30.09.2026", "Название": "«Пилоты будущего» — II этап (онлайн)", "Место": "Всероссийский, онлайн · до 30 сентября", "Тип": "симулятор", "Метка": ""}, {"Дата": "05.10.2026", "Название": "Тренировочный турнир на «Квадросим»", "Место": "Клуб «Взлёт» · внутренний зачёт", "Тип": "симулятор", "Метка": "до 8 пилотов"}, {"Дата": "12.10.2026", "Название": "Кубок Омской области (планируется)", "Место": "Уточняется у ФГД Омской области", "Тип": "реал", "Метка": "75 мм / мини"}], "Задачи": [{"Задача": "Отправить запрос на лицензию «Квадросим»", "Выполнено": "да"}, {"Задача": "Согласовать сотрудничество с ФГД", "Выполнено": "да"}, {"Задача": "Зарегистрировать пилотов на «АэроСТЕМ»", "Выполнено": "нет"}, {"Задача": "Составить план тренировок на октябрь", "Выполнено": "нет"}, {"Задача": "Судейство (повышение квалификации)", "Выполнено": "нет"}, {"Задача": "Вступить в Федерацию", "Выполнено": "нет"}], "Расписание": [{"День": "Пн", "Время": "18:00", "Занятие": "Симулятор", "Примечание": "группа А · 6 чел."}, {"День": "Ср", "Время": "18:00", "Занятие": "Реальные полёты", "Примечание": "зал/площадка · группа А"}, {"День": "Пт", "Время": "18:00", "Занятие": "Симулятор", "Примечание": "группа Б · 6 чел."}, {"День": "Сб", "Время": "11:00", "Занятие": "Реальные полёты", "Примечание": "выезд на трассу"}], "Новости": [{"Дата": "23.09.2026", "Текст": "«Квадросим» включён в программу чемпионата России по компьютерному спорту 2026", "Ссылка": ""}, {"Дата": "23.09.2026", "Текст": "Сформирована сборная России по гонкам дронов (12 регионов)", "Ссылка": ""}, {"Дата": "23.09.2026", "Текст": "Открыта аккредитация ФГД в регионах", "Ссылка": ""}, {"Дата": "23.09.2026", "Текст": "FAI E-Drone Racing World Cup — онлайн-этапы", "Ссылка": ""}], "Ссылки": [{"Раздел": "Федерации", "Название": "Федерация гонок дронов России — сайт", "Адрес": "https://fgdr.ru/", "Описание": "Новости, календарь соревнований, документы"}, {"Раздел": "Федерации", "Название": "ФГД России — Telegram", "Адрес": "https://t.me/droneracingfederation", "Описание": "Самые свежие новости, анонсы, итоги"}, {"Раздел": "Федерации", "Название": "ФГД России — ВКонтакте", "Адрес": "https://vk.com/fgdrus", "Описание": "Фото, видео, объявления"}, {"Раздел": "Федерации", "Название": "ФГД России — YouTube", "Адрес": "https://www.youtube.com/@droneracingfederationrus", "Описание": "Трансляции и записи гонок"}, {"Раздел": "Федерации", "Название": "Региональные федерации ФГД", "Адрес": "https://fgdr.ru/regions", "Описание": "Список аккредитованных региональных федераций, в том числе Омской"}, {"Раздел": "Федерации", "Название": "ФГД России — контакты", "Адрес": "https://fgdr.ru/contacts", "Описание": "info@fgdr.ru · образование: ed@fgdr.ru · регионы: region@fgdr.ru"}, {"Раздел": "Федерации", "Название": "ФГД Омской области", "Адрес": "", "Описание": "Президент — Кузнецов Виктор Павлович. Добавьте сюда их группу, когда будет"}, {"Раздел": "Соревнования", "Название": "«Пилоты будущего» — страница чемпионата", "Адрес": "https://xn--n1abebi.xn--90acagbhgpca7c8c7f.xn--p1ai/pilots-of-the-future", "Описание": "Всероссийский чемпионат «Движения Первых», онлайн-этапы на симуляторе"}, {"Раздел": "Соревнования", "Название": "«Пилоты будущего» 2026 — четыре этапа", "Адрес": "https://fgdr.ru/tpost/xfdxxg1ih1-vserossiiskii-chempionat-pilotirovaniya", "Описание": "Новость ФГД о сезоне 2026"}, {"Раздел": "Соревнования", "Название": "Соревнования по компьютерному спорту (ФКС России)", "Адрес": "https://resf.ru/competitions/", "Описание": "Календарь, в том числе чемпионат России"}, {"Раздел": "Соревнования", "Название": "«АэроСТЕМ» — школа беспилотного транспорта, Омск", "Адрес": "https://aerostem.orgs.biz/", "Описание": "Омский чемпионат по гонкам дронов"}, {"Раздел": "Соревнования", "Название": "«Кванторейс» — межрегиональный чемпионат, Тюмень", "Адрес": "https://www.siapress.ru/news/140749-v-tyumeni-startoval-megregionalniy-chempionat-po-pilotirovaniyu-dronov-kvantoreys", "Описание": "Новость о чемпионате"}, {"Раздел": "Симулятор", "Название": "Квадросим — официальный сайт", "Адрес": "https://xn--80adhqgqmpk.xn--p1ai/", "Описание": "Российский симулятор FPV"}, {"Раздел": "Симулятор", "Название": "Квадросим — Telegram", "Адрес": "https://t.me/kvadrosim", "Описание": "Обновления, турниры, поддержка"}, {"Раздел": "Симулятор", "Название": "Квадросим для школ и кружков", "Адрес": "https://simulator-bpla.ru/", "Описание": "Образовательная версия"}, {"Раздел": "Симулятор", "Название": "Квадросим — активация площадки", "Адрес": "", "Описание": "Логин и пароль выдаёт федерация"}, {"Раздел": "Правила и документы", "Название": "Правила вида спорта «гонки дронов» (Минспорт, № 1063)", "Адрес": "https://base.garant.ru/410738216/", "Описание": "Дисциплины, классы, возраст"}, {"Раздел": "Правила и документы", "Название": "Технические требования к дронам (п. 5.12)", "Адрес": "https://sudact.ru/law/pravila-vida-sporta-gonki-dronov-bespilotnykh-vozdushnykh/pravila-vida-sporta-gonki-dronov_1/razdel-v/5.12/", "Описание": "Размер, вес, аккумулятор, видео по классам"}, {"Раздел": "Правила и документы", "Название": "Положение о всероссийских соревнованиях 2026", "Адрес": "https://www.garant.ru/products/ipo/prime/doc/413918931/", "Описание": "Утверждено Минспортом"}, {"Раздел": "Правила и документы", "Название": "FAI — Drone Sport (международные правила)", "Адрес": "https://www.fai.org/page/drone-sport", "Описание": "На английском"}, {"Раздел": "Где и как летать", "Название": "Учёт беспилотников — Росавиация", "Адрес": "https://favt.gov.ru/dejatelnost-ucet-bespilotnyh-grajdanskih-vozdyshnih-sudov-i-sverkhlyogkih-grazhdanskih-vozdushnih-sudov/", "Описание": "Дроны от 150 г до 30 кг ставятся на учёт (через Госуслуги)"}, {"Раздел": "Где и как летать", "Название": "Ограничения на полёты дронов — Омская область", "Адрес": "https://gogov.ru/no-drone/omsk", "Описание": "Проверяйте перед полётами на улице"}, {"Раздел": "Где и как летать", "Название": "Где летать FPV — крытые площадки", "Адрес": "https://wheretoflyfpv.ru/", "Описание": "Справочник залов для тренировок по регионам"}, {"Раздел": "Техника", "Название": "Betaflight — прошивка и настройка полётного контроллера", "Адрес": "https://betaflight.com/", "Описание": "Документация и конфигуратор"}, {"Раздел": "Техника", "Название": "ExpressLRS — система управления", "Адрес": "https://www.expresslrs.org/", "Описание": "Настройка приёмников и передатчиков"}], "Контакты": [{"ФИО": "Кузнецов Виктор Павлович", "Роль": "Президент Федерации гонок дронов Омской области", "Организация": "РФСОО «ФГД (БВС) Омской области»", "Контакты": "ИНН 5503271091 · 644069, г. Омск, ул. Красный Пахарь, 99, к. 1"}, {"ФИО": "Федерация гонок дронов России", "Роль": "Общероссийская федерация", "Организация": "ФГД России", "Контакты": "info@fgdr.ru · образование: ed@fgdr.ru · регионы: region@fgdr.ru · fgdr.ru/contacts"}, {"ФИО": "Павликов Виктор Валерьевич", "Роль": "Начальник отдела по физической культуре и спорту", "Организация": "", "Контакты": ""}], "Показатели": [{"Показатель": "Пилотов в клубе", "Значение": "12", "Подпись": "из них юниоров — 7"}, {"Показатель": "Тренировок в неделю", "Значение": "3", "Подпись": "2 — симулятор, 1 — полёты"}, {"Показатель": "Дронов в строю", "Значение": "8", "Подпись": "из 10 (2 в ремонте)"}], "Статус": [{"Параметр": "Квадросим", "Значение": "заявка на лицензию отправлена"}, {"Параметр": "ФГД Омской области", "Значение": "сотрудничество согласовано"}, {"Параметр": "Контакт", "Значение": "Кузнецов Виктор Павлович, президент ФГД"}, {"Параметр": "Обновлено", "Значение": "23.09.2026"}], "Заезды": [{"Дата": "23.09.2026", "Пилот": "Софья Л.", "Трасса": "Трасса клуба (сим)", "Время круга": "00:49.3", "Формат": "симулятор", "Аварии": "0"}, {"Дата": "23.09.2026", "Пилот": "Егор В.", "Трасса": "Трасса клуба (сим)", "Время круга": "00:53.8", "Формат": "симулятор", "Аварии": "0"}, {"Дата": "23.09.2026", "Пилот": "Никита П.", "Трасса": "Трасса клуба (сим)", "Время круга": "01:02.4", "Формат": "симулятор", "Аварии": "0"}, {"Дата": "23.09.2026", "Пилот": "Артём Н.", "Трасса": "Трасса клуба (сим)", "Время круга": "00:37.8", "Формат": "симулятор", "Аварии": "0"}], "Рейтинг России": [], "Классы": [{"Класс": "75 мм", "Размер": "диагональ 65–75 мм", "Взлётный вес": "до 50 г", "Аккумулятор": "1S LiPo, до 550 мАч, до 4,35 В на банку", "Моторы и пропеллеры": "защита пропеллеров обязательна", "Связь и видео": "видео 5,8 ГГц (аналог или HDZero); управление 2,4 ГГц / 868 / 915 МГц", "Особенности": "Для зала, площадка от 100 м². Светодиоды со сменой цвета. С этого класса обычно начинают."}, {"Класс": "200 мм", "Размер": "рама 180–250 мм", "Взлётный вес": "до 650 г", "Аккумулятор": "6S LiPo, до 1500 мАч, до 4,2 В на банку", "Моторы и пропеллеры": "моторы 2206–2207,5; пропеллеры до 5,1″", "Связь и видео": "видео 5,8 ГГц", "Особенности": "Скоростной класс для улицы, площадка от 2500 м². Не менее 40 светодиодов."}, {"Класс": "330 мм", "Размер": "рама 300–350 мм", "Взлётный вес": "не менее 850 г", "Аккумулятор": "6S LiPo, до 2200 мАч", "Моторы и пропеллеры": "моторы 2206–2808 (до 2000 kv); пропеллеры до 7″", "Связь и видео": "видео 5,8 ГГц", "Особенности": "Большие дроны для открытых трасс. Не менее 40 светодиодов."}, {"Класс": "Симулятор", "Размер": "—", "Взлётный вес": "—", "Аккумулятор": "—", "Моторы и пропеллеры": "—", "Связь и видео": "компьютер + пульт управления", "Особенности": "«Технический симулятор — гонка дронов». Программа даёт всем равные условия, требования к ПК — в положении турнира. «Квадросим» используется и в компьютерном спорте — там свои правила."}], "Правила": [{"Тема": "Возраст", "Текст": "Юниоры и юниорки — 10–17 лет. Мужчины и женщины — от 14 лет."}, {"Тема": "Дисциплины", "Текст": "Классы 75 мм, 200 мм, 330 мм и технический симулятор — в личном и командном зачёте."}, {"Тема": "Как проходит гонка", "Текст": "Квалификация → групповые заезды → финал. Побеждает тот, кто быстрее пройдёт заданное число кругов (или больше кругов за отведённое время). Часто применяют систему «двое из четырёх»: в заезде 4 пилота, дальше проходят двое лучших."}, {"Тема": "Трасса", "Текст": "Ворота и препятствия проходятся строго по схеме. Пропустил ворота — возвращаешься и перелетаешь участок (или круг)."}, {"Тема": "Что нужно пилоту", "Текст": "Не менее двух дронов, пульт управления и видеоприёмное оборудование (очки или шлем)."}, {"Тема": "Безопасность", "Текст": "Не включать дрон и видеопередатчик вне своего заезда. Моторы запускать только по команде судьи. Во время гонки не вставать и не ходить в зоне пилотов, не загораживать обзор."}, {"Тема": "Поведение", "Текст": "Не спорить с судьями и соперниками, общаться только с судьями и своим помощником, без грубости. За нарушения — спортивные санкции вплоть до снятия."}, {"Тема": "Симулятор", "Текст": "Нельзя ставить игру на паузу без разрешения и менять серверные настройки. Свой пульт и личные настройки управления — можно."}, {"Тема": "Источник", "Текст": "Правила вида спорта «гонки дронов (БВС)», приказ Минспорта России № 1063 от 28.10.2024 (ред. 22.07.2025). Точные условия каждого турнира — в его положении."}], "Новости ФГД": [], "Трассы": [{"Название": "Трасса клуба (сим)", "Формат": "симулятор", "Описание": ""}]};
+
+/* ---------- утилиты ---------- */
+const $ = id => document.getElementById(id) || document.createElement('div');  // в версии для группы части страницы удалены
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ls = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+function sheetId(){
+  const q = new URLSearchParams(location.search).get('t');
+  if(q) return q;
+  if(SHEET_ID && !SHEET_ID.startsWith('__')) return SHEET_ID;
+  return ls.get(LS_KEY) || '';
+}
+function parseId(s){
+  const m = String(s).match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+  if(m) return m[1];
+  return /^[a-zA-Z0-9_-]{20,}$/.test(s.trim()) ? s.trim() : '';
+}
+
+/* CSV-парсер (с поддержкой кавычек и переносов строк) */
+function parseCSV(text){
+  const rows=[]; let row=[], f='', q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){ f+='"'; i++; } else q=false; }
+      else f+=c;
+    } else if(c==='"') q=true;
+    else if(c===','){ row.push(f); f=''; }
+    else if(c==='\n'){ row.push(f); rows.push(row); row=[]; f=''; }
+    else if(c!=='\r') f+=c;
+  }
+  if(f!=='' || row.length){ row.push(f); rows.push(row); }
+  if(!rows.length) return [];
+  const head = rows[0].map(h=>h.trim());
+  return rows.slice(1)
+    .filter(r=>r.some(x=>x.trim()!==''))
+    .map(r=>Object.fromEntries(head.map((h,i)=>[h,(r[i]??'').trim()])));
+}
+
+/* Даты: 28.09.2026 · 28.09 · 2026-09-28 · 9/28/2026 */
+function parseDate(s){
+  s = String(s||'').trim(); let m;
+  const y0 = new Date().getFullYear();
+  if(m=s.match(/^(\d{1,2})\.(\d{1,2})(?:\.(\d{2,4}))?$/)) return new Date(m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):y0, m[2]-1, +m[1]);
+  if(m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)) return new Date(+m[1], m[2]-1, +m[3]);
+  if(m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/)) return new Date(+m[3], m[1]-1, +m[2]);
+  return null;
+}
+const today0 = () => { const d=new Date(); d.setHours(0,0,0,0); return d; };
+const num = v => { const n = parseFloat(String(v).replace(',','.')); return isNaN(n)?0:n; };
+const yes = v => /^(да|yes|true|1|\+|✓|✔)$/i.test(String(v).trim());
+function plural(n, a, b, c){ n=Math.abs(n)%100; const n1=n%10;
+  if(n>10&&n<20) return c; if(n1>1&&n1<5) return b; if(n1===1) return a; return c; }
+
+/* ---------- загрузка ---------- */
+let data = null, source = '', timer;
+
+async function fetchSheet(id, name){
+  const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(name)}`;
+  const r = await fetch(url, {cache:'no-store'});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const t = await r.text();
+  if(t.trim().startsWith('<')) throw new Error('нет доступа');
+  return parseCSV(t);
+}
+
+async function loadData(manual){
+  const id = sheetId();
+  $('setup').classList.toggle('hidden', !!id);
+  $('editBtn').href = id ? `https://docs.google.com/spreadsheets/d/${id}/edit` : '#';
+  $('sheetLink').href = id ? `https://docs.google.com/spreadsheets/d/${id}/edit` : '#';
+  if(!id){ data = FALLBACK; source='sample'; renderAll(); return; }
+
+  setStatus('load','загрузка…');
+  try{
+    const parts = await Promise.all(SHEETS.map(n => fetchSheet(id,n).catch(()=>null)));
+    if(parts.every(p=>p===null)) throw new Error('таблица недоступна');
+    data = {}; SHEETS.forEach((n,i)=> data[n] = parts[i] || []);
+    const missing = SHEETS.filter((n,i)=>parts[i]===null);
+    source = 'live';
+    ls.set(CACHE_KEY, JSON.stringify({t:Date.now(), id, data}));
+    $('err').classList.add('hidden');
+    if(missing.length){ $('err').innerHTML = `Не найдены вкладки: <b>${missing.map(esc).join(', ')}</b>. Проверьте названия в таблице.`; $('err').classList.remove('hidden'); }
+    renderAll();
+    setStatus('ok','обновлено ' + new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){
+    const c = JSON.parse(ls.get(CACHE_KEY) || 'null');
+    if(c && c.id===id){ data=c.data; source='cache'; renderAll();
+      setStatus('warn','нет связи · данные от '+new Date(c.t).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}));
+    } else { data=FALLBACK; source='sample'; renderAll(); setStatus('warn','нет связи · образец'); }
+    $('err').innerHTML = `Не удалось загрузить таблицу (${esc(e.message)}). Проверьте интернет и что доступ открыт «Все, у кого есть ссылка → Читатель».`;
+    $('err').classList.remove('hidden');
+  }
+}
+function setStatus(cls, txt){ const s=$('status'); s.className='status '+cls; s.lastElementChild.textContent=txt; }
+
+function connectSheet(){
+  const id = parseId($('sheetUrl').value);
+  if(!id){ alert('Не похоже на ссылку Google Таблицы'); return; }
+  ls.set(LS_KEY, id); loadData(true);
+}
+function disconnect(){ ls.del(LS_KEY); ls.del(CACHE_KEY); closeModal(); $('setup').classList.remove('hidden'); $('sheetUrl').focus(); }
+
+/* ---------- отрисовка ---------- */
+function upcomingEvents(){
+  const t0 = today0();
+  return (data['События']||[])
+    .map(e=>({...e, _d: parseDate(e['Дата'])}))
+    .filter(e=> !e._d || e._d >= t0)
+    .sort((a,b)=> (a._d||Infinity) - (b._d||Infinity));
+}
+
+function renderKPI(){
+  const kp = (data['Показатели']||[]).slice(0,3);
+  const ev = upcomingEvents().find(e=>e._d);
+  let tiles = kp.map(k=>({label:k['Показатель'], value:k['Значение'], sub:k['Подпись']}));
+  if(ev){
+    const days = Math.round((ev._d - today0())/864e5);
+    tiles.push({label:'Ближайшее событие', value: days===0?'сегодня': days===1?'завтра': `${days} ${plural(days,'день','дня','дней')}`, sub: ev['Название']});
+  } else tiles.push({label:'Ближайшее событие', value:'—', sub:'нет запланированных'});
+  $('kpi-grid').innerHTML = tiles.map(k=>`
+    <div class="card col-3 kpi"><span class="label">${esc(k.label)}</span>
+    <span class="num">${esc(k.value)}</span><small>${esc(k.sub)}</small></div>`).join('');
+}
+
+function renderEvents(){
+  const list = upcomingEvents();
+  $('c-events').textContent = list.length;
+  $('events').innerHTML = list.length ? list.map(e=>{
+    const tag = String(e['Тип']||'').toLowerCase();
+    const cls = tag.startsWith('сим') ? 'sim' : tag.startsWith('реал') ? 'real' : 'neutral';
+    const days = e._d ? Math.round((e._d - today0())/864e5) : null;
+    return `<div class="event">
+      <div class="date-box"><span class="d">${e._d ? e._d.getDate() : '?'}</span><span class="m">${e._d ? MONTHS[e._d.getMonth()] : esc(e['Дата'])}</span></div>
+      <div class="event-info"><b>${esc(e['Название'])}</b><span class="place">${esc(e['Место'])}</span>
+        <div class="tags">${tag?`<span class="tag ${cls}">${esc(e['Тип'])}</span>`:''}${e['Метка']?`<span class="tag neutral">${esc(e['Метка'])}</span>`:''}${days!==null&&days<=7?`<span class="tag soon">${days===0?'сегодня':'через '+days+' '+plural(days,'день','дня','дней')}</span>`:''}</div>
+      </div></div>`;
+  }).join('') : '<p class="empty">Нет предстоящих событий</p>';
+}
+
+function renderTasks(){
+  const list = data['Задачи']||[];
+  const done = list.filter(t=>yes(t['Выполнено'])).length;
+  $('c-tasks').textContent = `${done}/${list.length}`;
+  const sorted = [...list].sort((a,b)=> yes(a['Выполнено']) - yes(b['Выполнено']));
+  $('tasks').innerHTML = (list.length?`<div class="progress"><i style="width:${list.length?done/list.length*100:0}%"></i></div>`:'') +
+    (sorted.map(t=>{ const d=yes(t['Выполнено']);
+      return `<div class="task ${d?'done':''}"><span class="box">${d?'✓':''}</span><span class="txt">${esc(t['Задача'])}</span></div>`;}).join('') || '<p class="empty">Задач нет</p>');
+}
+
+/* Время круга: 00:49.3 · 49.3 · 1:02,4 → секунды */
+function lapSec(s){
+  s=String(s||'').trim().replace(',','.'); if(!s || s==='—') return null;
+  const p=s.split(':').map(Number); if(p.some(isNaN)) return null;
+  return p.reduce((a,x)=>a*60+x,0) || null;
+}
+function fmtLap(sec){ const m=Math.floor(sec/60), r=(sec-m*60).toFixed(1).padStart(4,'0'); return `${String(m).padStart(2,'0')}:${r}`; }
+const normName = s => String(s||'').trim().toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ');
+let curTrack = '';
+function laps(){
+  return (data['Заезды']||[]).map(l=>({pilot:l['Пилот'], track:String(l['Трасса']||'').trim()||'Без названия', sec:lapSec(l['Время круга']), date:l['Дата'], fmt:l['Формат'], crash:Math.max(0,Math.round(num(l['Аварии'])))})).filter(l=>l.sec);
+}
+function trackList(){ return (data['Трассы']||[]).map(t=>String(t['Название']||'').trim()).filter(Boolean); }
+function trackFmt(t){ const r=(data['Трассы']||[]).find(x=>String(x['Название']).trim()===t); return r?r['Формат']:''; }
+function tracks(){ return [...new Set([...laps().map(l=>l.track)])]; }
+function allTracks(){ return [...new Set([...trackList(), ...tracks()])]; }
+/* Рейтинг: в каждом заезде (дата + трасса) самый быстрый получает 100 очков,
+   остальные — 100 × (лучшее время ÷ своё время); минус 5 очков за каждую аварию.
+   Рейтинг пилота = среднее за его последние 5 заездов. */
+function sessions(){ const S={}; laps().forEach(l=>{ const k=(l.date||'')+'|'+l.track; (S[k]=S[k]||[]).push(l); }); return Object.values(S); }
+function ratingOf(name){
+  const pts=[];
+  sessions().forEach(ls=>{
+    const best=Math.min(...ls.map(l=>l.sec));
+    const mine=ls.filter(l=>normName(l.pilot)===normName(name)); if(!mine.length) return;
+    const m=mine.reduce((a,b)=>a.sec<b.sec?a:b);
+    pts.push({d:+(parseDate(m.date)||0), v:Math.max(0, 100*best/m.sec - 5*m.crash)});
+  });
+  if(!pts.length) return null;
+  pts.sort((a,b)=>b.d-a.d); const last=pts.slice(0,5);
+  return Math.round(last.reduce((a,x)=>a+x.v,0)/last.length);
+}
+function ratingFor(p){ const r=ratingOf(p['Пилот']); return r===null ? {v:num(p['Рейтинг']), manual:true} : {v:r, manual:false}; }
+function lastLap(name, track){
+  return laps().filter(l=>normName(l.pilot)===normName(name) && (!track||l.track===track))
+    .sort((a,b)=>(parseDate(b.date)||0)-(parseDate(a.date)||0))[0]||null;
+}
+/* лучший круг пилота: {sec, track, date} */
+function bestFor(name, track){
+  let b=null; for(const l of laps()){
+    if(normName(l.pilot)!==normName(name)) continue;
+    if(track && l.track!==track) continue;
+    if(!b || l.sec<b.sec) b=l;
+  } return b;
+}
+function setTrack(t){ curTrack=t; renderPilots(); }
+function renderChips(){
+  const ts=allTracks();
+  if(curTrack && !ts.includes(curTrack)) curTrack='';
+  $('trackChips').innerHTML = ts.length ? [['','Все трассы'],...ts.map(t=>[t,t])].map(([v,l])=>
+    `<button class="chip ${v===curTrack?'on':''}" data-t="${esc(v)}">${esc(l)}</button>`).join('') : '';
+  $('trackChips').querySelectorAll('.chip').forEach(b=> b.onclick=()=>setTrack(b.dataset.t));
+}
+
+let curSort='rating';
+function renderSort(){
+  $('sortChips').innerHTML = `<span class="sortlbl">Сортировка:</span>`+
+    [['rating','По рейтингу'],['leaders','🏆 Лидеры (лучшее время)']].map(([v,l])=>`<button class="chip ${v===curSort?'on':''}" data-s="${v}">${l}</button>`).join('');
+  $('sortChips').querySelectorAll('.chip').forEach(b=> b.onclick=()=>{ curSort=b.dataset.s; renderPilots(); });
+}
+function renderPilots(){
+  renderChips(); renderSort();
+  $('lapHead').textContent = curTrack ? 'Круг на трассе' : 'Лучший круг';
+  let list = [...(data['Пилоты']||[])].map(p=>({p, b:bestFor(p['Пилот'], curTrack)}));
+  if(curSort==='leaders') list.sort((x,y)=> (x.b?x.b.sec:Infinity) - (y.b?y.b.sec:Infinity) || ratingFor(y.p).v-ratingFor(x.p).v);
+  else list.sort((x,y)=> ratingFor(y.p).v - ratingFor(x.p).v);
+  $('c-pilots').textContent = list.length;
+  $('pilots').innerHTML = list.map(({p,b},i)=>{
+    const R = ratingFor(p), r = Math.max(0, Math.min(100, R.v));
+    const ll = lastLap(p['Пилот'], curTrack);
+    const lap = b ? fmtLap(b.sec) : (curTrack ? '—' : esc(p['Лучший круг'] || '—'));
+    const trk = b ? esc(b.track) : (curTrack ? esc(curTrack) : '—');
+    return `<tr data-p="${esc(p['Пилот'])}"><td class="rank ${i<3?'top':''}">${i+1}</td><td><span class="pname">${esc(p['Пилот'])}</span> ›</td><td>${esc(p['Класс'])}</td>
+      <td>${esc(p['Налёт, ч'])}</td><td class="trk">${trk}</td><td>${ll?(ll.crash?`<span class="dslow">${ll.crash}</span>`:'0'):'—'}</td><td class="lap">${lap}</td>
+      <td style="min-width:140px"><div class="rating-cell"><b title="${R.manual?'рейтинг введён вручную — заездов ещё нет':'авто: по времени и авариям'}" style="${R.manual?'color:var(--dim)':''}">${r}</b><div class="bar"><i style="width:${r}%"></i></div></div></td></tr>`;
+  }).join('') || '<tr><td colspan="8" class="empty">Пилотов пока нет</td></tr>';
+  $('pilots').querySelectorAll('tr[data-p]').forEach(tr=> tr.onclick=()=>openPilot(tr.dataset.p));
+}
+
+/* ---------- карточка пилота: история заездов по трассам ---------- */
+function spark(ls){
+  if(ls.length<2) return '';
+  const W=600,H=70,P=8, xs=ls.map((_,i)=>P+i*(W-2*P)/(ls.length-1));
+  const mn=Math.min(...ls.map(l=>l.sec)), mx=Math.max(...ls.map(l=>l.sec)), rg=(mx-mn)||1;
+  const ys=ls.map(l=>P+(l.sec-mn)/rg*(H-2*P));   // быстрее = выше
+  const pts=xs.map((x,i)=>`${x.toFixed(1)},${(H-ys[i]).toFixed(1)}`);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline points="${pts.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>`+
+    pts.map(p=>`<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="3.5" fill="var(--accent)"/>`).join('')+`</svg>`;
+}
+let openPilotName='';
+function openPilot(name){
+  openPilotName=name;
+  const p=(data['Пилоты']||[]).find(x=>normName(x['Пилот'])===normName(name))||{'Пилот':name};
+  const my=laps().filter(l=>normName(l.pilot)===normName(name));
+  const byTrack={}; my.forEach(l=>(byTrack[l.track]=byTrack[l.track]||[]).push(l));
+  const best=bestFor(name,'');
+  let html=`<h2>${esc(p['Пилот'])}</h2><p class="sub">${esc(p['Класс']||'')}</p>
+    <div class="pstats"><div class="pstat"><b>${ratingFor(p).v}</b><span>рейтинг${ratingFor(p).manual?' (вручную)':''}</span></div>
+    <div class="pstat"><b>${esc(p['Налёт, ч']||'0')}</b><span>налёт, ч</span></div>
+    <div class="pstat"><b>${my.length}</b><span>заездов записано</span></div>
+    <div class="pstat"><b>${my.reduce((a,l)=>a+l.crash,0)}</b><span>аварий всего</span></div>
+    <div class="pstat"><b>${best?fmtLap(best.sec):'—'}</b><span>лучший круг${best?' · '+esc(best.track):''}</span></div></div>`;
+  html += Object.entries(byTrack).map(([t,ls])=>{
+    ls.sort((a,b)=>(parseDate(a.date)||0)-(parseDate(b.date)||0));
+    const bst=Math.min(...ls.map(l=>l.sec)), first=ls[0].sec, f=String(ls[0].fmt||'').toLowerCase();
+    const gain=first-bst;
+    const rows=ls.map((l,i)=>{ const d=i?l.sec-ls[i-1].sec:null;
+      return `<tr><td>${esc(l.date||'—')}</td><td class="${l.sec===bst?'best':''}">${fmtLap(l.sec)}${l.sec===bst?' 🏆':''}</td>
+        <td class="${d===null?'':d<0?'dfast':d>0?'dslow':''}">${d===null?'—':(d<0?'▼ ':d>0?'▲ +':'')+(d<0?'−'+Math.abs(d).toFixed(1):d.toFixed(1))+' с'}</td><td class="${l.crash?'dslow':''}">${l.crash}</td></tr>`; }).reverse().join('');
+    return `<div class="ptrack"><h4>${esc(t)} ${f?`<span class="tag ${f.startsWith('сим')?'sim':'real'}">${esc(ls[0].fmt)}</span>`:''}</h4>
+      <div class="prog">Заездов: ${ls.length} · первый ${fmtLap(first)} → лучший ${fmtLap(bst)}${gain>0?` · <b>быстрее на ${gain.toFixed(1)} с</b>`:''}</div>
+      ${spark(ls)}
+      <table><thead><tr><th>Дата</th><th>Время круга</th><th>К прошлому</th><th>Аварии</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }).join('') || '<p class="empty">Заездов пока нет.</p>';
+  if(MODE!=='public'){
+    html += `<h3 style="margin-top:16px">Добавить заезд</h3>
+      <div class="addlap"><label>Дата<input id="al-date" value="${todayStr()}"></label>
+        <label>Трасса${trackSelect('al-track', curTrack||best?.track||'')}</label>
+        <label>Время круга<input id="al-time" placeholder="00:49.3"></label>
+        <label>Аварии<input id="al-crash" type="number" min="0" value="0"></label>
+        <button class="btn primary" id="al-save">+ Добавить</button></div>`;
+  }
+  $('pbody').innerHTML=html; $('pmodal').classList.add('open');
+  const sv=document.getElementById('al-save'); if(sv) sv.onclick=()=>addLap(name, sv);
+}
+function closePilot(){ $('pmodal').classList.remove('open'); openPilotName=''; }
+
+async function addLap(name, btn){
+  const t=$('al-track').value.trim(), tm=$('al-time').value.trim();
+  if(!t || !lapSec(tm)){ toast('Укажите трассу и время, например 00:49.3','bad'); return; }
+  const rows=[...(data['Заезды']||[]), {'Дата':$('al-date').value.trim(),'Пилот':name,'Трасса':t,'Время круга':tm,'Формат':trackFmt(t),'Аварии':String(Math.max(0,parseInt($('al-crash').value)||0))}];
+  btn.disabled=true; btn.textContent='Сохраняю…';
+  try{ await postSheet('Заезды', rows); renderAll(); openPilot(name); toast('Заезд добавлен ✓','ok'); }
+  catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='+ Добавить'; }
+}
+
+function trackSelect(id, val){
+  const ts=allTracks();
+  return `<select id="${id}">${ts.length?'':'<option value="">— сначала добавьте трассу —</option>'}${ts.map(t=>`<option ${t===val?'selected':''}>${esc(t)}</option>`).join('')}</select>`;
+}
+function editTracks(){
+  closePilot();
+  const more=document.querySelector('[data-tab="more"]'); if(!more) return;
+  more.open=true; openEditor(more,'Трассы'); more.scrollIntoView({behavior:'smooth'});
+}
+/* ---------- заезд группы: одна трасса, время и аварии для всех пилотов ---------- */
+function openSession(){
+  const ps=[...(data['Пилоты']||[])].sort((a,b)=>String(a['Пилот']).localeCompare(String(b['Пилот']),'ru'));
+  $('pbody').innerHTML = `<h2>Заезд группы</h2><p class="sub">Выберите трассу и впишите время лучшего круга и число аварий. Кто не летал — оставьте время пустым.</p>
+    <div class="addlap" style="margin-bottom:14px"><label>Дата<input id="ss-date" value="${todayStr()}"></label>
+      <label>Трасса${trackSelect('ss-track', curTrack)}</label>
+      <button class="btn" onclick="editTracks()">✎ Список трасс</button></div>
+    <div class="tscroll"><table><thead><tr><th>Пилот</th><th>Класс</th><th>Лучший круг</th><th>Аварии</th></tr></thead><tbody>
+    ${ps.map((p,i)=>`<tr><td>${esc(p['Пилот'])}</td><td>${esc(p['Класс'])}</td>
+      <td><input class="ss-time" data-i="${i}" placeholder="00:49.3" style="width:110px"></td>
+      <td><input class="ss-crash" data-i="${i}" type="number" min="0" value="0" style="width:70px"></td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="ebar" style="margin-top:12px"><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="ss-save">Сохранить заезд</button></div>`;
+  $('pbody').querySelectorAll('input').forEach(i=>i.style.cssText+=';font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px');
+  $('pmodal').classList.add('open');
+  document.getElementById('ss-save').onclick=async ()=>{
+    const btn=document.getElementById('ss-save');
+    const t=document.getElementById('ss-track').value, d=document.getElementById('ss-date').value.trim();
+    if(!t){ toast('Сначала добавьте трассу в список','bad'); return; }
+    const add=[], bad=[];
+    ps.forEach((p,i)=>{
+      const tm=$('pbody').querySelector(`.ss-time[data-i="${i}"]`).value.trim(); if(!tm) return;
+      if(!lapSec(tm)){ bad.push(p['Пилот']); return; }
+      const cr=Math.max(0,parseInt($('pbody').querySelector(`.ss-crash[data-i="${i}"]`).value)||0);
+      add.push({'Дата':d,'Пилот':p['Пилот'],'Трасса':t,'Время круга':tm,'Формат':trackFmt(t),'Аварии':String(cr)});
+    });
+    if(bad.length){ toast('Проверьте время: '+bad.join(', ')+' (пример 00:49.3)','bad'); return; }
+    if(!add.length){ toast('Не вписано ни одного времени','bad'); return; }
+    btn.disabled=true; btn.textContent='Сохраняю…';
+    try{ await postSheet('Заезды',[...(data['Заезды']||[]),...add]); curTrack=t; curSort='leaders'; closePilot(); renderAll(); toast(`Заезд сохранён: ${add.length} пилот(ов) ✓`,'ok'); }
+    catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='Сохранить заезд'; }
+  };
+}
+
+function lapCell(p){
+  const b = bestFor(p['Пилот'], curTrack);
+  if(b) return `${fmtLap(b.sec)}${curTrack?'':`<small>${esc(b.track)}</small>`}`;
+  if(curTrack) return '—';
+  return esc(p['Лучший круг'] || '—');
+}
+
+function renderTracks(){
+  const ts=tracks(); $('c-tracks').textContent = ts.length;
+  $('tracks').innerHTML = ts.map(t=>{
+    const best={}; laps().filter(l=>l.track===t).forEach(l=>{ const k=normName(l.pilot); if(!best[k]||l.sec<best[k].sec) best[k]=l; });
+    const top=Object.values(best).sort((a,b)=>a.sec-b.sec).slice(0,3);
+    const f=top[0]?.fmt ? String(top[0].fmt).toLowerCase() : '';
+    return `<div class="track"><h4>${esc(t)} ${f?`<span class="tag ${f.startsWith('сим')?'sim':'real'}">${esc(top[0].fmt)}</span>`:''}</h4>
+      ${top.map((l,i)=>`<div class="podium"><span class="p">${['🥇','🥈','🥉'][i]}</span><span class="n">${esc(l.pilot)}</span><span class="lap">${fmtLap(l.sec)}</span></div>`).join('')}</div>`;
+  }).join('') || '<p class="empty">Добавьте заезды во вкладку «Заезды»</p>';
+}
+
+function renderRus(){
+  const list=[...(data['Рейтинг России']||[])].sort((a,b)=> num(a['Место'])-num(b['Место']));
+  const ours=new Set((data['Пилоты']||[]).map(p=>normName(p['Пилот'])));
+  $('c-rus').textContent = list.length || '';
+  $('rus').innerHTML = list.map(r=>`<tr class="${ours.has(normName(r['Пилот']))?'ours':''}"><td class="rank">${esc(r['Место'])}</td>
+    <td>${esc(r['Пилот'])}</td><td>${esc(r['Регион'])}</td><td>${esc(r['Очки'])}</td></tr>`).join('')
+    || '<tr><td colspan="4" class="empty">Пока не заполнено</td></tr>';
+  $('rus-note').innerHTML = 'Данные — по публикациям <a href="https://fgdr.ru/" target="_blank" rel="noopener">Федерации гонок дронов России</a>. Наши пилоты подсвечены.';
+}
+
+function renderHelp(){
+  const C=data['Классы']||[];
+  const F=[['Размер','Размер'],['Вес','Взлётный вес'],['АКБ','Аккумулятор'],['Моторы','Моторы и пропеллеры'],['Связь','Связь и видео']];
+  $('classes').innerHTML = C.map(c=>`<div class="cls"><h4>${esc(c['Класс'])}</h4><dl>${
+    F.filter(([,k])=>c[k] && c[k]!=='—').map(([l,k])=>`<dt>${l}</dt><dd>${esc(c[k])}</dd>`).join('')}</dl>${c['Особенности']?`<p>${esc(c['Особенности'])}</p>`:''}</div>`).join('') || '<p class="empty">Заполните вкладку «Классы»</p>';
+  $('rules').innerHTML = (data['Правила']||[]).map(r=>`<div class="rule"><b>${esc(r['Тема'])}</b>${esc(r['Текст'])}</div>`).join('') || '<p class="empty">Заполните вкладку «Правила»</p>';
+}
+
+function renderSchedule(){
+  const list = data['Расписание']||[];
+  const wd = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][new Date().getDay()];
+  $('c-schedule').textContent = list.length;
+  $('schedule').innerHTML = list.map(s=>`
+    <div class="sched-row ${String(s['День']).trim().toLowerCase()===wd.toLowerCase()?'today':''}">
+      <div class="sched-day"><span class="d">${esc(s['День'])}</span><span class="t">${esc(s['Время'])}</span></div>
+      <div class="sched-body"><b>${esc(s['Занятие'])}</b><br><span style="color:var(--dim);font-size:12px">${esc(s['Примечание'])}</span></div>
+    </div>`).join('') || '<p class="empty">Расписание пусто</p>';
+}
+
+function safeUrl(u){ u=String(u||'').trim(); return /^https?:\/\//i.test(u) ? u : ''; }
+
+function renderNews(){
+  const list = [...(data['Новости']||[])].sort((a,b)=> (parseDate(b['Дата'])||0) - (parseDate(a['Дата'])||0));
+  $('c-news').textContent = list.length;
+  $('news').innerHTML = list.map(n=>{ const u=safeUrl(n['Ссылка']);
+    return `<div class="news-item"><span class="nd">${esc(n['Дата'])}</span>
+      <span>${esc(n['Текст'])}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener">открыть</a>`:''}</span></div>`;}).join('') || '<p class="empty">Новостей нет</p>';
+}
+
+function renderFgd(){
+  const list=(data['Новости ФГД']||[]).slice(0,6);
+  $('c-fgd').textContent = list.length||'';
+  $('fgd').innerHTML = list.map(n=>{ const u=safeUrl(n['Ссылка']);
+    return `<div class="news-item"><span class="nd">${esc(n['Дата'])}</span><span>${esc(n['Текст'])}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener">читать</a>`:''}</span></div>`;}).join('') || '<p class="empty">Лента загружается — появится после первого обновления</p>';
+}
+
+function renderStatus(){
+  const list = data['Статус']||[];
+  $('status-block').innerHTML = list.map(s=>`<p><b>${esc(s['Параметр'])}:</b> ${esc(s['Значение'])}</p>`).join('') || '<p class="empty">—</p>';
+}
+
+function renderModal(){
+  $('contacts').innerHTML = (data['Контакты']||[]).map(c=>`
+    <div class="contact-card"><div class="c-name">${esc(c['ФИО'])}</div><div class="c-role">${esc(c['Роль'])}</div>
+    <div class="c-org">${esc(c['Организация'])}</div><div class="c-contact">${esc(c['Контакты'])}</div></div>`).join('') || '<p class="empty">—</p>';
+  const L=data['Ссылки']||[], groups={};
+  L.forEach(l=>{ const g=l['Раздел']||'Прочее'; (groups[g]=groups[g]||[]).push(l); });
+  $('links').innerHTML = Object.entries(groups).map(([g,items])=>`<h4 class="lgroup">${esc(g)}</h4>`+items.map(l=>{ const u=safeUrl(l['Адрес']);
+    return `<div class="link-item">${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(l['Название'])} ↗</a>`:`${esc(l['Название'])} <span>· ссылка не указана</span>`}${l['Описание']?`<small>${esc(l['Описание'])}</small>`:''}</div>`;}).join('')).join('') || '<p class="empty">—</p>';
+}
+
+function renderAll(){
+  renderKPI(); renderEvents(); renderTasks(); renderPilots(); renderSchedule(); renderNews(); renderStatus(); renderModal(); renderTracks(); renderRus(); renderHelp(); renderFgd();
+  $('footer').textContent = source==='live' ? 'Данные из Google Таблицы клуба' : source==='cache' ? 'Показана последняя сохранённая версия' : 'Данные-образец';
+  if(source==='sample' && sheetId()) {} else if(source==='sample') setStatus('warn','образец');
+}
+
+function showRatingHelp(){ document.querySelector('.tab[data-p="p-rules"]').click(); }
+function openModal(){ $('modal').classList.add('open'); }
+function closeModal(){ $('modal').classList.remove('open'); }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); closePilot(); } });
+
+/* ---------- режим: тренер / группа ---------- */
+function applyMode(){
+  if(MODE==='public'){
+    document.querySelectorAll('.coach-only').forEach(e=>e.remove());
+
+  } else {
+    document.querySelectorAll('details[data-tab]').forEach(d=>{
+      if(d.dataset.tab==='more') return;
+      const b=document.createElement('button'); b.className='edit'; b.textContent='✎ Изменить';
+      b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); d.open=true; openEditor(d, d.dataset.tab); };
+      const sm=d.querySelector('summary'), cnt=sm.querySelector('.counter');
+      if(cnt){ cnt.style.marginRight='0'; cnt.after(b); } else sm.appendChild(b);
+      b.style.marginRight='auto';
+    });
+    const more=document.querySelector('[data-tab="more"]');
+    $('moreChips').innerHTML = MORE.map(n=>`<button class="chip" data-s="${esc(n)}">${esc(n)}</button>`).join('');
+    $('moreChips').querySelectorAll('.chip').forEach(c=> c.onclick=()=>openEditor(more, c.dataset.s));
+  }
+}
+
+/* ============================================================
+   РЕДАКТОР (только тренерская версия)
+   Правки отправляются в Google Таблицу через Apps Script.
+   ============================================================ */
+const MORE = ['Трассы','Показатели','Контакты','Ссылки','Классы','Правила'];
+const SCHEMA = {
+  'Пилоты':['Пилот','Класс','Налёт, ч','Лучший круг','Рейтинг'],
+  'События':['Дата','Название','Место','Тип','Метка'],
+  'Задачи':['Задача','Выполнено'],
+  'Расписание':['День','Время','Занятие','Примечание'],
+  'Новости':['Дата','Текст','Ссылка'],
+  'Ссылки':['Раздел','Название','Адрес','Описание'],
+  'Контакты':['ФИО','Роль','Организация','Контакты'],
+  'Показатели':['Показатель','Значение','Подпись'],
+  'Статус':['Параметр','Значение'],
+  'Заезды':['Дата','Пилот','Трасса','Время круга','Формат','Аварии'],
+  'Трассы':['Название','Формат','Описание'],
+  'Рейтинг России':['Место','Пилот','Регион','Очки','Дисциплина'],
+  'Классы':['Класс','Размер','Взлётный вес','Аккумулятор','Моторы и пропеллеры','Связь и видео','Особенности'],
+  'Правила':['Тема','Текст']
+};
+const SELECTS = {'Тип':['симулятор','реал','другое'], 'Выполнено':['нет','да'], 'Формат':['симулятор','реал'], 'День':['Пн','Вт','Ср','Чт','Пт','Сб','Вс']};
+const LONG = new Set(['Текст','Особенности','Задача','Описание']);
+const HINT = {'Дата':'дд.мм.гггг','Время круга':'00:49.3','Лучший круг':'посчитается из заездов','Рейтинг':'посчитается сам','Время':'18:00','Адрес':'https://…','Налёт, ч':'часы'};
+const todayStr = () => new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+const PIN_KEY = 'vzlet_pin';
+const ss_ = { get(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){} }, del(k){ try{ sessionStorage.removeItem(k); }catch(e){} } };
+
+function toast(msg, cls=''){ const t=$('toast'); t.textContent=msg; t.className='show '+cls; clearTimeout(t._t); t._t=setTimeout(()=>t.className='',3000); }
+
+function fieldHTML(sheet, col, val){
+  const v = esc(val);
+  let ctl;
+  if(SELECTS[col]){
+    const opts = SELECTS[col].includes(String(val)) || !val ? SELECTS[col] : [String(val), ...SELECTS[col]];
+    ctl = `<select data-c="${esc(col)}">${opts.map(o=>`<option ${String(o)===String(val)?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  } else if(LONG.has(col)) ctl = `<textarea data-c="${esc(col)}">${v}</textarea>`;
+  else ctl = `<input data-c="${esc(col)}" value="${v}" placeholder="${esc(HINT[col]||'')}" ${col==='Пилот'&&sheet!=='Пилоты'?'list="pilotList"':''}>`;
+  return `<label class="${LONG.has(col)?'wide':''}">${esc(col)}${ctl}</label>`;
+}
+function rowHTML(sheet, r){
+  return `<div class="erow">${SCHEMA[sheet].map(c=>fieldHTML(sheet,c,r[c]??'')).join('')}<button class="del" title="Удалить строку">✕</button></div>`;
+}
+function newRow(sheet){
+  const r={}; SCHEMA[sheet].forEach(c=>r[c]='');
+  if('Дата' in r && sheet!=='События') r['Дата']=todayStr();
+  if(sheet==='Задачи') r['Выполнено']='нет';
+  if(sheet==='Пилоты'){ r['Рейтинг']='0'; r['Налёт, ч']='0'; }
+  if(sheet==='Заезды' && curTrack) r['Трасса']=curTrack;
+  return r;
+}
+
+function closeEditor(card){ card.classList.remove('editing'); card.querySelector('.editor')?.remove(); card.querySelector('.edit')?.classList.remove('on'); }
+
+function openEditor(card, sheet){
+  closeEditor(card);
+  card.classList.add('editing'); card.querySelector('.edit')?.classList.add('on');
+  const ed=document.createElement('div'); ed.className='editor';
+  const rows=(data[sheet]||[]);
+  ed.innerHTML = `<p class="muted">Раздел «${esc(sheet)}». Изменения увидят все после «Сохранить».</p>
+    <datalist id="pilotList">${(data['Пилоты']||[]).map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
+    <div class="erows">${rows.map(r=>rowHTML(sheet,r)).join('')}</div>
+    <div class="ebar"><button class="btn add">+ Добавить</button><span class="sp"></span>
+      <button class="btn cancel">Отмена</button><button class="btn primary save">Сохранить</button></div>`;
+  card.appendChild(ed);
+  const list=ed.querySelector('.erows');
+  const bindDel = el => el.querySelector('.del').onclick=()=>el.remove();
+  list.querySelectorAll('.erow').forEach(bindDel);
+  ed.querySelector('.add').onclick=()=>{
+    list.insertAdjacentHTML('beforeend', rowHTML(sheet,newRow(sheet)));
+    const el=list.lastElementChild; bindDel(el); el.scrollIntoView({block:'center',behavior:'smooth'});
+    el.querySelector('input,textarea,select')?.focus();
+  };
+  ed.querySelector('.cancel').onclick=()=>closeEditor(card);
+  ed.querySelector('.save').onclick=()=>saveEditor(card, sheet, list, ed.querySelector('.save'));
+}
+
+async function postSheet(sheet, rows){
+  if(!SCRIPT_URL || SCRIPT_URL.startsWith('__')) throw new Error('сохранение ещё не подключено');
+  const pin=ss_.get(PIN_KEY);
+  if(!pin){ throw new Error('войдите по PIN (кнопка "Войти" вверху)'); }
+  const r=await fetch(SCRIPT_URL,{method:'POST', body:JSON.stringify({key:pin, sheet, rows})});
+  const res=await r.json();
+  if(!res.ok){ if(/Неверный PIN/i.test(res.error||'')) logout(true); throw new Error(res.error||'ошибка'); }
+  data[sheet]=rows; ls.set(CACHE_KEY, JSON.stringify({t:Date.now(), id:sheetId(), data}));
+}
+
+async function saveEditor(card, sheet, list, btn){
+  const rows=[...list.querySelectorAll('.erow')].map(el=>{
+    const r={}; el.querySelectorAll('[data-c]').forEach(f=>r[f.dataset.c]=f.value.trim()); return r;
+  }).filter(r=>Object.values(r).some(v=>v!=='' && v!=='нет'));
+  btn.disabled=true; btn.textContent='Сохраняю…';
+  try{ await postSheet(sheet, rows); closeEditor(card); renderAll(); toast('Сохранено ✓','ok'); }
+  catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='Сохранить'; }
+}
+
+document.querySelectorAll('.tab').forEach(t=> t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('hidden',p.id!==t.dataset.p));
+});
+/* ---------- вход по PIN: тренер (всё) или помощник (только заезды) ---------- */
+async function api(body){
+  const r=await fetch(SCRIPT_URL,{method:'POST', body:JSON.stringify(body)});
+  return r.json();
+}
+function lockClick(){ ROLE ? openLogout() : openLogin(); }
+function openLogout(){
+  $('pbody').innerHTML = `<h2>${ROLE==='admin'?'Тренер':'Помощник'}</h2><p class="sub">Вы в режиме редактирования.</p>
+    <div class="ebar"><button class="btn" onclick="closePilot()">Отмена</button><span class="sp"></span><button class="btn" onclick="logout(false,true)" title="Если это чужой или общий компьютер">Выйти и скрыть вход здесь</button><button class="btn primary" onclick="logout()">Выйти</button></div>`;
+  $('pmodal').classList.add('open'); }
+function logout(silent, hide){ ss_.del(PIN_KEY); ss_.del('vzlet_role'); if(hide) ls.del('vzlet_editor_dev'); if(!silent) location.reload(); }
+function trustedDev(){ return ls.get('vzlet_editor_dev')==='1'; }
+function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0;
+  el.addEventListener('pointerdown',()=>{ clearTimeout(t); t=setTimeout(()=>{ t=null; fn(); },900); });
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,()=>clearTimeout(t)));
+  el.addEventListener('click',()=>{ const now=Date.now(); n = now-last<600 ? n+1 : 1; last=now; if(n>=5){ n=0; fn(); } });
+  el.addEventListener('contextmenu',e=>e.preventDefault()); }
+function openLogin(){
+  $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Помощник - только записывать заезды: ФИО, трассу и время.</p>
+    <form id="lgForm" class="addlap" autocomplete="off"><label>PIN<input id="lgPin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" style="width:140px"></label>
+    <button class="btn primary" id="lgBtn">Войти</button></form><p class="muted" id="lgErr" style="color:#ff7a7a;min-height:18px;margin-top:8px"></p>`;
+  $('pmodal').classList.add('open'); setTimeout(()=>$('lgPin').focus(),50);
+  $('lgForm').onsubmit=async e=>{ e.preventDefault(); const pin=$('lgPin').value.trim(); if(!pin) return;
+    $('lgBtn').disabled=true; $('lgBtn').textContent='Проверяю…';
+    try{ const r=await api({op:'login', key:pin});
+      if(!r.ok) throw new Error(r.error||'ошибка');
+      ss_.set(PIN_KEY,pin); ss_.set('vzlet_role',r.role); ls.set('vzlet_editor_dev','1'); location.reload();
+    }catch(err){ $('lgErr').textContent=err.message; $('lgBtn').disabled=false; $('lgBtn').textContent='Войти'; }
+  };
+}
+function initRole(){
+  const b=document.getElementById('lockBtn'); if(!b) return;
+  if(ROLE || trustedDev()) b.style.display='';
+  secretTap(document.querySelector('.logo-badge'), ()=>{ if(!ROLE) openLogin(); });
+  const vh=()=>{ if(location.hash==='#vhod'){ history.replaceState(null,'',location.pathname+location.search); if(!ROLE) setTimeout(openLogin,300); } }; vh(); addEventListener('hashchange',vh);
+  if(ROLE){ b.textContent=(ROLE==='admin'?'🔓 Тренер':'🔓 Помощник')+' · выйти'; b.title='Выйти из режима редактирования'; }
+  if(ROLE==='helper'){
+    const card=document.querySelector('details[data-tab="Пилоты"]'), chips=document.getElementById('sortChips');
+    if(chips) chips.insertAdjacentHTML('afterend','<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn primary" onclick="openHelper()">＋ Записать результат</button></div>');
+  }
+}
+function hlRow(){ return `<div class="hlrow"><input class="hl-name" list="hlPilots" placeholder="ФИО участника"><input class="hl-track" list="hlTracks" value="${esc(curTrack||'')}" placeholder="Трасса">
+  <input class="hl-time" placeholder="00:49.3" inputmode="decimal"><select class="hl-fmt"><option>реал</option><option>симулятор</option></select><button class="btn hl-del" title="Убрать строку">✕</button></div>`; }
+function openHelper(){
+  $('pbody').innerHTML = `<h2>Записать результат</h2><p class="sub">Впишите ФИО участника, трассу и время лучшего круга. Новые участники и трассы добавятся в списки сами.</p>
+    <datalist id="hlPilots">${(data['Пилоты']||[]).map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
+    <datalist id="hlTracks">${allTracks().map(t=>`<option value="${esc(t)}">`).join('')}</datalist>
+    <div class="addlap" style="margin-bottom:10px"><label>Дата<input id="hl-date" value="${todayStr()}" style="width:120px"></label></div>
+    <div class="hlhead"><span>ФИО</span><span>Трасса</span><span>Время круга</span><span>Формат</span><span></span></div><div id="hlRows">${hlRow()}</div>
+    <div class="ebar" style="margin-top:12px"><button class="btn" id="hlAdd">+ Ещё строка</button><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="hlSave">Сохранить</button></div>`;
+  const style=el=>el.querySelectorAll('input,select').forEach(i=>i.style.cssText+=';font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px');
+  const bind=tr=>{ style(tr); tr.querySelector('.hl-del').onclick=()=>{ if($('hlRows').children.length>1) tr.remove(); };
+    const t=tr.querySelector('.hl-track'), f=tr.querySelector('.hl-fmt'), sync=()=>{ const v=trackFmt(t.value.trim()); if(v) f.value=v; }; t.onchange=sync; sync(); };
+  style($('pbody')); [...$('hlRows').children].forEach(bind);
+  $('hlAdd').onclick=()=>{ const last=$('hlRows').lastElementChild; $('hlRows').insertAdjacentHTML('beforeend',hlRow()); const tr=$('hlRows').lastElementChild;
+    if(last){ tr.querySelector('.hl-track').value=last.querySelector('.hl-track').value; } bind(tr); tr.querySelector('.hl-name').focus(); };
+  $('pmodal').classList.add('open'); setTimeout(()=>$('hlRows').querySelector('.hl-name').focus(),50);
+  $('hlSave').onclick=async()=>{
+    const d=$('hl-date').value.trim(), add=[];
+    for(const tr of $('hlRows').children){
+      const n=tr.querySelector('.hl-name').value.trim(), t=tr.querySelector('.hl-track').value.trim(), tm=tr.querySelector('.hl-time').value.trim().replace(',','.');
+      if(!n && !tm) continue;
+      if(!n || !t){ toast('Укажите ФИО и трассу в каждой строке','bad'); return; }
+      if(!lapSec(tm)){ toast(`Проверьте время у "${n}" - пример 00:49.3`,'bad'); return; }
+      add.push({'Дата':d,'Пилот':n,'Трасса':t,'Время круга':tm,'Формат':tr.querySelector('.hl-fmt').value,'Аварии':'0'});
+    }
+    if(!add.length){ toast('Нечего сохранять','bad'); return; }
+    const btn=$('hlSave'); btn.disabled=true; btn.textContent='Сохраняю…';
+    try{ const r=await api({op:'addLaps', key:ss_.get(PIN_KEY), laps:add});
+      if(!r.ok){ if(/Неверный PIN/i.test(r.error||'')) logout(true); throw new Error(r.error||'ошибка'); }
+      data['Заезды']=[...(data['Заезды']||[]),...r.laps]; data['Пилоты']=[...(data['Пилоты']||[]),...r.pilots]; data['Трассы']=[...(data['Трассы']||[]),...r.tracks];
+      ls.set(CACHE_KEY, JSON.stringify({t:Date.now(), id:sheetId(), data}));
+      curTrack=add[add.length-1]['Трасса']; closePilot(); renderAll(); toast(`Сохранено: ${add.length} ✓`,'ok');
+    }catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='Сохранить'; }
+  };
+}
+
+applyMode();
+initRole();
+/* анонимный счётчик посещений */
+(function(page){ try{ const API='https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec', k='irtysh_hit_'+page;
+  if(sessionStorage.getItem(k)!==null) return; const d=new Date().toDateString(), fresh=!localStorage.getItem('irtysh_new_'+page), today=localStorage.getItem('irtysh_day_'+page)!==d;
+  fetch(API,{method:'POST', body:JSON.stringify({op:'hit', page, fresh, today})}).then(r=>r.json()).then(j=>{ if(!j.ok) return; localStorage.setItem('irtysh_new_'+page,'1'); localStorage.setItem('irtysh_day_'+page,d); sessionStorage.setItem(k,String(j.total||'')); }).catch(()=>{}); }catch(e){} })('vzlet');
+loadData();
+setInterval(()=>{ if(sheetId() && !document.hidden && !document.querySelector('.editing')) loadData(); }, REFRESH_MIN*60*1000);
+</script>
+<a id="toSchool" href="../" title="На портал Спектра">&#8592; СПЕКТР</a>
+<style>#toSchool{position:fixed; left:14px; bottom:14px; z-index:9999; display:inline-flex; align-items:center; gap:6px; padding:10px 16px; border-radius:999px; font:700 14px system-ui,sans-serif; text-decoration:none; color:#fff; background:linear-gradient(135deg,#3b5bfd,#8b5cf6); box-shadow:0 8px 22px rgba(59,91,253,.4); transition:transform .2s}#toSchool:hover{transform:translateY(-2px)}@media print{#toSchool{display:none}}</style>
+</body>
+</html>
