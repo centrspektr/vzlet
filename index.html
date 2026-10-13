@@ -319,7 +319,7 @@
 </header>
 
 <nav class="vt" id="vt"><span class="vti" id="vti"></span>
-  <button data-t="club" class="on">🏁 Клуб</button><button data-t="learn">📚 Шпаргалки</button><button data-t="quiz">🧠 Тесты</button><button data-t="calc">🧮 Калькуляторы</button><button data-t="me">🎖 Мои значки</button>
+  <button data-t="club" class="on">🏁 Клуб</button><button data-t="learn">📚 Шпаргалки</button><button data-t="quiz">🧠 Тесты</button><button data-t="calc">🧮 Калькуляторы</button><button data-t="me">🎖 Мои значки</button><button data-t="rate">🏆 Рейтинг</button>
 </nav>
 <section class="ahero" id="ahero" hidden>
   <div class="ah-ph"><img src="drone.webp" alt=""></div><div class="ah-scan"></div>
@@ -365,7 +365,11 @@
 </div>
 
 <div class="vtab" id="t-me" hidden>
-  <div class="card"><h3>🎖 Мои значки</h3><p class="muted">Прогресс хранится на этом устройстве.</p><div class="bdg" id="bdg"></div></div>
+  <div class="card"><h3>🎖 Мои значки</h3><p class="muted">Прогресс хранится на этом устройстве. Чтобы он попадал в общий рейтинг клуба, оставь заявку во вкладке <a href="#rate" onclick="event.preventDefault();document.querySelector('#vt [data-t=rate]').click()">🏆 Рейтинг</a>.</p><div class="bdg" id="bdg"></div></div>
+</div>
+
+<div class="vtab" id="t-rate" hidden>
+  <div data-spk-club="vzlet"></div>
 </div>
 
 <div class="vtab" id="t-club">
@@ -1230,10 +1234,11 @@ const RED=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const KEY='vzlet_academy';
 let A={best:{},read:[],tr:{best:null,n10:false},calc:[],badges:[]};
 try{A=Object.assign(A,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(A))}catch(e){}};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(A))}catch(e){}if(window.SPK)SPK.sync()};
 const LV=[[0,'🐣 Курсант'],[100,'🛫 Стажёр'],[200,'🚁 Пилот'],[300,'🎯 Пилот-инструктор'],[400,'🏆 Ас']];
 function xp(){let x=0;Object.values(A.best).forEach(v=>x+=v*10);x+=Math.min(A.read.length,10)*5;if(A.tr.best)x+=30;if(A.tr.n10)x+=20;x+=A.calc.length*10;return x}
 function lvl(x){let i=0;LV.forEach((l,k)=>{if(x>=l[0])i=k});return i}
+window.SPK_PROGRESS=()=>{const x=xp();return{p:x,b:A.badges.length,l:LV[lvl(x)][1]}};
 function renderXP(){const x=xp(),i=lvl(x),a=LV[i][0],b=LV[i+1]?LV[i+1][0]:a+100;$('#ahLvl').textContent=LV[i][1];$('#ahXp').textContent=x+' XP';$('#ahBar').style.width=Math.min(100,(x-a)/(b-a)*100)+'%'}
 /* ---------- значки ---------- */
 function pop(e,t){let p=$('#pop');if(!p){p=document.createElement('div');p.id='pop';document.body.appendChild(p)}p.innerHTML=`<small>НОВЫЙ ЗНАЧОК</small><div class="e">${e}</div><b>${t}</b>`;p.classList.add('on');confetti();clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('on'),2600)}
@@ -1242,7 +1247,7 @@ function checkBadges(){['novice','pilot','ace'].forEach(k=>{if((A.best[k]||0)>=8
 function renderBadges(){$('#bdg').innerHTML=BADGES.map(b=>`<div class="bd1 ${A.badges.includes(b[0])?'got':''}"><span class="e">${b[1]}</span><b>${b[2]}</b><small>${b[3]}</small></div>`).join('')}
 function confetti(){if(RED)return;const C=['#00d4ff','#3fb950','#d29922','#f85149','#a371f7','#fff'];for(let i=0;i<70;i++){const d=document.createElement('i'),x=innerWidth/2,y=innerHeight*.25,a=Math.random()*6.28,v=120+Math.random()*320;d.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:${6+Math.random()*6}px;height:${4+Math.random()*5}px;background:${C[i%6]};z-index:10000;pointer-events:none;border-radius:2px`;document.body.appendChild(d);d.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*v}px,${Math.sin(a)*v+260}px) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:1300+Math.random()*700,easing:'cubic-bezier(.2,.7,.4,1)'}).onfinish=()=>d.remove()}}
 /* ---------- вкладки ---------- */
-const HERO={learn:['Шпаргалки','Всё главное о дронах - коротко и по делу.'],quiz:['Тесты','Три уровня: от новичка до аса. Проверь себя!'],calc:['Калькуляторы','Время полёта, аккумуляторы, тяга, частоты.'],me:['Мои значки','Собери все значки и стань асом теории.']};
+const HERO={learn:['Шпаргалки','Всё главное о дронах - коротко и по делу.'],quiz:['Тесты','Три уровня: от новичка до аса. Проверь себя!'],calc:['Калькуляторы','Время полёта, аккумуляторы, тяга, частоты.'],me:['Мои значки','Собери все значки и стань асом теории.'],rate:['Рейтинг','Тесты, значки и задания педагога - в общий зачёт клуба.']};
 let TAB='club';
 function moveVti(){const b=$('#vt button.on'),i=$('#vti');if(!b)return;i.style.left=b.offsetLeft+'px';i.style.width=b.offsetWidth+'px';const n=$('#vt');if(n.scrollWidth>n.clientWidth)n.scrollTo({left:b.offsetLeft-(n.clientWidth-b.offsetWidth)/2,behavior:'smooth'})}
 function show(t,push){TAB=t;$$('#vt button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));moveVti();
@@ -1346,5 +1351,6 @@ setTimeout(moveVti,300);document.fonts&&document.fonts.ready.then(moveVti);
 })();
 
 </script>
+<script src="/students.js" defer></script>
 </body>
 </html>
