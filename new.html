@@ -308,6 +308,7 @@ html.fx{background:var(--bg)}
 body{font-family:Manrope,'Segoe UI',system-ui,sans-serif}
 header,.card,.vt,.modal-card{background:rgba(22,27,34,.80)}
 html.fx header,html.fx .card{box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 18px 40px -22px rgba(0,0,0,.8)}
+@media(hover:none),(max-width:860px){html.fx .vt{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--panel)}}
 @media(hover:hover) and (min-width:861px){html.fx header,html.fx .card,html.fx .vt{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}}
 header{position:relative;overflow:hidden}
 header::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(0,212,255,.10) 50%,transparent 65%);transform:translateX(-100%);animation:hdrsh 7s ease-in-out infinite 2s}
@@ -364,6 +365,52 @@ details.card>summary{font-family:var(--fh);font-size:12.5px;font-weight:600;lett
 .ckbar{height:8px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden;margin:4px 0 12px}.ckbar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#00d4ff,#3fb950);transition:width .5s cubic-bezier(.2,.8,.2,1)}
 .stamp{position:absolute;right:16px;bottom:14px;padding:8px 14px;border:3px solid var(--ok);border-radius:10px;color:var(--ok);font:800 15px var(--fh);transform:rotate(-12deg) scale(0);opacity:0;pointer-events:none;background:rgba(13,17,23,.85);transition:transform .5s cubic-bezier(.3,1.8,.5,1),opacity .3s}
 .stamp.on{transform:rotate(-12deg) scale(1);opacity:1}
+/* 16.10: телефон - текст не вылезает за края; сворачиваемые блоки */
+.logo{min-width:0}.logo>div{min-width:0}
+.logo h1,.logo p,.pl h3,.plev .nm,.qd p.q{overflow-wrap:anywhere}
+@media(max-width:600px){
+ header{padding:14px}
+ .logo h1{font-size:clamp(16px,5.2vw,20px);line-height:1.2}
+ .grant-note{display:block;white-space:normal;font:700 12px/1.3 Manrope,system-ui,sans-serif;margin-top:4px}
+ .logo p{font-size:12px}
+ .pl{padding:16px}
+ .pl h3{font-size:11.5px;letter-spacing:.6px}
+ .streak{font-size:11.5px}
+ .plev .nm{font-size:clamp(16px,5vw,20px)}
+ .cd{gap:6px}.cd div{min-width:0;flex:1;padding:8px 4px 6px}.cd b{font-size:22px}.cd small{font-size:9.5px;letter-spacing:.3px}
+ .kpi .num{font-size:24px;overflow-wrap:anywhere}
+ details.card>summary{font-size:11px;letter-spacing:.5px}
+ .pod .nmx{font-size:12px}
+}
+@media(hover:none),(max-width:860px){.logo-badge,header::after{animation:none}}
+.fh{cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.fh .sp{flex:1;min-width:4px}.fh .streak{margin-left:0}
+.fh .fa{flex-shrink:0;width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--text);font-size:12px;transition:transform .5s cubic-bezier(.3,1.5,.5,1),background .2s}
+.fh:hover .fa{background:rgba(0,212,255,.15)}
+.fold.closed .fh .fa{transform:rotate(-90deg)}
+.fold>h3{transition:margin .45s cubic-bezier(.3,.8,.3,1)}.fold.closed>h3{margin-bottom:0}
+.fb{display:grid;grid-template-rows:1fr;transition:grid-template-rows .5s cubic-bezier(.3,.8,.3,1),opacity .4s ease}
+.fb>.fi{min-height:0;overflow:hidden}
+.fold.closed>.fb{grid-template-rows:0fr;opacity:0}
+.fh{flex-wrap:wrap}.peek{display:none;order:10;flex-basis:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);text-transform:none;letter-spacing:0;font:700 13.5px Manrope,system-ui,sans-serif;margin-top:2px}
+.fold.closed .peek{display:block}.fold.closed .fh .streak{display:none}
+.plev .drone{top:46px;transition:opacity .3s}.fold.closed .drone,.fold.closed .stamp{opacity:0!important}
+details.card>.dbody{overflow:hidden}
+details.card>summary{transition:margin .35s ease;-webkit-tap-highlight-color:transparent}
+details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
+#kpiBox .kpi{background:rgba(0,0,0,.25);box-shadow:none;border-color:rgba(255,255,255,.06)}
+#kpiBox #kpi-grid{margin:0}
+/* расписание пока идёт набор */
+.sform{display:grid;gap:12px}
+.sform .lead{font-weight:800;font-size:15px;line-height:1.35}
+.sform .lead small{display:block;color:var(--dim);font-weight:600;font-size:13px;margin-top:4px}
+.stl{display:grid;gap:8px;position:relative}
+.stl div{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:start;padding:9px 11px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.stl b{font:800 12px/1.5 var(--fh);color:var(--accent);white-space:nowrap}
+.stl span{font-size:13.5px;line-height:1.4}
+.stl .sw{border-color:rgba(163,113,247,.45);background:rgba(163,113,247,.10)}
+.sform .note{font-size:12.5px;color:var(--dim)}
+@media (prefers-reduced-motion: reduce){.fb,.fh .fa,details.card>summary::after{transition:none}}
 @media (prefers-reduced-motion: reduce){header::after,.logo-badge,.plev .drone{animation:none}}
 </style>
 </head>
@@ -459,7 +506,7 @@ details.card>summary{font-family:var(--fh);font-size:12.5px;font-weight:600;lett
   <div class="card pl qd" id="plDay"></div>
   <div class="card pl" id="plChk"></div>
 </section>
-<div class="grid" id="kpi-grid"></div>
+<details class="card" id="kpiBox" data-fold="kpi"><summary>📊 Клуб в цифрах</summary><div class="grid" id="kpi-grid"></div></details>
 
 <div class="grid" style="margin-top:16px;">
   <details class="card col-8" open data-tab="События">
@@ -939,8 +986,19 @@ function renderHelp(){
   $('rules').innerHTML = (data['Правила']||[]).map(r=>`<div class="rule"><b>${esc(r['Тема'])}</b>${esc(r['Текст'])}</div>`).join('') || '<p class="empty">Заполните вкладку «Правила»</p>';
 }
 
+/* Пока идёт набор пилотов, гости видят план занятий вместо расписания.
+   Когда группы сформированы и расписание заполнено - поставить true. */
+const SCHED_OPEN = false;
+const SCHED_FORM = `<div class="sform"><p class="lead">🗓 Расписание сформируется по итогам набора пилотов<small>Собираем мини-группы по 6 человек. В клубе 3 компьютера с симуляторами, поэтому группа делится на две тройки и меняется местами.</small></p>
+  <div class="stl"><div><b>0-5'</b><span>Брифинг: цель занятия, разминка для пальцев</span></div>
+  <div><b>5-30'</b><span>🎮 Тройка А - на симуляторах (трасса дня)<br>📚 Тройка Б - Академия: шпаргалка, тест, тренажёр стиков, вопрос дня</span></div>
+  <div class="sw"><b>30-55'</b><span>🔄 Меняемся местами</span></div>
+  <div><b>55-60'</b><span>Разбор: лучшие круги идут в рейтинг клуба</span></div></div>
+  <p class="note">Каждый пилот за занятие: 25 минут в симуляторе + 25 минут теории и тестов. Заявки принимаем во вкладке 🏆 Рейтинг.</p>
+  <div><button class="btn primary" onclick="document.querySelector('#vt [data-t=rate]').click()">🏁 Оставить заявку</button></div></div>`;
 function renderSchedule(){
   const list = data['Расписание']||[];
+  if(MODE==='public' && !SCHED_OPEN){ $('c-schedule').textContent=''; $('schedule').innerHTML=SCHED_FORM; return; }
   const wd = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][new Date().getDay()];
   $('c-schedule').textContent = list.length;
   $('schedule').innerHTML = list.map(s=>`
@@ -948,6 +1006,7 @@ function renderSchedule(){
       <div class="sched-day"><span class="d">${esc(s['День'])}</span><span class="t">${esc(s['Время'])}</span></div>
       <div class="sched-body"><b>${esc(s['Занятие'])}</b><br><span style="color:var(--dim);font-size:12px">${esc(s['Примечание'])}</span></div>
     </div>`).join('') || '<p class="empty">Расписание пусто</p>';
+  if(MODE==='coach' && !SCHED_OPEN) $('schedule').insertAdjacentHTML('afterbegin','<p class="muted" style="margin-bottom:10px">👁 Гости пока видят «Расписание сформируется по итогам набора» и план занятия. Строки ниже видите только вы.</p>');
 }
 
 function safeUrl(u){ u=String(u||'').trim(); return /^https?:\/\//i.test(u) ? u : ''; }
@@ -1454,7 +1513,47 @@ function renderPod(){const el=q('plPod');let list=[...(data['Пилоты']||[])
     (list.length<3?`<div class="plcta"><button class="btn primary" id="podCta">🏁 Хочу на пьедестал - оставить заявку</button></div>`:'');
   const c=q('podCta');if(c)c.onclick=toRate}
 /* ---- вопрос дня ---- */
-const ALLQ=[];Object.values(typeof QUIZ==='object'?QUIZ:{}).forEach(l=>l.q.forEach(x=>ALLQ.push(x)));
+/* банк: 30 вопросов из тестов + 38 вопросов только для "вопроса дня" = 68 дней без повторов */
+const DAILY=[
+ ['Какого цвета обычно "плюсовой" провод аккумулятора?',['Красный','Чёрный','Синий','Зелёный'],0],
+ ['Пора садиться, когда на каждой банке LiPo осталось примерно…',['4,1 В','3,5 В','2,5 В','1,0 В'],1],
+ ['Где правильно заряжать LiPo?',['В огнеупорном пакете или ящике, под присмотром','В рюкзаке','На солнце на подоконнике','Под подушкой'],0],
+ ['"Гейт" на гоночной трассе - это…',['ворота, через которые надо пролететь','зарядная станция','тип пропеллера','судья'],0],
+ ['Хват "щипок" (pinch) - это когда стики держат…',['большим и указательным пальцами','только большими пальцами','одной рукой','ладонями'],0],
+ ['Режим "черепаха" (Turtle) нужен, чтобы…',['перевернуть дрон, упавший на спину','лететь медленно','заряжать аккумулятор','снимать видео'],0],
+ ['Рыскание (yaw) - это…',['поворот дрона вокруг вертикальной оси','наклон вперёд','подъём вверх','наклон вбок'],0],
+ ['Крен (roll) - это…',['наклон дрона влево-вправо','поворот носом','подъём вверх','наклон вперёд'],0],
+ ['Зачем пилоты тренируются в симуляторе?',['Учиться без риска разбить дрон','Чтобы зарядить пульт','Чтобы обновить прошивку','Так быстрее летит дрон'],0],
+ ['Дизарм - это…',['блокировка моторов','взлёт','смена аккумулятора','включение камеры'],0],
+ ['Сколько моторов у квадрокоптера?',['2','3','4','6'],2],
+ ['Сколько моторов у гексакоптера?',['4','6','8','3'],1],
+ ['Сколько банок в аккумуляторе 6S?',['3','6','12','1'],1],
+ ['Номинальное (среднее) напряжение банки LiPo…',['1,5 В','3,7 В','4,2 В','12 В'],1],
+ ['Сколько вольт у полностью заряженного 4S?',['12,6 В','14,8 В','16,8 В','25,2 В'],2],
+ ['RSSI или LQ на экране показывает…',['качество связи с пультом','заряд аккумулятора','скорость','высоту'],0],
+ ['Трюк, когда дрон делает петлю вокруг препятствия, называют…',['Power loop','Split-S','Flip','Yaw spin'],0],
+ ['Задержка (латентность) видео - это…',['насколько картинка в очках отстаёт от реальности','яркость картинки','разрешение','цвет'],0],
+ ['Какую поляризацию антенн обычно используют в FPV?',['Круговую (RHCP или LHCP)','Квадратную','Магнитную','Никакую'],0],
+ ['Антенны очков и дрона должны быть…',['одной поляризации (обе RHCP или обе LHCP)','разной поляризации','любыми','только без антенн'],0],
+ ['Можно ли включать видеопередатчик без антенны?',['Да, если ненадолго','Нет, он может сгореть','Да, так меньше помех','Только в помещении'],1],
+ ['Betaflight - это…',['программа и прошивка для полётного контроллера','марка дрона','трюк','тип аккумулятора'],0],
+ ['Маленький дрон с защитой пропеллеров для полётов в зале называют…',['вупп (Whoop)','рейсер','гексакоптер','планер'],0],
+ ['Фристайл (фрирайд) в FPV - это…',['свободный полёт с трюками','гонка на время','полёт по GPS','фотосъёмка'],0],
+ ['Зачем перед полётом проверяют, свободен ли видеоканал?',['Чтобы не сбить видео другому пилоту','Чтобы зарядить очки','Для красоты','Чтобы дрон летел быстрее'],0],
+ ['Где LiPo хуже отдаёт ток и быстрее садится?',['На морозе','В тёплой комнате','Летом в тени','Нигде, не зависит'],0],
+ ['Газ (throttle) управляет…',['силой тяги моторов - вверх и вниз','поворотом','наклоном вбок','камерой'],0],
+ ['В режиме Mode 2 правый стик управляет…',['газом и поворотом','креном и тангажом','только газом','камерой'],1],
+ ['Зачем камеру на гоночном дроне наклоняют вверх (uptilt)?',['Чтобы на скорости в наклоне видеть, куда летишь','Чтобы снимать землю','Для посадки','Чтобы не было бликов'],0],
+ ['1,5 А·ч - это сколько мАч?',['150','1500','15','15 000'],1],
+ ['Сколько обычно летает гоночный 5-дюймовый дрон на одном аккумуляторе?',['3-5 минут','30-40 минут','1 час','10 секунд'],0],
+ ['"5 дюймов" у FPV-дрона - это размер…',['пропеллеров','камеры','аккумулятора','очков'],0],
+ ['Полёт LOS - это…',['полёт, когда дрон видишь глазами, без очков','полёт в очках','ночной полёт','полёт по GPS'],0],
+ ['Почему нельзя летать рядом с аэропортом?',['Это опасно для самолётов и запрещено','Там плохой Wi-Fi','Там сильный ветер','Можно, если низко'],0],
+ ['Что включают первым перед полётом?',['Пульт, потом аккумулятор дрона','Аккумулятор дрона, потом пульт','Неважно','Только очки'],0],
+ ['Что отключают первым после полёта?',['Аккумулятор дрона, потом пульт','Пульт, потом аккумулятор','Очки','Ничего не отключают'],0],
+ ['Рейты (rates) в настройках - это…',['насколько быстро дрон вращается от движения стика','цена дрона','место в рейтинге','частота видео'],0],
+ ['На какой частоте работает большинство пультов (например ELRS 2.4)?',['433 МГц','2,4 ГГц','5,8 ГГц','100 МГц'],1]];
+const ALLQ=[];Object.values(typeof QUIZ==='object'?QUIZ:{}).forEach(l=>l.q.forEach(x=>ALLQ.push(x)));DAILY.forEach(x=>ALLQ.push(x));
 const dayN=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()))/864e5)};
 function renderDay(){const el=q('plDay');if(!ALLQ.length){el.hidden=true;return}const n=dayN(),qq=ALLQ[(n*7919)%ALLQ.length],S=st.get('vzlet_daily',{d:0,ok:null,pick:-1,streak:0,best:0});
   const order=qq[1].map((t,i)=>i).sort((a,b)=>((a*31+n)%7)-((b*31+n)%7));const done=S.d===n;
@@ -1473,6 +1572,38 @@ function renderChk(){const el=q('plChk'),n=CS.length,all=n===CK.length;
   el.querySelectorAll('.ck button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,k=CS.indexOf(i);k<0?CS.push(i):CS.splice(k,1);try{sessionStorage.setItem('vzlet_ck',JSON.stringify(CS))}catch(e){}
     const was=all;renderChk();if(!was&&CS.length===CK.length&&navigator.vibrate)navigator.vibrate([40,40,80])});
   q('ckReset').onclick=()=>{CS=[];try{sessionStorage.removeItem('vzlet_ck')}catch(e){}renderChk()}}
+/* ---- сворачиваемые блоки: плавно раскрываются по нажатию, состояние запоминается ---- */
+const FK='vzlet_fold',FOPEN={plEv:1,plPod:1,plDay:1};let FS=st.get(FK,{});
+const isClosed=k=>k in FS?!!FS[k]:!FOPEN[k];
+const fsave=(k,c)=>{FS[k]=c?1:0;st.set(FK,FS)};
+function fold(el,peek){const h=el.querySelector(':scope>h3');if(!h)return;const k=el.id;
+  const fb=document.createElement('div');fb.className='fb';const fi=document.createElement('div');fi.className='fi';fb.appendChild(fi);
+  [...el.childNodes].filter(n=>n!==h&&!(n.classList&&(n.classList.contains('drone')||n.classList.contains('stamp')))).forEach(n=>fi.appendChild(n));el.appendChild(fb);
+  const sp=document.createElement('i');sp.className='sp';const s0=h.querySelector('.streak');s0?h.insertBefore(sp,s0):h.appendChild(sp);
+  if(peek){const p=document.createElement('span');p.className='peek';p.textContent=peek;h.appendChild(p)}
+  const a=document.createElement('span');a.className='fa';a.textContent='▾';a.setAttribute('aria-hidden','true');h.appendChild(a);
+  h.classList.add('fh');h.setAttribute('role','button');h.tabIndex=0;el.classList.add('fold');el.classList.toggle('closed',isClosed(k));
+  h.onclick=e=>{if(e.target.closest('button:not(.fh),a'))return;const c=!el.classList.contains('closed');el.classList.toggle('closed',c);fsave(k,c)};
+  h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();h.click()}}}
+const _ev=renderEv;renderEv=function(){_ev();const ev=evT?Math.max(0,Math.ceil((evT-Date.now())/864e5)):null;fold(q('plEv'),ev===null?'скоро объявим':ev===0?'сегодня!':'через '+ev+' дн.')};
+const _pd=renderPod;renderPod=function(){_pd();const top=[...(data['Пилоты']||[])].map(p=>({p,r:ratingFor(p).v})).sort((a,b)=>b.r-a.r)[0];fold(q('plPod'),top?'1 место: '+pnm(top.p['Пилот']):'места свободны')};
+const _dy=renderDay;renderDay=function(){_dy();const S=st.get('vzlet_daily',{});fold(q('plDay'),(S.d===dayN()?(S.ok?'✅ отвечено':'❌ завтра новый вопрос'):'ждёт ответа')+(S.streak&&S.d>=dayN()-1?' · 🔥 '+S.streak:''))};
+const _ck=renderChk;renderChk=function(){_ck();fold(q('plChk'),CS.length===CK.length?'✅ готов к взлёту':'отмечено '+CS.length+' из '+CK.length)};
+/* карточки-раскрывашки (details): плавная высота */
+function initDetails(){document.querySelectorAll('#t-club details.card').forEach(d=>{const k=d.dataset.fold||d.dataset.tab||d.id;if(!k||k==='more'||d._fold)return;d._fold=1;
+  const sm=d.querySelector(':scope>summary');if(!sm)return;const b=document.createElement('div');b.className='dbody';
+  [...d.childNodes].filter(n=>n!==sm&&!(n.classList&&n.classList.contains('editor'))).forEach(n=>b.appendChild(n));d.appendChild(b);
+  d.open=!isClosed('d:'+k);
+  sm.addEventListener('click',e=>{if(e.target.closest('.edit'))return;e.preventDefault();if(d.classList.contains('editing')){d.open=!d.open;return}
+    const an=d._an;if(an){an.cancel();d._an=null}
+    if(!d.open||d._closing){d._closing=false;d.open=true;const h=b.scrollHeight;
+      if(!RED)d._an=b.animate([{height:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:480,easing:'cubic-bezier(.3,.8,.3,1)'});fsave('d:'+k,false)}
+    else{d._closing=true;const h=b.offsetHeight;fsave('d:'+k,true);
+      if(RED){d.open=false;d._closing=false;return}
+      const a=b.animate([{height:h+'px',opacity:1},{height:'0px',opacity:0}],{duration:360,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});d._an=a;
+      a.onfinish=()=>{if(d._closing){d.open=false;d._closing=false}a.cancel();d._an=null}}})})}
+FOPEN['d:События']=0;
+initDetails();
 function renderPult(){try{renderEv();renderPod();renderDay();renderChk()}catch(e){console.warn('pult',e)}}
 window.renderPult=renderPult;
 const _ra=renderAll;renderAll=function(){_ra.apply(this,arguments);renderPult()};
