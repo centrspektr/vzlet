@@ -309,7 +309,9 @@ body{font-family:Manrope,'Segoe UI',system-ui,sans-serif}
 header,.card,.vt,.modal-card{background:rgba(22,27,34,.80)}
 html.fx header,html.fx .card{box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 18px 40px -22px rgba(0,0,0,.8)}
 @media(hover:none),(max-width:860px){html.fx .vt{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--panel)}}
-@media(hover:hover) and (min-width:861px){html.fx header,html.fx .card,html.fx .vt{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}}
+/* над живым фоном размытие пересчитывается каждый кадр - без него плавнее */
+html.fx *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html.fx .vt,html.fx header{background:color-mix(in srgb,var(--panel,#161b22) 94%,transparent)}
 header{position:relative;overflow:hidden}
 header::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(0,212,255,.10) 50%,transparent 65%);transform:translateX(-100%);animation:hdrsh 7s ease-in-out infinite 2s}
 @keyframes hdrsh{40%,100%{transform:translateX(100%)}}
@@ -400,6 +402,7 @@ details.card>summary{transition:margin .35s ease;-webkit-tap-highlight-color:tra
 details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 #kpiBox .kpi{background:rgba(0,0,0,.25);box-shadow:none;border-color:rgba(255,255,255,.06)}
 #kpiBox #kpi-grid{margin:0}
+#t-club>.grid{align-items:start}
 /* расписание пока идёт набор */
 .sform{display:grid;gap:12px}
 .sform .lead{font-weight:800;font-size:15px;line-height:1.35}
