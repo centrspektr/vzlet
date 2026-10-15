@@ -403,6 +403,42 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 #kpiBox .kpi{background:rgba(0,0,0,.25);box-shadow:none;border-color:rgba(255,255,255,.06)}
 #kpiBox #kpi-grid{margin:0}
 #t-club>.grid{align-items:start}
+/* рейтинг пилотов в пульте: симулятор → трасса */
+@media(min-width:861px){#plPod{grid-column:2;grid-row:1/span 2}#plChk{grid-column:1/-1}#plChk .ck{grid-template-columns:1fr 1fr}}
+.sr-sims{display:flex;gap:6px;padding:4px;border-radius:14px;background:rgba(0,0,0,.3);border:1px solid var(--line);margin-bottom:10px}
+.sr-sims button{flex:1;min-width:0;display:grid;justify-items:center;gap:1px;padding:8px 6px;border:0;border-radius:11px;background:none;color:var(--dim);font:800 14px var(--fh);cursor:pointer;transition:background .3s,color .3s,transform .2s;-webkit-tap-highlight-color:transparent}
+.sr-sims button i{font-style:normal;font-size:18px;line-height:1}
+.sr-sims button small{font:600 11px Manrope,system-ui,sans-serif;opacity:.8}
+.sr-sims button.on{color:#04121b;background:linear-gradient(135deg,#00d4ff,#a371f7);box-shadow:0 6px 18px -6px rgba(0,212,255,.7)}
+.sr-sims button:active{transform:scale(.97)}
+.sr-trk{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.sr-trk select{flex:1;min-width:0;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--text);font:700 15px Manrope,system-ui,sans-serif;text-overflow:ellipsis}
+.sr-trk select option,.sr-trk select optgroup{background:#161b22;color:var(--text)}
+.sr-ar{flex-shrink:0;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);font:800 22px/1 var(--fh);cursor:pointer}
+.sr-ar:disabled{opacity:.3;cursor:default}
+.sr-sub{font-size:12.5px;color:var(--dim);margin:2px 2px 8px;line-height:1.35}.sr-sub b{color:var(--text);font-size:14px}
+.sr-list{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.sr-list li{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:7px 10px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.05);cursor:pointer;transition:border-color .2s,background .2s}
+.sr-list li:hover{border-color:var(--accent)}
+.sr-list.an li{animation:srin .45s cubic-bezier(.3,1.2,.5,1) backwards;animation-delay:var(--d)}
+@keyframes srin{from{opacity:0;transform:translateY(8px)}}
+.sr-list li.top{background:linear-gradient(90deg,rgba(255,200,80,.14),rgba(0,0,0,.2))}
+.sr-list li.no{opacity:.55}
+.sr-list .rk{font:800 16px var(--fh);text-align:center}
+.sr-list .nm{min-width:0;font-weight:800;font-size:14px;line-height:1.25;overflow-wrap:anywhere}
+.sr-list .nm small{color:var(--dim);font-weight:600;margin-left:6px}
+.sr-list .bar{display:block;height:4px;border-radius:4px;background:rgba(255,255,255,.07);margin-top:4px;overflow:hidden}
+.sr-list .bar b{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#00d4ff,#a371f7);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.sr-list .vl{text-align:right;font:800 15px var(--fh);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sr-list .vl small{display:block;font:600 11px Manrope,system-ui,sans-serif;color:var(--dim)}
+.sr-list li.top .vl small{color:#ffcf6a}
+.sr-none{display:grid;gap:8px;justify-items:start;padding:14px;border-radius:14px;border:1px dashed var(--line);background:rgba(0,0,0,.18)}
+.sr-none span{color:var(--dim);font-size:13.5px;line-height:1.4}
+.sr-hint{margin-top:8px;font-size:13px;color:#ffcf6a;font-weight:700}
+.sr-coach{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.demo-flag{position:fixed;right:10px;bottom:12px;z-index:50;padding:6px 14px;border-radius:20px;background:#ffb347;color:#1b1200;font:800 12px var(--fh);letter-spacing:.5px;pointer-events:none}
+@media(max-width:600px){.sr-sims button{font-size:13px}.sr-list li{grid-template-columns:28px 1fr auto;padding:7px 8px}}
+@media (prefers-reduced-motion: reduce){.sr-list.an li{animation:none}}
 /* расписание пока идёт набор */
 .sform{display:grid;gap:12px}
 .sform .lead{font-weight:800;font-size:15px;line-height:1.35}
@@ -774,7 +810,7 @@ function renderTasks(){
 
 /* Время круга: 00:49.3 · 49.3 · 1:02,4 → секунды */
 /* имя для всех: "Имя Ф."; тренер видит полностью */
-function pnm(s){s=String(s||'').trim();if(MODE==='coach')return s;const w=s.split(/\s+/);return w.length>1?w[0]+' '+w[1][0].toUpperCase()+'.':s}
+function pnm(s){s=String(s||'').trim();if(MODE==='coach'||/\(.+\)$/.test(s))return s;const w=s.split(/\s+/);return w.length>1?w[0]+' '+w[1][0].toUpperCase()+'.':s}
 function lapSec(s){
   s=String(s||'').trim().replace(',','.'); if(!s || s==='—') return null;
   const p=s.split(':').map(Number); if(p.some(isNaN)) return null;
@@ -790,6 +826,23 @@ function trackList(){ return (data['Трассы']||[]).map(t=>String(t['Наз�
 function trackFmt(t){ const r=(data['Трассы']||[]).find(x=>String(x['Название']).trim()===t); return r?r['Формат']:''; }
 function tracks(){ return [...new Set([...laps().map(l=>l.track)])]; }
 function allTracks(){ return [...new Set([...trackList(), ...tracks()])]; }
+/* симулятор трассы пишется в столбце "Формат" листа "Трассы": Квадросим, Ворон, симулятор, реал */
+const SIM_ORDER=['Квадросим','Ворон','Симулятор','Реал'];
+function simOfFmt(f){ f=String(f||'').trim().toLowerCase(); if(!f) return ''; if(/квадро|quadro|kvadro/.test(f)) return 'Квадросим'; if(/ворон|voron/.test(f)) return 'Ворон'; if(/^реал/.test(f)) return 'Реал'; return 'Симулятор'; }
+function simOf(t){ return simOfFmt(trackFmt(t)) || simOfFmt((laps().find(l=>l.track===t)||{}).fmt) || 'Симулятор'; }
+function simSort(a){ return [...a].sort((x,y)=>(SIM_ORDER.indexOf(x)+1||9)-(SIM_ORDER.indexOf(y)+1||9)); }
+function simTag(t){ const m=simOf(t); return `<span class="tag ${m==='Реал'?'real':'sim'}">${esc(m)}</span>`; }
+/* пилоты: лист "Пилоты" + ученики, принятые по заявке в рейтинг клуба ("Имя (класс)") + все, у кого есть заезды */
+let SPK_PIL=[];
+function loadSpkPilots(){
+  fetch('https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec',{method:'POST',body:JSON.stringify({op:'srate',club:'vzlet'})})
+    .then(r=>r.json()).then(j=>{ if(!j||!j.ok) return; SPK_PIL=(j.top||[]).map(x=>({'Пилот':`${x.n} (${x.c})`,'Класс':x.c,_spk:1})); if(data) renderAll(); }).catch(()=>{});
+}
+function allPilots(){
+  const m=new Map(), add=p=>{ const k=normName(p['Пилот']); if(k && !m.has(k)) m.set(k,p); };
+  (data['Пилоты']||[]).forEach(add); SPK_PIL.forEach(add); laps().forEach(l=>add({'Пилот':String(l.pilot||'').trim()}));
+  return [...m.values()];
+}
 /* Рейтинг: в каждом заезде (дата + трасса) самый быстрый получает 100 очков,
    остальные — 100 × (лучшее время ÷ своё время); минус 5 очков за каждую аварию.
    Рейтинг пилота = среднее за его последние 5 заездов. */
@@ -837,7 +890,7 @@ function renderSort(){
 function renderPilots(){
   renderChips(); renderSort();
   $('lapHead').textContent = curTrack ? 'Круг на трассе' : 'Лучший круг';
-  let list = [...(data['Пилоты']||[])].map(p=>({p, b:bestFor(p['Пилот'], curTrack)}));
+  let list = allPilots().map(p=>({p, b:bestFor(p['Пилот'], curTrack)}));
   if(curSort==='leaders') list.sort((x,y)=> (x.b?x.b.sec:Infinity) - (y.b?y.b.sec:Infinity) || ratingFor(y.p).v-ratingFor(x.p).v);
   else list.sort((x,y)=> ratingFor(y.p).v - ratingFor(x.p).v);
   $('c-pilots').textContent = list.length;
@@ -866,7 +919,7 @@ function spark(ls){
 let openPilotName='';
 function openPilot(name){
   openPilotName=name;
-  const p=(data['Пилоты']||[]).find(x=>normName(x['Пилот'])===normName(name))||{'Пилот':name};
+  const p=allPilots().find(x=>normName(x['Пилот'])===normName(name))||{'Пилот':name};
   const my=laps().filter(l=>normName(l.pilot)===normName(name));
   const byTrack={}; my.forEach(l=>(byTrack[l.track]=byTrack[l.track]||[]).push(l));
   const best=bestFor(name,'');
@@ -883,7 +936,7 @@ function openPilot(name){
     const rows=ls.map((l,i)=>{ const d=i?l.sec-ls[i-1].sec:null;
       return `<tr><td>${esc(l.date||'—')}</td><td class="${l.sec===bst?'best':''}">${fmtLap(l.sec)}${l.sec===bst?' 🏆':''}</td>
         <td class="${d===null?'':d<0?'dfast':d>0?'dslow':''}">${d===null?'—':(d<0?'▼ ':d>0?'▲ +':'')+(d<0?'−'+Math.abs(d).toFixed(1):d.toFixed(1))+' с'}</td><td class="${l.crash?'dslow':''}">${l.crash}</td></tr>`; }).reverse().join('');
-    return `<div class="ptrack"><h4>${esc(t)} ${f?`<span class="tag ${f.startsWith('сим')?'sim':'real'}">${esc(ls[0].fmt)}</span>`:''}</h4>
+    return `<div class="ptrack"><h4>${esc(t)} ${simTag(t)}</h4>
       <div class="prog">Заездов: ${ls.length} · первый ${fmtLap(first)} → лучший ${fmtLap(bst)}${gain>0?` · <b>быстрее на ${gain.toFixed(1)} с</b>`:''}</div>
       ${spark(ls)}
       <table><thead><tr><th>Дата</th><th>Время круга</th><th>К прошлому</th><th>Аварии</th></tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -912,7 +965,9 @@ async function addLap(name, btn){
 
 function trackSelect(id, val){
   const ts=allTracks();
-  return `<select id="${id}">${ts.length?'':'<option value="">— сначала добавьте трассу —</option>'}${ts.map(t=>`<option ${t===val?'selected':''}>${esc(t)}</option>`).join('')}</select>`;
+  if(!ts.length) return `<select id="${id}"><option value="">— сначала добавьте трассу —</option></select>`;
+  const g={}; ts.forEach(t=>{ const m=simOf(t); (g[m]=g[m]||[]).push(t); });
+  return `<select id="${id}">${simSort(Object.keys(g)).map(m=>`<optgroup label="${esc(m)}">${g[m].map(t=>`<option value="${esc(t)}" ${t===val?'selected':''}>${esc(t)}</option>`).join('')}</optgroup>`).join('')}</select>`;
 }
 function editTracks(){
   closePilot();
@@ -921,7 +976,7 @@ function editTracks(){
 }
 /* ---------- заезд группы: одна трасса, время и аварии для всех пилотов ---------- */
 function openSession(){
-  const ps=[...(data['Пилоты']||[])].sort((a,b)=>String(a['Пилот']).localeCompare(String(b['Пилот']),'ru'));
+  const ps=allPilots().sort((a,b)=>String(a['Пилот']).localeCompare(String(b['Пилот']),'ru'));
   $('pbody').innerHTML = `<h2>Заезд группы</h2><p class="sub">Выберите трассу и впишите время лучшего круга и число аварий. Кто не летал — оставьте время пустым.</p>
     <div class="addlap" style="margin-bottom:14px"><label>Дата<input id="ss-date" value="${todayStr()}"></label>
       <label>Трасса${trackSelect('ss-track', curTrack)}</label>
@@ -966,14 +1021,14 @@ function renderTracks(){
     const best={}; laps().filter(l=>l.track===t).forEach(l=>{ const k=normName(l.pilot); if(!best[k]||l.sec<best[k].sec) best[k]=l; });
     const top=Object.values(best).sort((a,b)=>a.sec-b.sec).slice(0,3);
     const f=top[0]?.fmt ? String(top[0].fmt).toLowerCase() : '';
-    return `<div class="track"><h4>${esc(t)} ${f?`<span class="tag ${f.startsWith('сим')?'sim':'real'}">${esc(top[0].fmt)}</span>`:''}</h4>
+    return `<div class="track"><h4>${esc(t)} ${simTag(t)}</h4>
       ${top.map((l,i)=>`<div class="podium"><span class="p">${['🥇','🥈','🥉'][i]}</span><span class="n">${esc(pnm(l.pilot))}</span><span class="lap">${fmtLap(l.sec)}</span></div>`).join('')}</div>`;
   }).join('') || '<p class="empty">Добавьте заезды во вкладку «Заезды»</p>';
 }
 
 function renderRus(){
   const list=[...(data['Рейтинг России']||[])].sort((a,b)=> num(a['Место'])-num(b['Место']));
-  const ours=new Set((data['Пилоты']||[]).map(p=>normName(p['Пилот'])));
+  const ours=new Set(allPilots().map(p=>normName(p['Пилот'])));
   $('c-rus').textContent = list.length || '';
   $('rus').innerHTML = list.map(r=>`<tr class="${ours.has(normName(r['Пилот']))?'ours':''}"><td class="rank">${esc(r['Место'])}</td>
     <td>${esc(r['Пилот'])}</td><td>${esc(r['Регион'])}</td><td>${esc(r['Очки'])}</td></tr>`).join('')
@@ -1096,7 +1151,7 @@ const SCHEMA = {
   'Классы':['Класс','Размер','Взлётный вес','Аккумулятор','Моторы и пропеллеры','Связь и видео','Особенности'],
   'Правила':['Тема','Текст']
 };
-const SELECTS = {'Тип':['симулятор','реал','другое'], 'Выполнено':['нет','да'], 'Формат':['симулятор','реал'], 'День':['Пн','Вт','Ср','Чт','Пт','Сб','Вс']};
+const SELECTS = {'Тип':['симулятор','реал','другое'], 'Выполнено':['нет','да'], 'Формат':['Квадросим','Ворон','симулятор','реал'], 'День':['Пн','Вт','Ср','Чт','Пт','Сб','Вс']};
 const LONG = new Set(['Текст','Особенности','Задача','Описание']);
 const HINT = {'Дата':'дд.мм.гггг','Время круга':'00:49.3','Лучший круг':'посчитается из заездов','Рейтинг':'посчитается сам','Время':'18:00','Адрес':'https://…','Налёт, ч':'часы'};
 const todayStr = () => new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
@@ -1135,7 +1190,7 @@ function openEditor(card, sheet){
   const ed=document.createElement('div'); ed.className='editor';
   const rows=(data[sheet]||[]);
   ed.innerHTML = `<p class="muted">Раздел «${esc(sheet)}». Изменения увидят все после «Сохранить».</p>
-    <datalist id="pilotList">${(data['Пилоты']||[]).map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
+    <datalist id="pilotList">${allPilots().map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
     <div class="erows">${rows.map(r=>rowHTML(sheet,r)).join('')}</div>
     <div class="ebar"><button class="btn add">+ Добавить</button><span class="sp"></span>
       <button class="btn cancel">Отмена</button><button class="btn primary save">Сохранить</button></div>`;
@@ -1220,7 +1275,7 @@ function hlRow(){ return `<div class="hlrow"><input class="hl-name" list="hlPilo
   <input class="hl-time" placeholder="00:49.3" inputmode="decimal"><select class="hl-fmt"><option>реал</option><option>симулятор</option></select><button class="btn hl-del" title="Убрать строку">✕</button></div>`; }
 function openHelper(){
   $('pbody').innerHTML = `<h2>Записать результат</h2><p class="sub">Впишите ФИО участника, трассу и время лучшего круга. Новые участники и трассы добавятся в списки сами.</p>
-    <datalist id="hlPilots">${(data['Пилоты']||[]).map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
+    <datalist id="hlPilots">${allPilots().map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
     <datalist id="hlTracks">${allTracks().map(t=>`<option value="${esc(t)}">`).join('')}</datalist>
     <div class="addlap" style="margin-bottom:10px"><label>Дата<input id="hl-date" value="${todayStr()}" style="width:120px"></label></div>
     <div class="hlhead"><span>ФИО</span><span>Трасса</span><span>Время круга</span><span>Формат</span><span></span></div><div id="hlRows">${hlRow()}</div>
@@ -1258,7 +1313,7 @@ initRole();
 (function(page){ try{ const API='https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec', k='irtysh_hit_'+page;
   if(sessionStorage.getItem(k)!==null) return; const d=new Date().toDateString(), fresh=!localStorage.getItem('irtysh_new_'+page), today=localStorage.getItem('irtysh_day_'+page)!==d;
   fetch(API,{method:'POST', body:JSON.stringify({op:'hit', page, fresh, today})}).then(r=>r.json()).then(j=>{ if(!j.ok) return; localStorage.setItem('irtysh_new_'+page,'1'); localStorage.setItem('irtysh_day_'+page,d); sessionStorage.setItem(k,String(j.total||'')); }).catch(()=>{}); }catch(e){} })('vzlet');
-loadData();
+loadData(); loadSpkPilots();
 setInterval(()=>{ if(sheetId() && !document.hidden && !document.querySelector('.editing')) loadData(); }, REFRESH_MIN*60*1000);
 </script>
 <a id="toSchool" href="../" title="На портал Спектра">&#8592; СПЕКТР</a>
@@ -1507,14 +1562,60 @@ function renderEv(){const ev=(typeof upcomingEvents==='function'?upcomingEvents(
 function setN(id,v){const b=q(id);if(!b)return;v=String(v);if(b.textContent!==v){b.textContent=v;if(!RED){b.classList.remove('tick');void b.offsetWidth;b.classList.add('tick')}}}
 function tick(){if(!evT)return;let d=Math.max(0,evT-Date.now())/1000;setN('cdD',Math.floor(d/86400));setN('cdH',Math.floor(d%86400/3600));setN('cdM',Math.floor(d%3600/60));setN('cdS',Math.floor(d%60))}
 evTimer=setInterval(()=>{if(!document.hidden&&!q('t-club').hidden)tick()},1000);
-/* ---- пьедестал ---- */
-function renderPod(){const el=q('plPod');let list=[...(data['Пилоты']||[])].map(p=>({p,r:ratingFor(p).v})).sort((a,b)=>b.r-a.r).slice(0,3);
-  const ini=s=>String(pnm(s)||'?').trim()[0]||'?';
-  const slot=(x,place)=>x?`<div class="st"><div class="av">${esc(ini(x.p['Пилот']))}</div><div class="nmx">${esc(pnm(x.p['Пилот']))}<small>${esc(x.p['Класс']||'')} · ${x.r}</small></div><div class="bl">${place}</div></div>`
-    :`<div class="st"><div class="av">?</div><div class="nmx">свободно<small>&nbsp;</small></div><div class="bl">${place}</div></div>`;
-  el.innerHTML=`<h3>🏆 Лучшие пилоты</h3><div class="pod ${list.length?'':'empty'}">${slot(list[1],2)}${slot(list[0],1)}${slot(list[2],3)}</div>`+
-    (list.length<3?`<div class="plcta"><button class="btn primary" id="podCta">🏁 Хочу на пьедестал - оставить заявку</button></div>`:'');
-  const c=q('podCta');if(c)c.onclick=toRate}
+/* ---- рейтинг пилотов: симулятор → трасса → кто лучший ----
+   Трасса относится к симулятору по столбцу "Формат" листа "Трассы" (Квадросим / Ворон).
+   Общий зачёт симулятора: на каждой трассе лидер получает 100, остальные 100 × (время лидера ÷ своё),
+   очки по трассам складываются. Кто не летал - прочерк внизу списка. */
+const SR_ICON={'Квадросим':'🎮','Ворон':'🦅','Симулятор':'🕹','Реал':'🛸'};
+let SR=st.get('vzlet_simrate',{sim:'Квадросим',t:'',all:0});
+const srSave=()=>st.set('vzlet_simrate',SR);
+function srSims(){const s=new Set(['Квадросим','Ворон']);allTracks().forEach(t=>s.add(simOf(t)));return simSort([...s])}
+function srTracks(sim){return allTracks().filter(t=>simOf(t)===sim)}
+function srBest(L,t){const m={};L.forEach(l=>{if(l.track!==t)return;const k=normName(l.pilot);if(!m[k]||l.sec<m[k].sec)m[k]=l});return m}
+/* строки рейтинга: [{p, has, v, sub}] по порядку мест */
+function srRows(sim,t){const P=allPilots(),L=laps(),key=p=>normName(p['Пилот']);
+  if(t){const m=srBest(L,t);const r=P.map(p=>{const b=m[key(p)];return{p,has:!!b,sec:b?b.sec:Infinity,crash:b?b.crash:0}});
+    r.sort((a,b)=>a.sec-b.sec||String(a.p['Пилот']).localeCompare(String(b.p['Пилот']),'ru'));return r}
+  const TS=srTracks(sim),M=TS.map(x=>srBest(L,x)),B=M.map(m=>Math.min(...Object.values(m).map(l=>l.sec)));
+  const r=P.map(p=>{let pts=0,n=0;M.forEach((m,i)=>{const b=m[key(p)];if(b){pts+=Math.round(100*B[i]/b.sec);n++}});return{p,has:n>0,pts,n,of:TS.length}});
+  r.sort((a,b)=>b.pts-a.pts||b.n-a.n||String(a.p['Пилот']).localeCompare(String(b.p['Пилот']),'ru'));return r}
+function srLeader(sim){const r=srRows(sim,'')[0];return r&&r.has?r:null}
+function renderPod(){const el=q('plPod');
+  el.innerHTML=`<h3>🏆 Рейтинг пилотов</h3><div class="sr" id="sr"></div>`;srDraw()}
+function srDraw(anim){const box=q('sr');if(!box)return;
+  const sims=srSims();if(!sims.includes(SR.sim))SR.sim=sims[0];
+  const TS=srTracks(SR.sim);if(SR.t&&!TS.includes(SR.t))SR.t='';
+  const k=SR.t?TS.indexOf(SR.t)+1:0,coach=MODE==='coach';
+  let h=`<div class="sr-sims" role="tablist">${sims.map(m=>`<button role="tab" aria-selected="${m===SR.sim}" class="${m===SR.sim?'on':''}" data-m="${esc(m)}"><i>${SR_ICON[m]||'🏁'}</i>${esc(m)}<small>${srTracks(m).length} ${plural(srTracks(m).length,'трасса','трассы','трасс')}</small></button>`).join('')}</div>`;
+  if(!TS.length){
+    h+=`<div class="sr-none"><b>${SR_ICON[SR.sim]||'🏁'} Трассы ${esc(SR.sim)} скоро появятся</b>`+(coach?`<span>Добавьте их в списке трасс, в столбце "Формат" выберите "${esc(SR.sim)}". Тогда здесь появится выбор трассы и места пилотов.</span><button class="btn" id="srEdit">✎ Список трасс</button>`:`<span>Тренер добавит трассы, и здесь будет видно, кто летает быстрее всех.</span>`)+`</div>`;
+    box.innerHTML=h;srBind(box);return}
+  h+=`<div class="sr-trk"><button class="sr-ar" data-d="-1" aria-label="Предыдущая трасса" ${k===0?'disabled':''}>‹</button>
+    <select id="srSel" aria-label="Трасса">${[`<option value="">🏁 Общий зачёт - ${TS.length} ${plural(TS.length,'трасса','трассы','трасс')}</option>`,...TS.map((t,i)=>`<option value="${esc(t)}" ${t===SR.t?'selected':''}>${i+1}. ${esc(t)}</option>`)].join('')}</select>
+    <button class="sr-ar" data-d="1" aria-label="Следующая трасса" ${k===TS.length?'disabled':''}>›</button></div>`;
+  const rows=srRows(SR.sim,SR.t),flew=rows.filter(r=>r.has).length,lead=rows[0]&&rows[0].has?rows[0]:null;
+  h+=`<div class="sr-sub">${SR.t?(SR.t.length>26?`<b>${k}. ${esc(SR.t)}</b><br>`:'')+'Лучший круг на трассе':'Сумма очков по трассам: лидер трассы получает 100'} · летали ${flew} из ${rows.length}</div>`;
+  if(!rows.length)h+=`<div class="sr-none"><b>Пилотов пока нет</b><span>Пилоты появляются здесь после одобрения заявки.</span><button class="btn primary" id="srCta">🏁 Оставить заявку</button></div>`;
+  else{const lim=SR.all?rows.length:10,show=rows.slice(0,lim);
+    h+=`<ol class="sr-list${anim?' an':''}">${show.map((r,i)=>{const pl=r.has?(i<3?['🥇','🥈','🥉'][i]:i+1):'—';
+      let val,sub;
+      if(SR.t){val=r.has?fmtLap(r.sec):'—';sub=r.has?(r===lead?'лидер':'+'+(r.sec-lead.sec).toFixed(1)+' с'):'не летал'}
+      else{val=r.has?r.pts:'—';sub=r.has?`${r.n} из ${r.of} ${plural(r.of,'трассы','трасс','трасс')}`:'не летал'}
+      const bar=r.has?(SR.t?Math.round(100*lead.sec/r.sec):Math.round(100*r.pts/Math.max(1,100*r.of))):0;
+      return `<li class="${r.has?'':'no'}${r.has&&i<3?' top':''}" data-p="${esc(r.p['Пилот'])}" style="--d:${Math.min(i,12)*35}ms"><span class="rk">${pl}</span><span class="nm">${esc(pnm(r.p['Пилот']))}${r.p['Класс']&&!/\(.+\)$/.test(r.p['Пилот'])?`<small>${esc(r.p['Класс'])}</small>`:''}<i class="bar"><b style="width:${bar}%"></b></i></span><span class="vl">${val}<small>${sub}</small></span></li>`}).join('')}</ol>`;
+    if(rows.length>10)h+=`<div class="plcta"><button class="btn" id="srAll">${SR.all?'Свернуть до 10':'Показать всех ('+rows.length+')'}</button></div>`;
+    if(!flew)h+=`<p class="sr-hint">На этой ${SR.t?'трассе':'площадке'} ещё никто не летал - первое место свободно!</p>`}
+  if(coach)h+=`<div class="sr-coach"><button class="btn" id="srEdit">✎ Список трасс</button><button class="btn" onclick="openSession()">⏱ Заезд группы</button></div>`;
+  box.innerHTML=h;srBind(box)}
+function srBind(box){
+  box.querySelectorAll('.sr-sims button').forEach(b=>b.onclick=()=>{if(SR.sim===b.dataset.m)return;SR.sim=b.dataset.m;SR.t='';SR.all=0;srSave();srDraw(1);srPeek()});
+  const sel=q('srSel');if(sel)sel.onchange=()=>{SR.t=sel.value;SR.all=0;srSave();srDraw(1);srPeek()};
+  box.querySelectorAll('.sr-ar').forEach(b=>b.onclick=()=>{const TS=srTracks(SR.sim),k=(SR.t?TS.indexOf(SR.t)+1:0)+ +b.dataset.d;if(k<0||k>TS.length)return;SR.t=k?TS[k-1]:'';srSave();srDraw(1);srPeek()});
+  box.querySelectorAll('.sr-list li').forEach(li=>li.onclick=()=>openPilot(li.dataset.p));
+  const a=q('srAll');if(a)a.onclick=()=>{SR.all=SR.all?0:1;srSave();srDraw()};
+  const c=q('srCta');if(c)c.onclick=toRate;
+  const e=q('srEdit');if(e)e.onclick=()=>{if(typeof editTracks==='function')editTracks()}}
+function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=SR.sim+': '+(L?'1 место - '+pnm(L.p['Пилот']):'ждём первых заездов')}
 /* ---- вопрос дня ---- */
 /* банк: 30 вопросов из тестов + 38 вопросов только для "вопроса дня" = 68 дней без повторов */
 const DAILY=[
@@ -1589,7 +1690,7 @@ function fold(el,peek){const h=el.querySelector(':scope>h3');if(!h)return;const 
   h.onclick=e=>{if(e.target.closest('button:not(.fh),a'))return;const c=!el.classList.contains('closed');el.classList.toggle('closed',c);fsave(k,c)};
   h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();h.click()}}}
 const _ev=renderEv;renderEv=function(){_ev();const ev=evT?Math.max(0,Math.ceil((evT-Date.now())/864e5)):null;fold(q('plEv'),ev===null?'скоро объявим':ev===0?'сегодня!':'через '+ev+' дн.')};
-const _pd=renderPod;renderPod=function(){_pd();const top=[...(data['Пилоты']||[])].map(p=>({p,r:ratingFor(p).v})).sort((a,b)=>b.r-a.r)[0];fold(q('plPod'),top?'1 место: '+pnm(top.p['Пилот']):'места свободны')};
+const _pd=renderPod;renderPod=function(){_pd();const L=srLeader(SR.sim);fold(q('plPod'),SR.sim+': '+(L?'1 место - '+pnm(L.p['Пилот']):'ждём первых заездов'))};
 const _dy=renderDay;renderDay=function(){_dy();const S=st.get('vzlet_daily',{});fold(q('plDay'),(S.d===dayN()?(S.ok?'✅ отвечено':'❌ завтра новый вопрос'):'ждёт ответа')+(S.streak&&S.d>=dayN()-1?' · 🔥 '+S.streak:''))};
 const _ck=renderChk;renderChk=function(){_ck();fold(q('plChk'),CS.length===CK.length?'✅ готов к взлёту':'отмечено '+CS.length+' из '+CK.length)};
 /* карточки-раскрывашки (details): плавная высота */
@@ -1607,10 +1708,24 @@ function initDetails(){document.querySelectorAll('#t-club details.card').forEach
       a.onfinish=()=>{if(d._closing){d.open=false;d._closing=false}a.cancel();d._an=null}}})})}
 FOPEN['d:События']=0;
 initDetails();
+/* ?demo=1 - показать рейтинг на придуманных заездах (только в памяти, сохранение выключено) */
+const DEMO=/[?&]demo=1\b/.test(location.search);
+function demoData(d){
+  const Q=['Трасса 1','Трасса 2','Трасса 3','Трасса 4','Трасса 5','Трасса 6','Трасса 7','Трасса 8','Трасса 9','Трасса 10'],
+    V=['Офис','Склад: контейнеры, узкие пролёты и второй этаж','Ночной город - мосты, туннели и парковка','Спортзал'];
+  const N=['Артём (7Б)','Соня (6А)','Миша (8В)','Даша (5Б)','Егор (7А)','Лиза (9Б)','Тимур (6В)','Варя (5А)','Кирилл (8А)','Полина (7В)','Глеб (6Б)','Ника (9А)'];
+  let x=7;const R=()=>(x=(x*16807)%2147483647)/2147483647;
+  const T=[...Q.map(n=>({'Название':n,'Формат':'Квадросим','Описание':''})),...V.map(n=>({'Название':n,'Формат':'Ворон','Описание':''}))];
+  const Z=[];T.forEach((t,ti)=>{const base=38+R()*30;N.forEach((n,ni)=>{if(R()<.3)return;const skill=.82+ni*.025;
+    for(let k=0;k<2;k++)Z.push({'Дата':(10+k*3)+'.10.2026','Пилот':n,'Трасса':t['Название'],'Время круга':fmtLap(base*skill*(1+R()*.12)),'Формат':t['Формат'],'Аварии':String(R()<.2?1:0)})})});
+  return Object.assign({},d,{'Трассы':T,'Заезды':Z,_demo:1});
+}
+if(DEMO){postSheet=async()=>{throw new Error('демо-режим: изменения не сохраняются')};
+  const b=document.createElement('div');b.className='demo-flag';b.textContent='ДЕМО: заезды придуманы';document.body.appendChild(b)}
 function renderPult(){try{renderEv();renderPod();renderDay();renderChk()}catch(e){console.warn('pult',e)}}
 window.renderPult=renderPult;
-const _ra=renderAll;renderAll=function(){_ra.apply(this,arguments);renderPult()};
-if(typeof data==='object'&&data)renderPult();
+const _ra=renderAll;renderAll=function(){if(DEMO&&data&&!data._demo)data=demoData(data);_ra.apply(this,arguments);renderPult()};
+if(typeof data==='object'&&data){if(DEMO)renderAll();else renderPult()}
 })();
 </script>
 </body>
