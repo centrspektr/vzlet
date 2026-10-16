@@ -125,7 +125,7 @@
     padding:40px 16px; z-index:100; overflow-y:auto;}
   .modal.open{display:flex;}
   .logo-badge{user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; cursor:default}
-  .hlrow,.hlhead{display:grid; grid-template-columns:2fr 1.6fr 1fr 1fr 1fr .6fr auto; gap:8px; align-items:center; margin-bottom:8px}
+  .hlrow,.hlhead{display:grid; grid-template-columns:2fr 1.5fr 92px 1.1fr 1.1fr 84px 44px; gap:8px; align-items:center; margin-bottom:8px}
   .hlhead{font-size:12px; color:var(--dim); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px}
   .hlrow input,.hlrow select{width:100%; min-width:0}
   @media (max-width:640px){ .hlhead{display:none} .hlrow{grid-template-columns:1fr 1fr auto; padding:10px; border:1px solid var(--line); border-radius:10px} .hlrow .hl-name{grid-column:1/-1} .hlrow .hl-track{grid-column:1/-1} }
@@ -1330,41 +1330,47 @@ function initRole(){
   if(ROLE){ b.textContent=(ROLE==='admin'?'🔓 Тренер':'🔓 Помощник')+' · выйти'; b.title='Выйти из режима редактирования'; }
   if(ROLE==='helper'){
     const card=document.querySelector('details[data-tab="Пилоты"]'), chips=document.getElementById('sortChips');
-    if(chips) chips.insertAdjacentHTML('afterend','<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn primary" onclick="openHelper()">＋ Записать результат</button></div>');
+    if(chips) chips.insertAdjacentHTML('afterend','<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn primary" onclick="openHelper()">✎ Заезды сегодня</button></div>');
   }
 }
-function hlRow(){ return `<div class="hlrow"><input class="hl-name" list="hlPilots" placeholder="ФИО участника"><input class="hl-track" list="hlTracks" value="${esc(curTrack||'')}" placeholder="Трасса">
-  <input class="hl-time" placeholder="00:49.3" inputmode="decimal"><select class="hl-fmt"><option>Квадросим</option><option>Ворон</option><option>реал</option></select><input class="hl-drone" list="hlDrones" placeholder="Дрон"><input class="hl-crash" type="number" min="0" value="0" inputmode="numeric" title="Аварии"><button class="btn hl-del" title="Убрать строку">✕</button></div>`; }
+/* ---------- помощник: заезды только за сегодня ----------
+   Помощник добавляет и правит заезды с сегодняшней датой. Прошлые дни меняет только тренер
+   (это проверяет и сервер: op "todayLaps", файл pomoshnik.gs). */
+function hlRow(l){ l=l||{}; const fm=l['Формат']||trackFmt(l['Трасса']||curTrack||'')||(window.SR_SIM&&SR_SIM())||'Квадросим';
+  return `<div class="hlrow"><input class="hl-name" list="hlPilots" placeholder="ФИО или имя (класс)" value="${esc(l['Пилот']||'')}"><input class="hl-track" list="hlTracks" value="${esc(l['Трасса']||curTrack||'')}" placeholder="Трасса">
+  <input class="hl-time" placeholder="00:49.3" inputmode="decimal" value="${esc(l['Время круга']||'')}"><select class="hl-fmt">${['Квадросим','Ворон','реал'].map(x=>`<option ${x===fm?'selected':''}>${x}</option>`).join('')}</select><input class="hl-drone" list="hlDrones" placeholder="Дрон" value="${esc(l['Дрон']||'')}"><label class="hl-cl" title="Аварии">💥<input class="hl-crash" type="number" min="0" value="${esc(l['Аварии']||'0')}" inputmode="numeric" aria-label="Аварии"></label><button class="btn hl-del" title="Убрать строку">✕</button></div>`; }
+const dkey=v=>{const m=String(v||'').trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})/);return m?m[1].padStart(2,'0')+'.'+m[2].padStart(2,'0')+'.'+(m[3].length===2?'20'+m[3]:m[3]):''};
 function openHelper(){
-  $('pbody').innerHTML = `<h2>Записать результат</h2><p class="sub">Впишите ФИО участника, трассу и время лучшего круга. Новые участники и трассы добавятся в списки сами.</p>
+  const td=todayStr(), mine=(data['Заезды']||[]).filter(l=>dkey(l['Дата'])===td);
+  $('pbody').innerHTML = `<h2>Заезды сегодня, ${esc(td)}</h2><p class="sub">Впишите пилота, трассу, время лучшего круга, дрон и аварии. Сегодняшние строки можно исправить или убрать. Прошлые дни меняет только тренер.</p>
     <datalist id="hlPilots">${allPilots().map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
     <datalist id="hlTracks">${allTracks().map(t=>`<option value="${esc(t)}">`).join('')}</datalist>
-    <div class="addlap" style="margin-bottom:10px"><label>Дата<input id="hl-date" value="${todayStr()}" style="width:120px"></label></div>
-    <datalist id="hlDrones">${drones().map(d=>`<option value="${esc(d)}">`).join('')}</datalist><div class="hlhead"><span>ФИО</span><span>Трасса</span><span>Время круга</span><span>Симулятор</span><span>Дрон</span><span>Аварии</span><span></span></div><div id="hlRows">${hlRow()}</div>
+    <datalist id="hlDrones">${drones().map(d=>`<option value="${esc(d)}">`).join('')}</datalist>
+    <div class="hlhead"><span>Пилот</span><span>Трасса</span><span>Время</span><span>Симулятор</span><span>Дрон</span><span>Аварии</span><span></span></div><div id="hlRows">${mine.map(hlRow).join('')}${hlRow()}</div>
     <div class="ebar" style="margin-top:12px"><button class="btn" id="hlAdd">+ Ещё строка</button><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="hlSave">Сохранить</button></div>`;
   const style=el=>el.querySelectorAll('input,select').forEach(i=>i.style.cssText+=';font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px');
-  const bind=tr=>{ style(tr); tr.querySelector('.hl-del').onclick=()=>{ if($('hlRows').children.length>1) tr.remove(); };
-    const t=tr.querySelector('.hl-track'), f=tr.querySelector('.hl-fmt'), sync=()=>{ const v=trackFmt(t.value.trim()); if(v) f.value=v; }; t.onchange=sync; sync(); };
+  const bind=tr=>{ style(tr); tr.querySelector('.hl-del').onclick=()=>{ if($('hlRows').children.length>1) tr.remove(); else tr.querySelectorAll('input').forEach(i=>i.value=i.classList.contains('hl-crash')?'0':''); };
+    const t=tr.querySelector('.hl-track'), f=tr.querySelector('.hl-fmt'), sync=()=>{ const v=simOfFmt(trackFmt(t.value.trim())); if(v&&[...f.options].some(o=>o.value===v)) f.value=v; }; t.onchange=sync; };
   style($('pbody')); [...$('hlRows').children].forEach(bind);
   $('hlAdd').onclick=()=>{ const last=$('hlRows').lastElementChild; $('hlRows').insertAdjacentHTML('beforeend',hlRow()); const tr=$('hlRows').lastElementChild;
-    if(last){ tr.querySelector('.hl-track').value=last.querySelector('.hl-track').value; } bind(tr); tr.querySelector('.hl-name').focus(); };
-  $('pmodal').classList.add('open'); setTimeout(()=>$('hlRows').querySelector('.hl-name').focus(),50);
+    if(last){ tr.querySelector('.hl-track').value=last.querySelector('.hl-track').value; tr.querySelector('.hl-fmt').value=last.querySelector('.hl-fmt').value; } bind(tr); tr.querySelector('.hl-name').focus(); };
+  $('pmodal').classList.add('open'); setTimeout(()=>{const r=$('hlRows').lastElementChild;if(r)r.querySelector('.hl-name').focus()},50);
   $('hlSave').onclick=async()=>{
-    const d=$('hl-date').value.trim(), add=[];
+    const out=[];
     for(const tr of $('hlRows').children){
       const n=tr.querySelector('.hl-name').value.trim(), t=tr.querySelector('.hl-track').value.trim(), tm=tr.querySelector('.hl-time').value.trim().replace(',','.');
       if(!n && !tm) continue;
-      if(!n || !t){ toast('Укажите ФИО и трассу в каждой строке','bad'); return; }
+      if(!n || !t){ toast('Укажите пилота и трассу в каждой строке','bad'); return; }
       if(!lapSec(tm)){ toast(`Проверьте время у "${n}" - пример 00:49.3`,'bad'); return; }
-      add.push({'Дата':d,'Пилот':n,'Трасса':t,'Время круга':tm,'Формат':tr.querySelector('.hl-fmt').value,'Аварии':String(Math.max(0,parseInt(tr.querySelector('.hl-crash').value)||0)),'Дрон':tr.querySelector('.hl-drone').value.trim().slice(0,40)});
+      out.push({'Пилот':n,'Трасса':t,'Время круга':tm,'Формат':tr.querySelector('.hl-fmt').value,'Аварии':String(Math.max(0,parseInt(tr.querySelector('.hl-crash').value)||0)),'Дрон':tr.querySelector('.hl-drone').value.trim().slice(0,40)});
     }
-    if(!add.length){ toast('Нечего сохранять','bad'); return; }
+    if(!out.length && !mine.length){ toast('Нечего сохранять','bad'); return; }
     const btn=$('hlSave'); btn.disabled=true; btn.textContent='Сохраняю…';
-    try{ const r=await api({op:'addLaps', key:ss_.get(PIN_KEY), laps:add});
-      if(!r.ok){ if(/Неверный PIN/i.test(r.error||'')) logout(true); throw new Error(r.error||'ошибка'); }
-      data['Заезды']=[...(data['Заезды']||[]),...r.laps]; data['Пилоты']=[...(data['Пилоты']||[]),...r.pilots]; data['Трассы']=[...(data['Трассы']||[]),...r.tracks];
+    try{ const r=await api({op:'todayLaps', key:ss_.get(PIN_KEY), laps:out});
+      if(!r.ok){ if(/Неверный PIN/i.test(r.error||'')) logout(true); if(/только записывать заезды|Нет вкладки/i.test(r.error||'')) throw new Error('сервер Взлёта ещё не обновлён (файл pomoshnik.gs)'); throw new Error(r.error||'ошибка'); }
+      data['Заезды']=r.laps; data['Пилоты']=[...(data['Пилоты']||[]),...(r.pilots||[])]; data['Трассы']=[...(data['Трассы']||[]),...(r.tracks||[])];
       ls.set(CACHE_KEY, JSON.stringify({t:Date.now(), id:sheetId(), data}));
-      curTrack=add[add.length-1]['Трасса']; closePilot(); renderAll(); toast(`Сохранено: ${add.length} ✓`,'ok');
+      if(out.length) curTrack=out[out.length-1]['Трасса']; closePilot(); renderAll(); toast(`Сохранено за сегодня: ${out.length} ✓`,'ok');
     }catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='Сохранить'; }
   };
 }
@@ -1404,6 +1410,14 @@ setInterval(()=>{ if(sheetId() && !document.hidden && !document.querySelector('.
   .sr-tr .c-d::before{content:"дрон: ";opacity:.7}
 }
 @media (prefers-reduced-motion: reduce){.sr-tb.an .sr-tr{animation:none}}
+
+/* форма помощника: на телефоне по строкам */
+.hl-cl{display:flex;align-items:center;gap:4px;min-width:0}
+.hl-cl input{min-width:0;width:100%}
+@media (max-width:700px){
+  .hlrow{grid-template-columns:1fr 1fr 1fr 44px;grid-template-areas:"n n n n" "t t t t" "tm tm f f" "d d c x"}
+  .hlrow .hl-name{grid-area:n}.hlrow .hl-track{grid-area:t}.hlrow .hl-time{grid-area:tm}.hlrow .hl-fmt{grid-area:f}.hlrow .hl-drone{grid-area:d}.hlrow .hl-cl{grid-area:c}.hlrow .hl-del{grid-area:x}
+}
 </style>
 <script>
 /* ===== Академия пилота: данные ===== */
@@ -1741,7 +1755,7 @@ function srDraw(anim){const box=q('sr');if(!box)return;
       h+=`<div class="sr-tb${anim?' an':''}"><div class="sr-th"><span>Пилот</span><span>Трасса</span><span>Время</span><span>Дрон</span><span>Аварии</span></div>${rows.slice(0,lim).map((r,i)=>`<div class="sr-tr${r.place===0?' top':''}" data-p="${esc(r.l.pilot)}" style="--d:${Math.min(i,12)*35}ms"><span class="c-p"><i>${r.place<3?['🥇','🥈','🥉'][r.place]:r.place+1}</i><b>${esc(pnm(r.l.pilot))}</b></span><span class="c-t">${esc(r.t)}</span><span class="c-v">${fmtLap(r.l.sec)}</span><span class="c-d${r.l.drone?'':' no'}">${esc(r.l.drone||'—')}</span><span class="c-c">${r.l.crash?'💥 '+r.l.crash:'0'}</span></div>`).join('')}</div>`;
       if(rows.length>15)h+=`<div class="plcta"><button class="btn" id="srAll">${SR.all?'Свернуть':'Показать все ('+rows.length+')'}</button></div>`}
   }
-  if(ROLE==='helper')h+=`<div class="sr-coach"><button class="btn primary" onclick="openHelper()">＋ Записать результат</button></div>`;
+  if(ROLE==='helper')h+=`<div class="sr-coach"><button class="btn primary" onclick="openHelper()">✎ Заезды сегодня</button></div>`;
   if(coach)h+=`<div class="sr-coach">${TS.length?`<button class="btn primary" id="srTime">⏱ Вписать время</button>`:''}<button class="btn" id="srAdd">+ Трассы</button>${TS.length?`<button class="btn" id="srEd">✎ Трассы</button>`:''}</div>`;
   box.innerHTML=h;srBind(box)}
 function srBind(box){
@@ -1752,7 +1766,7 @@ function srBind(box){
   const ad=q('srAdd');if(ad)ad.onclick=()=>trkAdd(SR.sim);
   const tm=q('srTime');if(tm)tm.onclick=()=>openSession(SR.t||srTracks(SR.sim)[0]||'');
   const ed=q('srEd');if(ed)ed.onclick=()=>editTracks()}
-window.SR_RENAMED=(a,b)=>{if(SR.t===a){SR.t=b;srSave()}};
+window.SR_SIM=()=>SR.sim;window.SR_RENAMED=(a,b)=>{if(SR.t===a){SR.t=b;srSave()}};
 function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=SR.sim+': '+(L?'быстрее всех - '+pnm(L.p['Пилот']):'ждём первых заездов')}
 /* ---- вопрос дня ---- */
 /* банк: 30 вопросов из тестов + 38 вопросов только для "вопроса дня" = 68 дней без повторов */
