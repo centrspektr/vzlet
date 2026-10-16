@@ -340,7 +340,7 @@ details.card>summary{font-family:var(--fh);font-size:12.5px;font-weight:600;lett
 .cd b.tick{animation:cdt .45s cubic-bezier(.3,1.6,.5,1)}
 @keyframes cdt{from{transform:translateY(-40%) scale(.8);opacity:.3}}
 .cd small{font-size:11px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:1px}
-.plev .drone{position:absolute;right:14px;top:12px;font-size:44px;animation:hov 3s ease-in-out infinite;filter:drop-shadow(0 10px 14px rgba(0,212,255,.45))}
+.plev .drone{position:absolute;right:10px;top:12px;line-height:0;animation:hov 3s ease-in-out infinite;filter:drop-shadow(0 10px 14px rgba(0,212,255,.45))}
 @keyframes hov{50%{transform:translateY(-8px) rotate(4deg)}}
 .pod{display:flex;align-items:flex-end;justify-content:center;gap:10px;height:200px;margin-top:6px}
 .pod .st{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:6px}
@@ -403,7 +403,11 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 #kpiBox .kpi{background:rgba(0,0,0,.25);box-shadow:none;border-color:rgba(255,255,255,.06)}
 #kpiBox #kpi-grid{margin:0}
 #t-club>.grid{align-items:start}
+.hid4all{opacity:.45;position:relative}.hid4all::before{content:"скрыто от всех";position:absolute;z-index:3;top:8px;left:50%;transform:translateX(-50%);padding:2px 10px;border-radius:9px;background:#3d1d0b;color:#ffab6c;font:800 11px var(--fh);pointer-events:none}
+.cbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.vis{display:grid;gap:6px}.vis label{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:10px;border:1px solid var(--line);cursor:pointer}.vis input{width:20px;height:20px;accent-color:var(--accent)}
 /* рейтинг пилотов в пульте: симулятор → трасса */
+.lapdel{margin-left:6px;width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:none;color:var(--bad);cursor:pointer}
 @media(min-width:861px){#plPod{grid-column:2;grid-row:1/span 2}#plChk{grid-column:1/-1}#plChk .ck{grid-template-columns:1fr 1fr}}
 .sr-sims{display:flex;gap:6px;padding:4px;border-radius:14px;background:rgba(0,0,0,.3);border:1px solid var(--line);margin-bottom:10px}
 .sr-sims button{flex:1;min-width:0;display:grid;justify-items:center;gap:1px;padding:8px 6px;border:0;border-radius:11px;background:none;color:var(--dim);font:800 14px var(--fh);cursor:pointer;transition:background .3s,color .3s,transform .2s;-webkit-tap-highlight-color:transparent}
@@ -450,7 +454,9 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 .stl .sw{border-color:rgba(163,113,247,.45);background:rgba(163,113,247,.10)}
 .sform .note{font-size:12.5px;color:var(--dim)}
 @media (prefers-reduced-motion: reduce){.fb,.fh .fa,details.card>summary::after{transition:none}}
-@media (prefers-reduced-motion: reduce){header::after,.logo-badge,.plev .drone{animation:none}}
+@media (prefers-reduced-motion: reduce){header::after,.logo-badge,.plev .drone,.drone .prop{animation:none}}
+.drone .prop{animation:prop .18s linear infinite}@keyframes prop{to{transform:rotate(360deg)}}
+@media(max-width:600px){.plev .drone svg{width:60px;height:45px}}
 </style>
 </head>
 <body>
@@ -820,7 +826,7 @@ function fmtLap(sec){ const m=Math.floor(sec/60), r=(sec-m*60).toFixed(1).padSta
 const normName = s => String(s||'').trim().toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ');
 let curTrack = '';
 function laps(){
-  return (data['Заезды']||[]).map(l=>({pilot:l['Пилот'], track:String(l['Трасса']||'').trim()||'Без названия', sec:lapSec(l['Время круга']), date:l['Дата'], fmt:l['Формат'], crash:Math.max(0,Math.round(num(l['Аварии'])))})).filter(l=>l.sec);
+  return (data['Заезды']||[]).map((l,_i)=>({_i, pilot:l['Пилот'], track:String(l['Трасса']||'').trim()||'Без названия', sec:lapSec(l['Время круга']), date:l['Дата'], fmt:l['Формат'], crash:Math.max(0,Math.round(num(l['Аварии'])))})).filter(l=>l.sec);
 }
 function trackList(){ return (data['Трассы']||[]).map(t=>String(t['Название']||'').trim()).filter(Boolean); }
 function trackFmt(t){ const r=(data['Трассы']||[]).find(x=>String(x['Название']).trim()===t); return r?r['Формат']:''; }
@@ -935,7 +941,7 @@ function openPilot(name){
     const gain=first-bst;
     const rows=ls.map((l,i)=>{ const d=i?l.sec-ls[i-1].sec:null;
       return `<tr><td>${esc(l.date||'—')}</td><td class="${l.sec===bst?'best':''}">${fmtLap(l.sec)}${l.sec===bst?' 🏆':''}</td>
-        <td class="${d===null?'':d<0?'dfast':d>0?'dslow':''}">${d===null?'—':(d<0?'▼ ':d>0?'▲ +':'')+(d<0?'−'+Math.abs(d).toFixed(1):d.toFixed(1))+' с'}</td><td class="${l.crash?'dslow':''}">${l.crash}</td></tr>`; }).reverse().join('');
+        <td class="${d===null?'':d<0?'dfast':d>0?'dslow':''}">${d===null?'—':(d<0?'▼ ':d>0?'▲ +':'')+(d<0?'−'+Math.abs(d).toFixed(1):d.toFixed(1))+' с'}</td><td class="${l.crash?'dslow':''}">${l.crash}${MODE==='coach'?` <button class="lapdel" data-i="${l._i}" title="Удалить этот заезд">✕</button>`:''}</td></tr>`; }).reverse().join('');
     return `<div class="ptrack"><h4>${esc(t)} ${simTag(t)}</h4>
       <div class="prog">Заездов: ${ls.length} · первый ${fmtLap(first)} → лучший ${fmtLap(bst)}${gain>0?` · <b>быстрее на ${gain.toFixed(1)} с</b>`:''}</div>
       ${spark(ls)}
@@ -951,6 +957,9 @@ function openPilot(name){
   }
   $('pbody').innerHTML=html; $('pmodal').classList.add('open');
   const sv=document.getElementById('al-save'); if(sv) sv.onclick=()=>addLap(name, sv);
+  $('pbody').querySelectorAll('.lapdel').forEach(b=>b.onclick=async()=>{ const i=+b.dataset.i, r=(data['Заезды']||[])[i]; if(!r) return;
+    if(!confirm(`Удалить заезд ${r['Дата']||''} · ${r['Трасса']} · ${r['Время круга']}?`)) return;
+    b.disabled=true; try{ await postSheet('Заезды',(data['Заезды']||[]).filter((_,k)=>k!==i)); renderAll(); openPilot(name); toast('Заезд удалён ✓','ok'); }catch(e){ toast('Не сохранилось: '+e.message,'bad'); b.disabled=false; } });
 }
 function closePilot(){ $('pmodal').classList.remove('open'); openPilotName=''; }
 
@@ -974,21 +983,60 @@ function editTracks(){
   const more=document.querySelector('[data-tab="more"]'); if(!more) return;
   more.open=true; openEditor(more,'Трассы'); more.scrollIntoView({behavior:'smooth'});
 }
+/* ---------- трассы: добавить пачкой, переименовать, удалить (тренер) ---------- */
+function trkModal(title, body, okText, onOk){
+  $('pbody').innerHTML=`<h2>${title}</h2>${body}<div class="ebar" style="margin-top:12px"><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="tk-ok">${okText}</button></div>`;
+  $('pbody').querySelectorAll('input,textarea').forEach(i=>i.style.cssText+=';width:100%;box-sizing:border-box;font:inherit;font-size:16px;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px');
+  $('pmodal').classList.add('open'); const ok=document.getElementById('tk-ok');
+  ok.onclick=async()=>{ ok.disabled=true; const t0=ok.textContent; ok.textContent='Сохраняю…'; try{ await onOk(); }catch(e){ toast('Не сохранилось: '+e.message,'bad'); ok.disabled=false; ok.textContent=t0; } };
+  const f=$('pbody').querySelector('textarea,input'); if(f) setTimeout(()=>f.focus(),50);
+}
+function trkAdd(sim){
+  trkModal(`Новые трассы: ${esc(sim)}`, `<p class="sub">Впишите названия, каждое с новой строки. Длинные названия можно.</p><textarea id="tk-names" rows="6" placeholder="Офис&#10;Склад: контейнеры и второй этаж"></textarea>`, 'Добавить', async()=>{
+    const have=new Set(allTracks().map(normName));
+    const names=[...new Set(document.getElementById('tk-names').value.split('\n').map(x=>x.trim().replace(/\s+/g,' ')).filter(Boolean))].filter(n=>!have.has(normName(n)));
+    if(!names.length){ toast('Нет новых названий','bad'); throw new Error('нет новых названий'); }
+    await postSheet('Трассы',[...(data['Трассы']||[]),...names.map(n=>({'Название':n,'Формат':sim,'Описание':''}))]);
+    closePilot(); renderAll(); toast(`Добавлено трасс: ${names.length} ✓`,'ok');
+  });
+}
+function trkRename(t){
+  trkModal('Переименовать трассу', `<p class="sub">Заезды на этой трассе сохранятся под новым названием.</p><input id="tk-name" value="${esc(t)}">`, 'Сохранить', async()=>{
+    const n=document.getElementById('tk-name').value.trim().replace(/\s+/g,' ');
+    if(!n||n===t){ closePilot(); return; }
+    if(allTracks().some(x=>x!==t&&normName(x)===normName(n))) throw new Error('такая трасса уже есть');
+    const Z=data['Заезды']||[];
+    if(Z.some(l=>String(l['Трасса']).trim()===t)) await postSheet('Заезды', Z.map(l=>String(l['Трасса']).trim()===t?Object.assign({},l,{'Трасса':n}):l));
+    const T=data['Трассы']||[], has=T.some(x=>String(x['Название']).trim()===t);
+    await postSheet('Трассы', has?T.map(x=>String(x['Название']).trim()===t?Object.assign({},x,{'Название':n}):x):[...T,{'Название':n,'Формат':simOf(t),'Описание':''}]);
+    if(window.SR_RENAMED) SR_RENAMED(t,n); closePilot(); renderAll(); toast('Трасса переименована ✓','ok');
+  });
+}
+async function trkDel(t){
+  const Z=data['Заезды']||[], n=Z.filter(l=>String(l['Трасса']).trim()===t).length;
+  if(!confirm(n?`Удалить трассу "${t}" и ${n} ${plural(n,'заезд','заезда','заездов')} на ней?`:`Удалить трассу "${t}"?`)) return;
+  try{ if(n) await postSheet('Заезды', Z.filter(l=>String(l['Трасса']).trim()!==t));
+    await postSheet('Трассы', (data['Трассы']||[]).filter(x=>String(x['Название']).trim()!==t)); renderAll(); toast('Трасса удалена ✓','ok'); }
+  catch(e){ toast('Не сохранилось: '+e.message,'bad'); }
+}
 /* ---------- заезд группы: одна трасса, время и аварии для всех пилотов ---------- */
-function openSession(){
+function openSession(trk){
+  if(typeof trk!=='string') trk=curTrack;
   const ps=allPilots().sort((a,b)=>String(a['Пилот']).localeCompare(String(b['Пилот']),'ru'));
   $('pbody').innerHTML = `<h2>Заезд группы</h2><p class="sub">Выберите трассу и впишите время лучшего круга и число аварий. Кто не летал — оставьте время пустым.</p>
     <div class="addlap" style="margin-bottom:14px"><label>Дата<input id="ss-date" value="${todayStr()}"></label>
-      <label>Трасса${trackSelect('ss-track', curTrack)}</label>
+      <label>Трасса${trackSelect('ss-track', trk)}</label>
       <button class="btn" onclick="editTracks()">✎ Список трасс</button></div>
-    <div class="tscroll"><table><thead><tr><th>Пилот</th><th>Класс</th><th>Лучший круг</th><th>Аварии</th></tr></thead><tbody>
-    ${ps.map((p,i)=>`<tr><td>${esc(p['Пилот'])}</td><td>${esc(p['Класс'])}</td>
-      <td><input class="ss-time" data-i="${i}" placeholder="00:49.3" style="width:110px"></td>
-      <td><input class="ss-crash" data-i="${i}" type="number" min="0" value="0" style="width:70px"></td></tr>`).join('')}
+    <div class="tscroll"><table><thead><tr><th>Пилот</th><th>Сейчас лучший</th><th>Новое время</th><th>Аварии</th></tr></thead><tbody>
+    ${ps.map((p,i)=>`<tr><td>${esc(p['Пилот'])}</td><td class="ss-best" data-i="${i}">—</td>
+      <td><input class="ss-time" data-i="${i}" placeholder="00:49.3" inputmode="decimal" style="width:84px"></td>
+      <td><input class="ss-crash" data-i="${i}" type="number" min="0" value="0" inputmode="numeric" style="width:50px"></td></tr>`).join('')}
     </tbody></table></div>
     <div class="ebar" style="margin-top:12px"><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="ss-save">Сохранить заезд</button></div>`;
   $('pbody').querySelectorAll('input').forEach(i=>i.style.cssText+=';font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px');
   $('pmodal').classList.add('open');
+  const ssBest=()=>{ const t=document.getElementById('ss-track').value; ps.forEach((p,i)=>{ const b=bestFor(p['Пилот'],t), c=$('pbody').querySelector(`.ss-best[data-i="${i}"]`); if(c) c.textContent=b?fmtLap(b.sec):'—'; }); };
+  document.getElementById('ss-track').onchange=ssBest; ssBest();
   document.getElementById('ss-save').onclick=async ()=>{
     const btn=document.getElementById('ss-save');
     const t=document.getElementById('ss-track').value, d=document.getElementById('ss-date').value.trim();
@@ -1085,7 +1133,7 @@ function renderFgd(){
 }
 
 function renderStatus(){
-  const list = data['Статус']||[];
+  const list = (data['Статус']||[]).filter(s=>!String(s['Параметр']||'').startsWith('_'));
   $('status-block').innerHTML = list.map(s=>`<p><b>${esc(s['Параметр'])}:</b> ${esc(s['Значение'])}</p>`).join('') || '<p class="empty">—</p>';
 }
 
@@ -1555,9 +1603,10 @@ const st={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){re
 const toRate=()=>{const b=document.querySelector('#vt button[data-t="rate"]');if(b)b.click()};
 /* ---- обратный отсчёт до ближайшего события ---- */
 let evT=null,evTimer=0;
+const DRONE=`<span class="drone" aria-hidden="true"><svg viewBox="0 0 120 90" width="78" height="58"><g stroke="#8be9ff" stroke-width="5" stroke-linecap="round"><line x1="30" y1="28" x2="90" y2="62"/><line x1="90" y1="28" x2="30" y2="62"/></g><rect x="44" y="34" width="32" height="22" rx="7" fill="#0d2233" stroke="#00d4ff" stroke-width="2.5"/><circle cx="60" cy="45" r="5" fill="#00d4ff"/><circle cx="60" cy="45" r="2" fill="#fff"/>${[[30,28],[90,28],[30,62],[90,62]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="5" fill="#a371f7"/><g class="prop" style="transform-origin:${x}px ${y}px;animation-delay:-${i*.07}s"><ellipse cx="${x}" cy="${y}" rx="19" ry="3.2" fill="rgba(180,240,255,.55)"/><ellipse cx="${x}" cy="${y}" rx="3.2" ry="19" fill="rgba(180,240,255,.35)"/></g>`).join('')}<circle cx="44" cy="58" r="2.5" fill="#3fb950"/><circle cx="76" cy="58" r="2.5" fill="#f85149"/></svg></span>`;
 function renderEv(){const ev=(typeof upcomingEvents==='function'?upcomingEvents():[]).find(e=>e._d);const el=q('plEv');
-  if(!ev){el.innerHTML='<span class="drone">🛸</span><h3>Ближайший старт</h3><div class="nm">Скоро объявим</div><p class="pl-place">Следи за новостями клуба - даты соревнований появятся здесь.</p>';evT=null;return}
-  evT=+ev._d;el.innerHTML=`<span class="drone">🚁</span><h3>Ближайший старт <b>${ev['Тип']?esc(ev['Тип']):''}</b></h3><div class="nm">${esc(ev['Название'])}</div><p class="pl-place">📍 ${esc(ev['Место']||'')} · ${esc(ev['Дата']||'')}</p>
+  if(!ev){el.innerHTML=DRONE+'<h3>Ближайший старт</h3><div class="nm">Скоро объявим</div><p class="pl-place">Следи за новостями клуба - даты соревнований появятся здесь.</p>';evT=null;return}
+  evT=+ev._d;el.innerHTML=DRONE+`<h3>Ближайший старт <b>${ev['Тип']?esc(ev['Тип']):''}</b></h3><div class="nm">${esc(ev['Название'])}</div><p class="pl-place">📍 ${esc(ev['Место']||'')} · ${esc(ev['Дата']||'')}</p>
    <div class="cd"><div><b id="cdD">0</b><small>дней</small></div><div><b id="cdH">0</b><small>часов</small></div><div><b id="cdM">0</b><small>минут</small></div><div><b id="cdS">0</b><small>секунд</small></div></div>`;tick()}
 function setN(id,v){const b=q(id);if(!b)return;v=String(v);if(b.textContent!==v){b.textContent=v;if(!RED){b.classList.remove('tick');void b.offsetWidth;b.classList.add('tick')}}}
 function tick(){if(!evT)return;let d=Math.max(0,evT-Date.now())/1000;setN('cdD',Math.floor(d/86400));setN('cdH',Math.floor(d%86400/3600));setN('cdM',Math.floor(d%3600/60));setN('cdS',Math.floor(d%60))}
@@ -1588,7 +1637,7 @@ function srDraw(anim){const box=q('sr');if(!box)return;
   const k=SR.t?TS.indexOf(SR.t)+1:0,coach=MODE==='coach';
   let h=`<div class="sr-sims" role="tablist">${sims.map(m=>`<button role="tab" aria-selected="${m===SR.sim}" class="${m===SR.sim?'on':''}" data-m="${esc(m)}"><i>${SR_ICON[m]||'🏁'}</i>${esc(m)}<small>${srTracks(m).length} ${plural(srTracks(m).length,'трасса','трассы','трасс')}</small></button>`).join('')}</div>`;
   if(!TS.length){
-    h+=`<div class="sr-none"><b>${SR_ICON[SR.sim]||'🏁'} Трассы ${esc(SR.sim)} скоро появятся</b>`+(coach?`<span>Добавьте их в списке трасс, в столбце "Формат" выберите "${esc(SR.sim)}". Тогда здесь появится выбор трассы и места пилотов.</span><button class="btn" id="srEdit">✎ Список трасс</button>`:`<span>Тренер добавит трассы, и здесь будет видно, кто летает быстрее всех.</span>`)+`</div>`;
+    h+=`<div class="sr-none"><b>${SR_ICON[SR.sim]||'🏁'} Трассы ${esc(SR.sim)} скоро появятся</b>`+(coach?`<span>Нажмите "+ Трассы" и впишите названия. Потом выберите трассу и впишите время пилотов.</span><button class="btn primary" id="srAdd">+ Трассы ${esc(SR.sim)}</button>`:`<span>Тренер добавит трассы, и здесь будет видно, кто летает быстрее всех.</span>`)+`</div>`;
     box.innerHTML=h;srBind(box);return}
   h+=`<div class="sr-trk"><button class="sr-ar" data-d="-1" aria-label="Предыдущая трасса" ${k===0?'disabled':''}>‹</button>
     <select id="srSel" aria-label="Трасса">${[`<option value="">🏁 Общий зачёт - ${TS.length} ${plural(TS.length,'трасса','трассы','трасс')}</option>`,...TS.map((t,i)=>`<option value="${esc(t)}" ${t===SR.t?'selected':''}>${i+1}. ${esc(t)}</option>`)].join('')}</select>
@@ -1605,7 +1654,8 @@ function srDraw(anim){const box=q('sr');if(!box)return;
       return `<li class="${r.has?'':'no'}${r.has&&i<3?' top':''}" data-p="${esc(r.p['Пилот'])}" style="--d:${Math.min(i,12)*35}ms"><span class="rk">${pl}</span><span class="nm">${esc(pnm(r.p['Пилот']))}${r.p['Класс']&&!/\(.+\)$/.test(r.p['Пилот'])?`<small>${esc(r.p['Класс'])}</small>`:''}<i class="bar"><b style="width:${bar}%"></b></i></span><span class="vl">${val}<small>${sub}</small></span></li>`}).join('')}</ol>`;
     if(rows.length>10)h+=`<div class="plcta"><button class="btn" id="srAll">${SR.all?'Свернуть до 10':'Показать всех ('+rows.length+')'}</button></div>`;
     if(!flew)h+=`<p class="sr-hint">На этой ${SR.t?'трассе':'площадке'} ещё никто не летал - первое место свободно!</p>`}
-  if(coach)h+=`<div class="sr-coach"><button class="btn" id="srEdit">✎ Список трасс</button><button class="btn" onclick="openSession()">⏱ Заезд группы</button></div>`;
+  if(ROLE==='helper')h+=`<div class="sr-coach"><button class="btn primary" onclick="openHelper()">＋ Записать результат</button></div>`;
+  if(coach)h+=`<div class="sr-coach">${SR.t?`<button class="btn primary" id="srTime">⏱ Вписать время</button><button class="btn" id="srRen">✎ Название</button><button class="btn" id="srDel">🗑</button>`:`<button class="btn primary" id="srTime">⏱ Вписать время</button>`}<button class="btn" id="srAdd">+ Трассы</button></div>`;
   box.innerHTML=h;srBind(box)}
 function srBind(box){
   box.querySelectorAll('.sr-sims button').forEach(b=>b.onclick=()=>{if(SR.sim===b.dataset.m)return;SR.sim=b.dataset.m;SR.t='';SR.all=0;srSave();srDraw(1);srPeek()});
@@ -1614,7 +1664,11 @@ function srBind(box){
   box.querySelectorAll('.sr-list li').forEach(li=>li.onclick=()=>openPilot(li.dataset.p));
   const a=q('srAll');if(a)a.onclick=()=>{SR.all=SR.all?0:1;srSave();srDraw()};
   const c=q('srCta');if(c)c.onclick=toRate;
-  const e=q('srEdit');if(e)e.onclick=()=>{if(typeof editTracks==='function')editTracks()}}
+  const ad=q('srAdd');if(ad)ad.onclick=()=>trkAdd(SR.sim);
+  const tm=q('srTime');if(tm)tm.onclick=()=>openSession(SR.t||srTracks(SR.sim)[0]||'');
+  const rn=q('srRen');if(rn)rn.onclick=()=>trkRename(SR.t);
+  const dl=q('srDel');if(dl)dl.onclick=()=>trkDel(SR.t)}
+window.SR_RENAMED=(a,b)=>{if(SR.t===a){SR.t=b;srSave()}};
 function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=SR.sim+': '+(L?'1 место - '+pnm(L.p['Пилот']):'ждём первых заездов')}
 /* ---- вопрос дня ---- */
 /* банк: 30 вопросов из тестов + 38 вопросов только для "вопроса дня" = 68 дней без повторов */
@@ -1722,10 +1776,28 @@ function demoData(d){
 }
 if(DEMO){postSheet=async()=>{throw new Error('демо-режим: изменения не сохраняются')};
   const b=document.createElement('div');b.className='demo-flag';b.textContent='ДЕМО: заезды придуманы';document.body.appendChild(b)}
+/* ---- видимость блоков: тренер скрывает лишнее от всех; список хранится в листе "Статус", строка "_скрыто" ---- */
+const BLK=[['plEv','Ближайший старт'],['plPod','Рейтинг пилотов (симуляторы)'],['plDay','Вопрос дня'],['plChk','Предполётная проверка'],['kpi','Клуб в цифрах'],['События','Ближайшие события'],['Задачи','Задачи клуба'],['Пилоты','Старая таблица рейтинга'],['Расписание','Расписание недели'],['Новости','Новости и документы'],['Статус','Статус лицензии и федерации'],['Заезды','Рекорды трасс'],['Рейтинг России','Рейтинг пилотов России'],['fgd','Новости ФГД']];
+const HIDE_DEF=['Пилоты','Заезды'];
+const blkEl=k=>k.startsWith('pl')?q(k):k==='kpi'?q('kpiBox'):k==='fgd'?q('fgd-card'):document.querySelector(`#t-club details[data-tab="${k}"]`);
+function hideList(){const r=(data&&data['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_скрыто');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):HIDE_DEF}
+function applyHide(){const H=hideList();BLK.forEach(([k])=>{const el=blkEl(k);if(!el)return;const h=H.includes(k);if(MODE==='coach'){el.hidden=false;el.classList.toggle('hid4all',h)}else el.hidden=h})}
+function openVis(){const H=hideList();
+  $('pbody').innerHTML=`<h2>👁 Что видят все</h2><p class="sub">Снимите галочку, чтобы спрятать блок от гостей и учеников. Вы в режиме тренера видите всё, спрятанные блоки - полупрозрачные.</p>
+   <div class="vis">${BLK.map(([k,n])=>`<label><input type="checkbox" data-k="${esc(k)}" ${H.includes(k)?'':'checked'}><span>${esc(n)}</span></label>`).join('')}</div>
+   <div class="ebar" style="margin-top:12px"><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="visOk">Сохранить</button></div>`;
+  $('pmodal').classList.add('open');
+  q('visOk').onclick=async()=>{const b=q('visOk');const nh=[...$('pbody').querySelectorAll('.vis input')].filter(i=>!i.checked).map(i=>i.dataset.k);
+    const S=(data['Статус']||[]).filter(x=>String(x['Параметр']||'').trim()!=='_скрыто');
+    b.disabled=true;b.textContent='Сохраняю…';
+    try{await postSheet('Статус',[...S,{'Параметр':'_скрыто','Значение':nh.join(', ')}]);closePilot();renderAll();toast('Сохранено ✓','ok')}
+    catch(e){toast('Не сохранилось: '+e.message,'bad');b.disabled=false;b.textContent='Сохранить'}}}
+window.openVis=openVis;
+if(MODE==='coach'){const p=q('pult');if(p)p.insertAdjacentHTML('beforebegin','<div class="cbar"><button class="btn" onclick="openVis()">👁 Что видят все</button><span class="muted">Блоки с пометкой "скрыто" видите только вы.</span></div>')}
 function renderPult(){try{renderEv();renderPod();renderDay();renderChk()}catch(e){console.warn('pult',e)}}
 window.renderPult=renderPult;
-const _ra=renderAll;renderAll=function(){if(DEMO&&data&&!data._demo)data=demoData(data);_ra.apply(this,arguments);renderPult()};
-if(typeof data==='object'&&data){if(DEMO)renderAll();else renderPult()}
+const _ra=renderAll;renderAll=function(){if(DEMO&&data&&!data._demo)data=demoData(data);_ra.apply(this,arguments);renderPult();applyHide()};
+if(typeof data==='object'&&data){if(DEMO)renderAll();else{renderPult();applyHide()}}
 })();
 </script>
 </body>
