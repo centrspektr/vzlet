@@ -835,8 +835,8 @@ function tracks(){ return [...new Set([...laps().map(l=>l.track)])]; }
 function allTracks(){ return [...new Set([...trackList(), ...tracks()])]; }
 /* симулятор трассы пишется в столбце "Формат" листа "Трассы": Квадросим, Ворон, симулятор, реал */
 const SIM_ORDER=['Квадросим','Ворон','Симулятор','Реал'];
-function simOfFmt(f){ f=String(f||'').trim().toLowerCase(); if(!f) return ''; if(/квадро|quadro|kvadro/.test(f)) return 'Квадросим'; if(/ворон|voron/.test(f)) return 'Ворон'; if(/^реал/.test(f)) return 'Реал'; return 'Симулятор'; }
-function simOf(t){ return simOfFmt(trackFmt(t)) || simOfFmt((laps().find(l=>l.track===t)||{}).fmt) || 'Симулятор'; }
+function simOfFmt(f){ f=String(f||'').trim().toLowerCase(); if(!f) return ''; if(/квадро|quadro|kvadro/.test(f)) return 'Квадросим'; if(/ворон|voron/.test(f)) return 'Ворон'; if(/^реал/.test(f)) return 'Реал'; return 'Ворон'; }
+function simOf(t){ return simOfFmt(trackFmt(t)) || simOfFmt((laps().find(l=>l.track===t)||{}).fmt) || 'Ворон'; }
 function simSort(a){ return [...a].sort((x,y)=>(SIM_ORDER.indexOf(x)+1||9)-(SIM_ORDER.indexOf(y)+1||9)); }
 function simTag(t){ const m=simOf(t); return `<span class="tag ${m==='Реал'?'real':'sim'}">${esc(m)}</span>`; }
 /* пилоты: лист "Пилоты" + ученики, принятые по заявке в рейтинг клуба ("Имя (класс)") + все, у кого есть заезды */
@@ -1200,7 +1200,7 @@ const SCHEMA = {
   'Классы':['Класс','Размер','Взлётный вес','Аккумулятор','Моторы и пропеллеры','Связь и видео','Особенности'],
   'Правила':['Тема','Текст']
 };
-const SELECTS = {'Тип':['симулятор','реал','другое'], 'Выполнено':['нет','да'], 'Формат':['Квадросим','Ворон','симулятор','реал'], 'День':['Пн','Вт','Ср','Чт','Пт','Сб','Вс']};
+const SELECTS = {'Тип':['симулятор','реал','другое'], 'Выполнено':['нет','да'], 'Формат':['Квадросим','Ворон','реал'], 'День':['Пн','Вт','Ср','Чт','Пт','Сб','Вс']};
 const LONG = new Set(['Текст','Особенности','Задача','Описание']);
 const HINT = {'Дата':'дд.мм.гггг','Время круга':'00:49.3','Лучший круг':'посчитается из заездов','Рейтинг':'посчитается сам','Время':'18:00','Адрес':'https://…','Налёт, ч':'часы'};
 const todayStr = () => new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
@@ -1674,7 +1674,7 @@ evTimer=setInterval(()=>{if(!document.hidden&&!q('t-club').hidden)tick()},1000);
 const SR_ICON={'Квадросим':'🎮','Ворон':'🦅','Симулятор':'🕹','Реал':'🛸'};
 let SR=st.get('vzlet_simrate',{sim:'Квадросим',t:'',all:0});
 const srSave=()=>st.set('vzlet_simrate',SR);
-function srSims(){const s=new Set(['Квадросим','Ворон']);allTracks().forEach(t=>s.add(simOf(t)));return simSort([...s])}
+function srSims(){return ['Квадросим','Ворон']}
 function srTracks(sim){return allTracks().filter(t=>simOf(t)===sim)}
 function srBest(L,t){const m={};L.forEach(l=>{if(l.track!==t)return;const k=normName(l.pilot);if(!m[k]||l.sec<m[k].sec)m[k]=l});return m}
 /* строки рейтинга: [{p, has, v, sub}] по порядку мест */

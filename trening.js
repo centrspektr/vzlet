@@ -140,16 +140,16 @@ function lockUpd() {
    3. СОБЕРИ ДРОН
    ===================================================================== */
 const PARTS = {
-  motor: { n: 'Мотор', k: 4, i: 'Бесколлекторный мотор крутит пропеллер. У квадрокоптера их 4, на концах лучей рамы.', h: 'Моторы стоят на концах лучей рамы.' },
-  esc: { n: 'Регулятор ESC 4в1', k: 1, i: 'Получает команды от полётного контроллера и управляет оборотами всех четырёх моторов. В стеке он снизу.', h: 'Регулятор стоит в центре, в самом низу стека.' },
-  fc: { n: 'Полётный контроллер', k: 1, i: 'Мозг дрона. Гироскоп чувствует наклоны, и контроллер тысячи раз в секунду поправляет обороты моторов. Ставится в стек над регулятором.', h: 'Контроллер - в центре, над регулятором.' },
-  cam: { n: 'FPV-камера', k: 1, i: 'Смотрит вперёд по ходу полёта. Картинка идёт в видеопередатчик.', h: 'Камера смотрит вперёд, по ходу полёта.' },
-  vtx: { n: 'Видеопередатчик VTX', k: 1, i: 'Отправляет картинку с камеры в очки пилота на частоте 5,8 ГГц.', h: 'Видеопередатчик - за стеком, ближе к хвосту.' },
-  rx: { n: 'Приёмник', k: 1, i: 'Принимает команды с пульта, например ELRS 2,4 ГГц, и передаёт их контроллеру.', h: 'Приёмник - сзади, у самого хвоста.' },
-  ant: { n: 'Антенна видео', k: 1, i: 'Без антенны видеопередатчик может сгореть! Питание включаем только с антенной. Торчит сзади, подальше от винтов.', h: 'Антенна торчит сзади, подальше от пропеллеров.' },
-  pcw: { n: 'Пропеллер ↻ CW', k: 2, i: 'Крутится по часовой стрелке. Ставится на моторы, которые крутятся по часовой.', h: 'Пропеллеры надеваются на моторы.' },
-  pccw: { n: 'Пропеллер ↺ CCW', k: 2, i: 'Крутится против часовой стрелки. Ставится на моторы, которые крутятся против часовой.', h: 'Пропеллеры надеваются на моторы.' },
-  bat: { n: 'Аккумулятор', k: 1, i: 'Ставится последним, прямо перед полётом, и крепится ремешком сверху рамы.', h: 'Аккумулятор - сверху по центру, его ставят последним.' }
+  motor: { s: 'Мотор', n: 'Мотор', k: 4, i: 'Бесколлекторный мотор крутит пропеллер. У квадрокоптера их 4, на концах лучей рамы.', h: 'Моторы стоят на концах лучей рамы.' },
+  esc: { s: 'ESC', n: 'Регулятор ESC 4в1', k: 1, i: 'Получает команды от полётного контроллера и управляет оборотами всех четырёх моторов. В стеке он снизу.', h: 'Регулятор стоит в центре, в самом низу стека.' },
+  fc: { s: 'FC (мозг)', n: 'Полётный контроллер', k: 1, i: 'Мозг дрона. Гироскоп чувствует наклоны, и контроллер тысячи раз в секунду поправляет обороты моторов. Ставится в стек над регулятором.', h: 'Контроллер - в центре, над регулятором.' },
+  cam: { s: 'Камера', n: 'FPV-камера', k: 1, i: 'Смотрит вперёд по ходу полёта. Картинка идёт в видеопередатчик.', h: 'Камера смотрит вперёд, по ходу полёта.' },
+  vtx: { s: 'VTX', n: 'Видеопередатчик VTX', k: 1, i: 'Отправляет картинку с камеры в очки пилота на частоте 5,8 ГГц.', h: 'Видеопередатчик - за стеком, ближе к хвосту.' },
+  rx: { s: 'Приёмник', n: 'Приёмник', k: 1, i: 'Принимает команды с пульта, например ELRS 2,4 ГГц, и передаёт их контроллеру.', h: 'Приёмник - сзади, у самого хвоста.' },
+  ant: { s: 'Антенна', n: 'Антенна видео', k: 1, i: 'Без антенны видеопередатчик может сгореть! Питание включаем только с антенной. Торчит сзади, подальше от винтов.', h: 'Антенна торчит сзади, подальше от пропеллеров.' },
+  pcw: { s: 'Проп ↻ CW', n: 'Пропеллер ↻ CW', k: 2, i: 'Крутится по часовой стрелке. Ставится на моторы, которые крутятся по часовой.', h: 'Пропеллеры надеваются на моторы.' },
+  pccw: { s: 'Проп ↺ CCW', n: 'Пропеллер ↺ CCW', k: 2, i: 'Крутится против часовой стрелки. Ставится на моторы, которые крутятся против часовой.', h: 'Пропеллеры надеваются на моторы.' },
+  bat: { s: 'АКБ', n: 'Аккумулятор', k: 1, i: 'Ставится последним, прямо перед полётом, и крепится ремешком сверху рамы.', h: 'Аккумулятор - сверху по центру, его ставят последним.' }
 };
 /* схема "пропеллеры внутрь" (как по умолчанию в Betaflight): передний левый и задний правый - по часовой */
 const CORN = { FL: [95, 95, 'pcw'], FR: [305, 95, 'pccw'], RL: [95, 305, 'pccw'], RR: [305, 305, 'pcw'] };
@@ -172,13 +172,14 @@ function partSVG(k, x, y, extra) {
     case 'ant': return `<g transform="translate(${x} ${y})" ${extra}><line y1="-18" y2="6" stroke="#8b949e" stroke-width="4"/><ellipse cy="10" rx="13" ry="10" fill="#f85149" stroke="#ffb3ad" stroke-width="2"/></g>`;
     case 'pcw': case 'pccw': {
       const col = k === 'pcw' ? '#58a6ff' : '#ff9f43', s = k === 'pcw' ? 1 : -1;
-      return `<g transform="translate(${x} ${y})" ${extra}><g class="prop ${k}">${[0, 120, 240].map(a => `<path transform="rotate(${a})" d="M0 0 C ${8 * s} -14, ${10 * s} -34, ${2 * s} -44 C ${-6 * s} -36, ${-6 * s} -14, 0 0 Z" fill="${col}" fill-opacity=".78" stroke="${col}"/>`).join('')}<circle r="6" fill="#0d1117" stroke="${col}" stroke-width="2"/></g></g>`;
+      return `<g transform="translate(${x} ${y})" ${extra}><g class="prop ${k}"><circle r="46" fill="none"/>${[0, 120, 240].map(a => `<path transform="rotate(${a})" d="M0 0 C ${8 * s} -14, ${10 * s} -34, ${2 * s} -44 C ${-6 * s} -36, ${-6 * s} -14, 0 0 Z" fill="${col}" fill-opacity=".78" stroke="${col}"/>`).join('')}<circle r="6" fill="#0d1117" stroke="${col}" stroke-width="2"/></g></g>`;
     }
     case 'bat': return `<g transform="translate(${x} ${y})" ${extra}><rect x="-38" y="-62" width="76" height="124" rx="10" fill="url(#gBat)" stroke="#e3b341" stroke-width="2"/><rect x="-44" y="-8" width="88" height="14" rx="3" fill="#1f2937" stroke="#6e7681"/><text y="-28" text-anchor="middle" font-size="13" font-weight="900" fill="#1b1200">4S</text><text y="30" text-anchor="middle" font-size="10" font-weight="800" fill="#1b1200">1500 мАч</text></g>`;
   }
   return '';
 }
-function trayIcon(k) { return `<svg viewBox="-50 -66 100 132" width="46" height="46" aria-hidden="true">${partSVG(k, 0, 0)}</svg>`; }
+const VB = { motor: "-28 -28 56 56", esc: "-40 -40 80 80", fc: "-32 -32 64 64", cam: "-22 -22 44 44", vtx: "-24 -24 48 48", rx: "-26 -16 52 48", ant: "-20 -22 40 44", pcw: "-48 -48 96 96", pccw: "-48 -48 96 96", bat: "-50 -66 100 132" };
+function trayIcon(k) { return `<svg viewBox="${VB[k]}" width="46" height="46" aria-hidden="true">${partSVG(k, 0, 0)}</svg>`; }
 
 function bSVG() {
   const rot = c => CORN[c][2] === 'pcw';
@@ -220,9 +221,8 @@ function renderBuild() {
   const t = B.t0 && !B.done ? Math.round((Date.now() - B.t0) / 1000) : B.dt || 0;
   el.innerHTML = `<div class="tgh"><h3>🔧 Собери дрон</h3><span class="tgc">${best ? '🏆 ' + fx(best, 0) + ' с' : ''}</span></div>
     <p class="muted">Перетащи детали на раму (или нажми на деталь, потом на место). Перед - сверху. Ошибся - подскажу, что не так.</p>
-    <div class="bst"><span>⏱ <b id="bT">${t}</b> с</span><span>❌ <b>${B.miss}</b></span><span>🧩 <b>${Object.keys(PARTS).reduce((a, k) => a + (B.used[k] || 0), 0)}</b>/14</span><button class="btn" id="bHint">💡 Подсказка</button><button class="btn" id="bNew">↻ Заново</button></div>
-    <div class="bw"><div class="bsv" id="bSv">${bSVG()}</div><div class="binfo" id="bInfo">${B.done ? '' : '<b>Начни с моторов.</b> Нажми на деталь внизу, чтобы узнать, что она делает.'}</div></div>
-    <div class="tray" id="bTray">${Object.keys(PARTS).map(k => { const l = left(k); return `<button class="tp ${l ? '' : 'gone'} ${B.sel === k ? 'sel' : ''}" data-k="${k}" ${l ? '' : 'disabled'}>${trayIcon(k)}<span>${E(PARTS[k].n)}</span>${PARTS[k].k > 1 ? `<em>×${l}</em>` : ''}</button>`; }).join('')}</div>`;
+    <div class="bst"><span>⏱ <b id="bT">${t}</b> с</span><span>❌ <b>${B.miss}</b></span><span>🧩 <b>${Object.keys(PARTS).reduce((a, k) => a + (B.used[k] || 0), 0)}</b>/${Object.values(PARTS).reduce((a, p) => a + p.k, 0)}</span><button class="btn" id="bHint">💡 Подсказка</button><button class="btn" id="bNew">↻ Заново</button></div>
+    <div class="bw"><div class="bsv" id="bSv">${bSVG()}</div><div class="bside"><div class="tray" id="bTray">${Object.keys(PARTS).map(k => { const l = left(k); return `<button class="tp ${l ? '' : 'gone'} ${B.sel === k ? 'sel' : ''}" data-k="${k}" ${l ? '' : 'disabled'}>${trayIcon(k)}<span>${E(PARTS[k].s)}</span>${PARTS[k].k > 1 ? `<em>×${l}</em>` : ''}</button>`; }).join('')}</div><div class="binfo" id="bInfo">${B.done ? '' : '<b>Начни с моторов.</b> Нажми на деталь, чтобы узнать, что она делает.'}</div></div></div>`;
   if (B.done) bWin(true);
   bBind();
 }
@@ -235,7 +235,7 @@ function bBind() {
     const k = b.dataset.k;
     b.addEventListener('pointerdown', e => {
       if (b.disabled || B.done) return;
-      e.preventDefault();
+      e.preventDefault(); bView();
       const sx = e.clientX, sy = e.clientY; let g = null, moved = false;
       const mv = ev => {
         if (!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return;
@@ -252,6 +252,11 @@ function bBind() {
     });
   });
   svg.addEventListener('click', e => { if (!B.sel || B.done) return; drop(B.sel, e.clientX, e.clientY); });
+}
+function bView() {
+  const s = $('bSv'); if (!s) return;
+  const n = document.getElementById('vt'), top = Math.max(0, n ? n.getBoundingClientRect().bottom : 0) + 8, r = s.getBoundingClientRect();
+  if (r.top < top - 4 || r.bottom > innerHeight) window.scrollBy({ top: r.top - top, behavior: RED ? 'auto' : 'smooth' });
 }
 function svgPt(cx, cy) { const svg = $('bSvg'); if (!svg) return null; const p = svg.createSVGPoint(); p.x = cx; p.y = cy; const m = svg.getScreenCTM(); if (!m) return null; return p.matrixTransform(m.inverse()); }
 function zoneAt(x, y) {
@@ -460,7 +465,9 @@ html.fx .tglock{backdrop-filter:none}
 .binfo{min-height:84px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.22);font-size:14.5px;line-height:1.5;animation:bin .35s ease}
 @keyframes bin{from{opacity:0;transform:translateY(6px)}}
 .binfo.ok{border-color:rgba(63,185,80,.55)}.binfo.bad{border-color:rgba(248,81,73,.6);background:rgba(248,81,73,.08)}.binfo.win{border-color:rgba(210,153,34,.7);background:linear-gradient(135deg,rgba(210,153,34,.18),rgba(0,0,0,.2))}
-.tray{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:12px}
+.bside{display:grid;gap:12px;align-content:start}
+.tray{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+@media(max-width:860px){.tray{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.tp{padding:6px 2px 5px;font-size:10.5px}.tp svg{width:34px;height:34px}.tp em{top:2px;right:4px;font-size:10px}}
 .tp{position:relative;display:grid;justify-items:center;gap:2px;padding:8px 6px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--text);font:700 11.5px Manrope,system-ui,sans-serif;line-height:1.2;text-align:center;cursor:grab;touch-action:none;transition:transform .2s,border-color .2s,opacity .3s}
 .tp:hover{border-color:var(--accent);transform:translateY(-2px)}.tp.sel{border-color:#ffd166;box-shadow:0 0 0 2px rgba(255,209,102,.35)}
 .tp.gone{opacity:.25;cursor:default;transform:none}.tp em{position:absolute;top:4px;right:6px;font:800 11px var(--fh);font-style:normal;color:var(--accent)}
