@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Клуб БПЛА Взлёт: рейтинг пилотов, шпаргалки по FPV, тесты, калькуляторы и тренажёр стиков.">
 <title>Взлёт — дашборд клуба</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<script src="/fx.js"></script>
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --panel2:#1c2330;
@@ -259,6 +262,7 @@
 .stk small{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:10.5px;color:var(--dim);white-space:nowrap}
 @media(max-width:600px){.trn-w{height:440px}.stk{width:96px;height:96px}.stk.r{right:28px}}
 /* тесты */
+.qhead{grid-column:1/-1;display:flex;gap:12px;align-items:center;flex-wrap:wrap;color:var(--muted)}.qhead small{font-size:13.5px;line-height:1.4}
 .qlv{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:16px}
 .ql{position:relative;overflow:hidden;padding:20px;border-radius:18px;border:1px solid var(--line);background:var(--panel);cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s;text-align:left;color:var(--text);font:inherit}
 .ql:hover{transform:translateY(-4px);border-color:var(--lc);box-shadow:0 16px 40px color-mix(in srgb,var(--lc) 25%,transparent)}
@@ -297,13 +301,177 @@
 #pop{position:fixed;left:50%;top:22%;z-index:9999;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;padding:22px 30px;border-radius:20px;background:linear-gradient(135deg,#1c2330,#0d1117);border:1px solid rgba(210,153,34,.6);box-shadow:0 20px 70px rgba(0,0,0,.6),0 0 40px rgba(210,153,34,.3);text-align:center;transition:.5s cubic-bezier(.3,1.6,.5,1)}
 #pop.on{opacity:1;transform:translate(-50%,-50%) scale(1)} #pop .e{font-size:54px} #pop small{display:block;color:var(--warn);font-weight:800;letter-spacing:2px}
 @media (prefers-reduced-motion: reduce){.vtab,.ch,.ql .e,.ah-ph,.ah-scan::after,.qa button,.bd1.got .e{animation:none !important}}
+
+/* ===== обновление 15.10: живой фон, стекло, объём, пульт клуба ===== */
+:root{--fh:Unbounded,'Segoe UI',sans-serif}
+html.fx body{background:transparent}
+html.fx{background:var(--bg)}
+body{font-family:Manrope,'Segoe UI',system-ui,sans-serif}
+header,.card,.vt,.modal-card{background:rgba(22,27,34,.80)}
+html.fx header,html.fx .card{box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 18px 40px -22px rgba(0,0,0,.8)}
+@media(hover:none),(max-width:860px){html.fx .vt{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--panel)}}
+/* над живым фоном размытие пересчитывается каждый кадр - без него плавнее */
+html.fx *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html.fx .vt,html.fx header{background:color-mix(in srgb,var(--panel,#161b22) 94%,transparent)}
+header{position:relative;overflow:hidden}
+header::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(0,212,255,.10) 50%,transparent 65%);transform:translateX(-100%);animation:hdrsh 7s ease-in-out infinite 2s}
+@keyframes hdrsh{40%,100%{transform:translateX(100%)}}
+.logo h1{font-family:var(--fh);font-weight:800;letter-spacing:-.3px}
+.logo-badge{font-family:var(--fh);box-shadow:0 0 0 3px rgba(0,212,255,.15),0 8px 24px rgba(0,119,255,.45);animation:lbg 3.5s ease-in-out infinite}
+@keyframes lbg{50%{box-shadow:0 0 0 6px rgba(0,212,255,.08),0 8px 34px rgba(0,212,255,.6)}}
+.btn{font-weight:700;padding:9px 15px;border-radius:11px;box-shadow:0 1px 0 rgba(255,255,255,.07) inset,0 6px 14px -8px rgba(0,0,0,.6);transition:border-color .15s,color .15s,translate .25s cubic-bezier(.3,1.6,.5,1),box-shadow .2s}
+.btn:hover{translate:0 -2px}
+.btn.primary{box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 -3px 0 rgba(0,0,0,.18) inset,0 10px 24px -8px rgba(0,180,255,.7)}
+.btn,.chip,.vt button{position:relative;overflow:hidden}
+.fxr{position:absolute;border-radius:50%;background:currentColor;pointer-events:none;opacity:0}
+details.card>summary{font-family:var(--fh);font-size:12.5px;font-weight:600;letter-spacing:.8px}
+.kpi .num{font-family:var(--fh);font-weight:800;text-shadow:0 0 24px rgba(0,212,255,.45)}
+/* пульт */
+.pult{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:860px){.pult{grid-template-columns:1fr}}
+.pl{position:relative;overflow:hidden;border-radius:18px;padding:18px}
+.pl h3{font:800 13px var(--fh);letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.pl h3 b{color:var(--accent)}
+.plev{background:radial-gradient(120% 120% at 100% 0%,rgba(0,212,255,.22),transparent 55%),radial-gradient(90% 90% at 0% 100%,rgba(163,113,247,.22),transparent 60%),rgba(22,27,34,.85)}
+.plev .nm{font:800 clamp(18px,2.6vw,24px)/1.2 var(--fh);margin-bottom:4px}
+.plev .pl-place{color:var(--dim);font-size:14px}
+.cd{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.cd div{min-width:68px;padding:10px 8px 8px;border-radius:14px;text-align:center;background:rgba(0,0,0,.35);border:1px solid rgba(0,212,255,.25);box-shadow:0 0 22px rgba(0,212,255,.12) inset}
+.cd b{display:block;font:800 30px/1 var(--fh);color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(0,212,255,.7)}
+.cd b.tick{animation:cdt .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes cdt{from{transform:translateY(-40%) scale(.8);opacity:.3}}
+.cd small{font-size:11px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.plev .drone{position:absolute;right:10px;top:12px;line-height:0;animation:hov 3s ease-in-out infinite;filter:drop-shadow(0 10px 14px rgba(0,212,255,.45))}
+@keyframes hov{50%{transform:translateY(-8px) rotate(4deg)}}
+.pod{display:flex;align-items:flex-end;justify-content:center;gap:10px;height:200px;margin-top:6px}
+.pod .st{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.pod .av{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:800 20px var(--fh);color:#04121b;background:linear-gradient(135deg,#00d4ff,#a371f7);box-shadow:0 8px 22px rgba(0,212,255,.4)}
+.pod .st:nth-child(2) .av{width:62px;height:62px;background:linear-gradient(135deg,#ffd76a,#ff9f1c);box-shadow:0 8px 30px rgba(255,190,60,.55)}
+.pod .nmx{font-weight:800;font-size:13.5px;text-align:center;line-height:1.2}
+.pod .nmx small{display:block;color:var(--dim);font-weight:600}
+.pod .bl{width:100%;border-radius:12px 12px 4px 4px;display:grid;place-items:start center;padding-top:8px;font:800 22px var(--fh);color:rgba(255,255,255,.9);background:linear-gradient(180deg,rgba(0,212,255,.35),rgba(0,212,255,.05));border:1px solid rgba(0,212,255,.35);transform-origin:50% 100%;animation:podup .9s cubic-bezier(.3,1.4,.5,1) backwards}
+.pod .st:nth-child(1) .bl{height:70px;animation-delay:.15s}.pod .st:nth-child(2) .bl{height:100px;background:linear-gradient(180deg,rgba(255,200,80,.45),rgba(255,200,80,.06));border-color:rgba(255,200,80,.5)}.pod .st:nth-child(3) .bl{height:50px;animation-delay:.3s}
+@keyframes podup{from{transform:scaleY(0)}}
+.pod.empty .av{background:rgba(255,255,255,.08);color:var(--dim);box-shadow:none;border:1px dashed var(--line)}
+.plcta{display:flex;justify-content:center;margin-top:12px}
+.qd p.q{font-weight:800;font-size:16px;margin-bottom:12px}
+.qd .opts{display:grid;gap:8px}
+.qopt{text-align:left;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--text);font:600 14.5px Manrope,system-ui,sans-serif;cursor:pointer;transition:border-color .2s,background .2s}
+.qopt:hover{border-color:var(--accent)}
+.qopt.ok{background:rgba(63,185,80,.22);border-color:var(--ok)} .qopt.no{background:rgba(248,81,73,.18);border-color:var(--bad)}
+.streak{margin-left:auto;font:800 13px var(--fh);color:#ffb347;text-transform:none;letter-spacing:0}
+.qd .res{margin-top:10px;font-weight:700}
+.ck{display:grid;gap:7px}
+.ck button{display:flex;align-items:center;gap:10px;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.22);color:var(--text);font:600 14px Manrope,system-ui,sans-serif;cursor:pointer;transition:border-color .2s,background .25s}
+.ck button i{flex-shrink:0;width:22px;height:22px;border-radius:7px;border:2px solid var(--dim);display:grid;place-items:center;font-style:normal;font-size:13px;color:#04121b;transition:.25s cubic-bezier(.3,1.6,.5,1)}
+.ck button.on{border-color:rgba(63,185,80,.6);background:rgba(63,185,80,.12)} .ck button.on i{background:var(--ok);border-color:var(--ok);transform:rotate(-8deg) scale(1.1)}
+.ckbar{height:8px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden;margin:4px 0 12px}.ckbar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#00d4ff,#3fb950);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.stamp{position:absolute;right:16px;bottom:14px;padding:8px 14px;border:3px solid var(--ok);border-radius:10px;color:var(--ok);font:800 15px var(--fh);transform:rotate(-12deg) scale(0);opacity:0;pointer-events:none;background:rgba(13,17,23,.85);transition:transform .5s cubic-bezier(.3,1.8,.5,1),opacity .3s}
+.stamp.on{transform:rotate(-12deg) scale(1);opacity:1}
+/* 16.10: телефон - текст не вылезает за края; сворачиваемые блоки */
+.logo{min-width:0}.logo>div{min-width:0}
+.logo h1,.logo p,.pl h3,.plev .nm,.qd p.q{overflow-wrap:anywhere}
+@media(max-width:600px){
+ header{padding:14px}
+ .logo h1{font-size:clamp(16px,5.2vw,20px);line-height:1.2}
+ .grant-note{display:block;white-space:normal;font:700 12px/1.3 Manrope,system-ui,sans-serif;margin-top:4px}
+ .logo p{font-size:12px}
+ .pl{padding:16px}
+ .pl h3{font-size:11.5px;letter-spacing:.6px}
+ .streak{font-size:11.5px}
+ .plev .nm{font-size:clamp(16px,5vw,20px)}
+ .cd{gap:6px}.cd div{min-width:0;flex:1;padding:8px 4px 6px}.cd b{font-size:22px}.cd small{font-size:9.5px;letter-spacing:.3px}
+ .kpi .num{font-size:24px;overflow-wrap:anywhere}
+ details.card>summary{font-size:11px;letter-spacing:.5px}
+ .pod .nmx{font-size:12px}
+}
+@media(hover:none),(max-width:860px){.logo-badge,header::after{animation:none}}
+.fh{cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.fh .sp{flex:1;min-width:4px}.fh .streak{margin-left:0}
+.fh .fa{flex-shrink:0;width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--text);font-size:12px;transition:transform .5s cubic-bezier(.3,1.5,.5,1),background .2s}
+.fh:hover .fa{background:rgba(0,212,255,.15)}
+.fold.closed .fh .fa{transform:rotate(-90deg)}
+.fold>h3{transition:margin .45s cubic-bezier(.3,.8,.3,1)}.fold.closed>h3{margin-bottom:0}
+.fb{display:grid;grid-template-rows:1fr;transition:grid-template-rows .5s cubic-bezier(.3,.8,.3,1),opacity .4s ease}
+.fb>.fi{min-height:0;overflow:hidden}
+.fold.closed>.fb{grid-template-rows:0fr;opacity:0}
+.fh{flex-wrap:wrap}.peek{display:none;order:10;flex-basis:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);text-transform:none;letter-spacing:0;font:700 13.5px Manrope,system-ui,sans-serif;margin-top:2px}
+.fold.closed .peek{display:block}.fold.closed .fh .streak{display:none}
+.plev .drone{top:46px;transition:opacity .3s}.fold.closed .drone,.fold.closed .stamp{opacity:0!important}
+details.card>.dbody{overflow:hidden}
+details.card>summary{transition:margin .35s ease;-webkit-tap-highlight-color:transparent}
+details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
+#kpiBox .kpi{background:rgba(0,0,0,.25);box-shadow:none;border-color:rgba(255,255,255,.06)}
+#kpiBox #kpi-grid{margin:0}
+#t-club>.grid{align-items:start}
+.hid4all{opacity:.45;position:relative}.hid4all::before{content:"скрыто от всех";position:absolute;z-index:3;top:8px;left:50%;transform:translateX(-50%);padding:2px 10px;border-radius:9px;background:#3d1d0b;color:#ffab6c;font:800 11px var(--fh);pointer-events:none}
+.cbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.vis{display:grid;gap:6px}.vis label{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:10px;border:1px solid var(--line);cursor:pointer}.vis input{width:20px;height:20px;accent-color:var(--accent)}
+/* рейтинг пилотов в пульте: симулятор → трасса */
+.lapdel{margin-left:6px;width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:none;color:var(--bad);cursor:pointer}
+@media(min-width:861px){#plPod{grid-column:2;grid-row:1/span 2}#plChk{grid-column:1/-1}#plChk .ck{grid-template-columns:1fr 1fr}}
+.sr-sims{display:flex;gap:6px;padding:4px;border-radius:14px;background:rgba(0,0,0,.3);border:1px solid var(--line);margin-bottom:10px}
+.sr-sims button{flex:1;min-width:0;display:grid;justify-items:center;gap:1px;padding:8px 6px;border:0;border-radius:11px;background:none;color:var(--dim);font:800 14px var(--fh);cursor:pointer;transition:background .3s,color .3s,transform .2s;-webkit-tap-highlight-color:transparent}
+.sr-sims button i{font-style:normal;font-size:18px;line-height:1}
+.sr-sims button small{font:600 11px Manrope,system-ui,sans-serif;opacity:.8}
+.sr-sims button.on{color:#04121b;background:linear-gradient(135deg,#00d4ff,#a371f7);box-shadow:0 6px 18px -6px rgba(0,212,255,.7)}
+.sr-sims button:active{transform:scale(.97)}
+.sr-trk{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.sr-trk select{flex:1;min-width:0;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--text);font:700 15px Manrope,system-ui,sans-serif;text-overflow:ellipsis}
+.sr-trk select option,.sr-trk select optgroup{background:#161b22;color:var(--text)}
+.sr-ar{flex-shrink:0;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);font:800 22px/1 var(--fh);cursor:pointer}
+.sr-ar:disabled{opacity:.3;cursor:default}
+.sr-sub{font-size:12.5px;color:var(--dim);margin:2px 2px 8px;line-height:1.35}.sr-sub b{color:var(--text);font-size:14px}
+.sr-list{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.sr-list li{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:7px 10px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.05);cursor:pointer;transition:border-color .2s,background .2s}
+.sr-list li:hover{border-color:var(--accent)}
+.sr-list.an li{animation:srin .45s cubic-bezier(.3,1.2,.5,1) backwards;animation-delay:var(--d)}
+@keyframes srin{from{opacity:0;transform:translateY(8px)}}
+.sr-list li.top{background:linear-gradient(90deg,rgba(255,200,80,.14),rgba(0,0,0,.2))}
+.sr-list li.no{opacity:.55}
+.sr-list .rk{font:800 16px var(--fh);text-align:center}
+.sr-list .nm{min-width:0;font-weight:800;font-size:14px;line-height:1.25;overflow-wrap:anywhere}
+.sr-list .nm small{color:var(--dim);font-weight:600;margin-left:6px}
+.sr-list .bar{display:block;height:4px;border-radius:4px;background:rgba(255,255,255,.07);margin-top:4px;overflow:hidden}
+.sr-list .bar b{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#00d4ff,#a371f7);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.sr-list .vl{text-align:right;font:800 15px var(--fh);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sr-list .vl small{display:block;font:600 11px Manrope,system-ui,sans-serif;color:var(--dim)}
+.sr-list li.top .vl small{color:#ffcf6a}
+.sr-none{display:grid;gap:8px;justify-items:start;padding:14px;border-radius:14px;border:1px dashed var(--line);background:rgba(0,0,0,.18)}
+.sr-none span{color:var(--dim);font-size:13.5px;line-height:1.4}
+.sr-hint{margin-top:8px;font-size:13px;color:#ffcf6a;font-weight:700}
+.sr-coach{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.demo-flag{position:fixed;right:10px;bottom:12px;z-index:50;padding:6px 14px;border-radius:20px;background:#ffb347;color:#1b1200;font:800 12px var(--fh);letter-spacing:.5px;pointer-events:none}
+@media(max-width:600px){.sr-sims button{font-size:13px}.sr-list li{grid-template-columns:28px 1fr auto;padding:7px 8px}}
+@media (prefers-reduced-motion: reduce){.sr-list.an li{animation:none}}
+/* расписание пока идёт набор */
+.sform{display:grid;gap:12px}
+.sform .lead{font-weight:800;font-size:15px;line-height:1.35}
+.sform .lead small{display:block;color:var(--dim);font-weight:600;font-size:13px;margin-top:4px}
+.stl{display:grid;gap:8px;position:relative}
+.stl div{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:start;padding:9px 11px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.stl b{font:800 12px/1.5 var(--fh);color:var(--accent);white-space:nowrap}
+.stl span{font-size:13.5px;line-height:1.4}
+.stl .sw{border-color:rgba(163,113,247,.45);background:rgba(163,113,247,.10)}
+.sform .note{font-size:12.5px;color:var(--dim)}
+@media (prefers-reduced-motion: reduce){.fb,.fh .fa,details.card>summary::after{transition:none}}
+.vzb{flex:none;position:relative;display:grid;place-items:center;width:48px;height:48px;padding:0;border-radius:50%;background:radial-gradient(circle at 50% 40%,#123049,#071019 72%);touch-action:none;cursor:grab;overflow:visible}
+.vzb.hold{cursor:grabbing}.vzb .vzd{width:46px;height:46px;animation:vzr 16s linear infinite;will-change:transform}
+.vzb .vzp{animation:vzs .22s linear infinite}.vzb .vzp.r{animation-direction:reverse}
+.vzb .vzo{position:absolute;inset:-5px;border-radius:50%;border:1.5px dashed rgba(0,212,255,.45);animation:vzr 28s linear infinite reverse;pointer-events:none}
+.vzb .vzo::before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#3fb950;top:-4px;left:calc(50% - 3.5px);box-shadow:0 0 10px #3fb950}
+.vzb .vzo::after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:#ffb02e;bottom:-3px;left:calc(50% - 3px);box-shadow:0 0 10px #ffb02e}
+@keyframes vzr{to{transform:rotate(360deg)}}@keyframes vzs{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){header::after,.logo-badge,.plev .drone,.drone .prop,.vzb .vzd,.vzb .vzo,.vzb .vzp{animation:none}}
+.drone .prop{animation:prop .18s linear infinite}@keyframes prop{to{transform:rotate(360deg)}}
+@media(max-width:600px){.plev .drone svg{width:60px;height:45px}}
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">
-    <div class="logo-badge">ВЗ</div>
+    <div class="logo-badge vzb" id="vzb" title="Клуб Взлёт"><span class="vzo"></span><svg class="vzd" viewBox="6 6 88 88" aria-hidden="true"><g stroke="#5b7a96" stroke-width="7" stroke-linecap="round"><line x1="24" y1="24" x2="76" y2="76"/><line x1="76" y1="24" x2="24" y2="76"/></g><rect x="38" y="33" width="24" height="34" rx="8" fill="#0d2233" stroke="#00d4ff" stroke-width="2.5"/><circle cx="50" cy="39" r="4" fill="#a371f7"/><rect x="44" y="49" width="12" height="12" rx="3" fill="#ffb02e"/><circle cx="24" cy="24" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp" style="transform-origin:24px 24px"><ellipse cx="24" cy="24" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="24" cy="24" r="2.6" fill="#00d4ff"/></g><circle cx="76" cy="24" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp r" style="transform-origin:76px 24px"><ellipse cx="76" cy="24" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="76" cy="24" r="2.6" fill="#00d4ff"/></g><circle cx="24" cy="76" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp r" style="transform-origin:24px 76px"><ellipse cx="24" cy="76" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="24" cy="76" r="2.6" fill="#00d4ff"/></g><circle cx="76" cy="76" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp" style="transform-origin:76px 76px"><ellipse cx="76" cy="76" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="76" cy="76" r="2.6" fill="#00d4ff"/></g></svg></div>
     <div>
       <h1>Клуб «Взлёт» <span class="grant-note">(при поддержке Росмолодёжь.Гранты)</span> <span class="coach-badge coach-only">тренер</span></h1>
       <p>FPV-тренировки · с. Иртыш · Черлакский район · Омская область</p>
@@ -314,12 +482,13 @@
     <button class="btn coach-only" onclick="loadData(true)">↻ Обновить</button>
     <a class="btn coach-only" id="editBtn" target="_blank" href="#" title="Открыть Google Таблицу">▦ Таблица</a>
     <button class="btn" id="lockBtn" onclick="lockClick()" style="display:none">✎ Войти</button>
+    <button class="btn" data-fx-skin title="Сменить живой фон" aria-label="Сменить фон">🎨</button>
     <button class="btn primary" onclick="openModal()">📖 Справка</button>
   </div>
 </header>
 
 <nav class="vt" id="vt"><span class="vti" id="vti"></span>
-  <button data-t="club" class="on">🏁 Клуб</button><button data-t="learn">📚 Шпаргалки</button><button data-t="quiz">🧠 Тесты</button><button data-t="calc">🧮 Калькуляторы</button><button data-t="me">🎖 Мои значки</button><button data-t="rate">🏆 Рейтинг</button>
+  <button data-t="club" class="on">🏁 Клуб</button><button data-t="learn">📚 Шпаргалки</button><button data-t="train">🎮 Тренировка</button><button data-t="quiz">🧠 Тесты</button><button data-t="calc">🧮 Калькуляторы</button><button data-t="me">🎖 Мои значки</button><button data-t="rate">🏆 Рейтинг</button>
 </nav>
 <section class="ahero" id="ahero" hidden>
   <div class="ah-ph"><img src="drone.webp" alt=""></div><div class="ah-scan"></div>
@@ -337,6 +506,7 @@
   </div>
 </div>
 
+<div class="vtab" id="t-train" hidden></div>
 <div class="vtab" id="t-quiz" hidden>
   <div class="qlv" id="qlv"></div>
   <div class="card qbox" id="qbox" hidden></div>
@@ -348,7 +518,7 @@
       <label>Ёмкость, мАч<input type="number" id="c1a" value="1500" min="50"></label><label>Средний ток, А<input type="number" id="c1b" value="20" min="0.1" step="0.1"></label>
       <div class="res"><b id="c1r"></b><small>с запасом: используем 80% ёмкости, чтобы не пересадить аккумулятор</small></div></div>
     <div class="card calc" data-c="lipo"><h3>🔋 Напряжение пачки</h3>
-      <label>Число банок (S)<input type="range" id="c2a" min="1" max="6" value="4"><output id="c2o">4S</output></label><label>Ёмкость, мАч<input type="number" id="c2b" value="1500"></label>
+      <label>Число банок (S)<input type="range" id="c2a" min="1" max="6" value="4"><output id="c2o">4S</output></label><label>Ёмкость, мАч<input type="number" id="c2b" value="1500"></label><label>Тип<select id="c2t"><option>LiPo</option><option>LiHV</option></select></label>
       <div class="cells" id="c2cells"></div><div class="res"><b id="c2r"></b><small id="c2s"></small></div></div>
     <div class="card calc" data-c="twr"><h3>💪 Тяговооружённость</h3>
       <label>Вес дрона со всем, г<input type="number" id="c3a" value="650"></label><label>Тяга одного мотора, г<input type="number" id="c3b" value="1300"></label><label>Моторов<input type="number" id="c3c" value="4" min="1"></label>
@@ -384,7 +554,12 @@
 </div>
 <div class="banner hidden coach-only" id="err"></div>
 
-<div class="grid" id="kpi-grid"></div>
+<section class="pult" id="pult">
+  <div class="card pl plev" id="plEv"></div>
+  <div class="card pl" id="plPod"></div>
+  <div class="card pl qd" id="plDay"></div>
+</section>
+<details class="card" id="kpiBox" data-fold="kpi"><summary>📊 Клуб в цифрах</summary><div class="grid" id="kpi-grid"></div></details>
 
 <div class="grid" style="margin-top:16px;">
   <details class="card col-8" open data-tab="События">
@@ -648,6 +823,8 @@ function renderTasks(){
 }
 
 /* Время круга: 00:49.3 · 49.3 · 1:02,4 → секунды */
+/* имя для всех: "Имя Ф."; тренер видит полностью */
+function pnm(s){s=String(s||'').trim();if(MODE==='coach'||/\(.+\)$/.test(s))return s;const w=s.split(/\s+/);return w.length>1?w[0]+' '+w[1][0].toUpperCase()+'.':s}
 function lapSec(s){
   s=String(s||'').trim().replace(',','.'); if(!s || s==='—') return null;
   const p=s.split(':').map(Number); if(p.some(isNaN)) return null;
@@ -657,12 +834,29 @@ function fmtLap(sec){ const m=Math.floor(sec/60), r=(sec-m*60).toFixed(1).padSta
 const normName = s => String(s||'').trim().toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ');
 let curTrack = '';
 function laps(){
-  return (data['Заезды']||[]).map(l=>({pilot:l['Пилот'], track:String(l['Трасса']||'').trim()||'Без названия', sec:lapSec(l['Время круга']), date:l['Дата'], fmt:l['Формат'], crash:Math.max(0,Math.round(num(l['Аварии'])))})).filter(l=>l.sec);
+  return (data['Заезды']||[]).map((l,_i)=>({_i, pilot:l['Пилот'], track:String(l['Трасса']||'').trim()||'Без названия', sec:lapSec(l['Время круга']), date:l['Дата'], fmt:l['Формат'], crash:Math.max(0,Math.round(num(l['Аварии'])))})).filter(l=>l.sec);
 }
 function trackList(){ return (data['Трассы']||[]).map(t=>String(t['Название']||'').trim()).filter(Boolean); }
 function trackFmt(t){ const r=(data['Трассы']||[]).find(x=>String(x['Название']).trim()===t); return r?r['Формат']:''; }
 function tracks(){ return [...new Set([...laps().map(l=>l.track)])]; }
 function allTracks(){ return [...new Set([...trackList(), ...tracks()])]; }
+/* симулятор трассы пишется в столбце "Формат" листа "Трассы": Квадросим, Ворон, симулятор, реал */
+const SIM_ORDER=['Квадросим','Ворон','Симулятор','Реал'];
+function simOfFmt(f){ f=String(f||'').trim().toLowerCase(); if(!f) return ''; if(/квадро|quadro|kvadro/.test(f)) return 'Квадросим'; if(/ворон|voron/.test(f)) return 'Ворон'; if(/^реал/.test(f)) return 'Реал'; return 'Ворон'; }
+function simOf(t){ return simOfFmt(trackFmt(t)) || simOfFmt((laps().find(l=>l.track===t)||{}).fmt) || 'Ворон'; }
+function simSort(a){ return [...a].sort((x,y)=>(SIM_ORDER.indexOf(x)+1||9)-(SIM_ORDER.indexOf(y)+1||9)); }
+function simTag(t){ const m=simOf(t); return `<span class="tag ${m==='Реал'?'real':'sim'}">${esc(m)}</span>`; }
+/* пилоты: лист "Пилоты" + ученики, принятые по заявке в рейтинг клуба ("Имя (класс)") + все, у кого есть заезды */
+let SPK_PIL=[];
+function loadSpkPilots(){
+  fetch('https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec',{method:'POST',body:JSON.stringify({op:'srate',club:'vzlet'})})
+    .then(r=>r.json()).then(j=>{ if(!j||!j.ok) return; SPK_PIL=(j.top||[]).map(x=>({'Пилот':`${x.n} (${x.c})`,'Класс':x.c,_spk:1})); if(data) renderAll(); }).catch(()=>{});
+}
+function allPilots(){
+  const m=new Map(), add=p=>{ const k=normName(p['Пилот']); if(k && !m.has(k)) m.set(k,p); };
+  (data['Пилоты']||[]).forEach(add); SPK_PIL.forEach(add); laps().forEach(l=>add({'Пилот':String(l.pilot||'').trim()}));
+  return [...m.values()];
+}
 /* Рейтинг: в каждом заезде (дата + трасса) самый быстрый получает 100 очков,
    остальные — 100 × (лучшее время ÷ своё время); минус 5 очков за каждую аварию.
    Рейтинг пилота = среднее за его последние 5 заездов. */
@@ -710,7 +904,7 @@ function renderSort(){
 function renderPilots(){
   renderChips(); renderSort();
   $('lapHead').textContent = curTrack ? 'Круг на трассе' : 'Лучший круг';
-  let list = [...(data['Пилоты']||[])].map(p=>({p, b:bestFor(p['Пилот'], curTrack)}));
+  let list = allPilots().map(p=>({p, b:bestFor(p['Пилот'], curTrack)}));
   if(curSort==='leaders') list.sort((x,y)=> (x.b?x.b.sec:Infinity) - (y.b?y.b.sec:Infinity) || ratingFor(y.p).v-ratingFor(x.p).v);
   else list.sort((x,y)=> ratingFor(y.p).v - ratingFor(x.p).v);
   $('c-pilots').textContent = list.length;
@@ -719,7 +913,7 @@ function renderPilots(){
     const ll = lastLap(p['Пилот'], curTrack);
     const lap = b ? fmtLap(b.sec) : (curTrack ? '—' : esc(p['Лучший круг'] || '—'));
     const trk = b ? esc(b.track) : (curTrack ? esc(curTrack) : '—');
-    return `<tr data-p="${esc(p['Пилот'])}"><td class="rank ${i<3?'top':''}">${i+1}</td><td><span class="pname">${esc(p['Пилот'])}</span> ›</td><td>${esc(p['Класс'])}</td>
+    return `<tr data-p="${esc(p['Пилот'])}"><td class="rank ${i<3?'top':''}">${i+1}</td><td><span class="pname">${esc(pnm(p['Пилот']))}</span> ›</td><td>${esc(p['Класс'])}</td>
       <td>${esc(p['Налёт, ч'])}</td><td class="trk">${trk}</td><td>${ll?(ll.crash?`<span class="dslow">${ll.crash}</span>`:'0'):'—'}</td><td class="lap">${lap}</td>
       <td style="min-width:140px"><div class="rating-cell"><b title="${R.manual?'рейтинг введён вручную — заездов ещё нет':'авто: по времени и авариям'}" style="${R.manual?'color:var(--dim)':''}">${r}</b><div class="bar"><i style="width:${r}%"></i></div></div></td></tr>`;
   }).join('') || '<tr><td colspan="8" class="empty">Пилотов пока нет</td></tr>';
@@ -739,11 +933,11 @@ function spark(ls){
 let openPilotName='';
 function openPilot(name){
   openPilotName=name;
-  const p=(data['Пилоты']||[]).find(x=>normName(x['Пилот'])===normName(name))||{'Пилот':name};
+  const p=allPilots().find(x=>normName(x['Пилот'])===normName(name))||{'Пилот':name};
   const my=laps().filter(l=>normName(l.pilot)===normName(name));
   const byTrack={}; my.forEach(l=>(byTrack[l.track]=byTrack[l.track]||[]).push(l));
   const best=bestFor(name,'');
-  let html=`<h2>${esc(p['Пилот'])}</h2><p class="sub">${esc(p['Класс']||'')}</p>
+  let html=`<h2>${esc(pnm(p['Пилот']))}</h2><p class="sub">${esc(p['Класс']||'')}</p>
     <div class="pstats"><div class="pstat"><b>${ratingFor(p).v}</b><span>рейтинг${ratingFor(p).manual?' (вручную)':''}</span></div>
     <div class="pstat"><b>${esc(p['Налёт, ч']||'0')}</b><span>налёт, ч</span></div>
     <div class="pstat"><b>${my.length}</b><span>заездов записано</span></div>
@@ -755,8 +949,8 @@ function openPilot(name){
     const gain=first-bst;
     const rows=ls.map((l,i)=>{ const d=i?l.sec-ls[i-1].sec:null;
       return `<tr><td>${esc(l.date||'—')}</td><td class="${l.sec===bst?'best':''}">${fmtLap(l.sec)}${l.sec===bst?' 🏆':''}</td>
-        <td class="${d===null?'':d<0?'dfast':d>0?'dslow':''}">${d===null?'—':(d<0?'▼ ':d>0?'▲ +':'')+(d<0?'−'+Math.abs(d).toFixed(1):d.toFixed(1))+' с'}</td><td class="${l.crash?'dslow':''}">${l.crash}</td></tr>`; }).reverse().join('');
-    return `<div class="ptrack"><h4>${esc(t)} ${f?`<span class="tag ${f.startsWith('сим')?'sim':'real'}">${esc(ls[0].fmt)}</span>`:''}</h4>
+        <td class="${d===null?'':d<0?'dfast':d>0?'dslow':''}">${d===null?'—':(d<0?'▼ ':d>0?'▲ +':'')+(d<0?'−'+Math.abs(d).toFixed(1):d.toFixed(1))+' с'}</td><td class="${l.crash?'dslow':''}">${l.crash}${MODE==='coach'?` <button class="lapdel" data-i="${l._i}" title="Удалить этот заезд">✕</button>`:''}</td></tr>`; }).reverse().join('');
+    return `<div class="ptrack"><h4>${esc(t)} ${simTag(t)}</h4>
       <div class="prog">Заездов: ${ls.length} · первый ${fmtLap(first)} → лучший ${fmtLap(bst)}${gain>0?` · <b>быстрее на ${gain.toFixed(1)} с</b>`:''}</div>
       ${spark(ls)}
       <table><thead><tr><th>Дата</th><th>Время круга</th><th>К прошлому</th><th>Аварии</th></tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -771,6 +965,9 @@ function openPilot(name){
   }
   $('pbody').innerHTML=html; $('pmodal').classList.add('open');
   const sv=document.getElementById('al-save'); if(sv) sv.onclick=()=>addLap(name, sv);
+  $('pbody').querySelectorAll('.lapdel').forEach(b=>b.onclick=async()=>{ const i=+b.dataset.i, r=(data['Заезды']||[])[i]; if(!r) return;
+    if(!confirm(`Удалить заезд ${r['Дата']||''} · ${r['Трасса']} · ${r['Время круга']}?`)) return;
+    b.disabled=true; try{ await postSheet('Заезды',(data['Заезды']||[]).filter((_,k)=>k!==i)); renderAll(); openPilot(name); toast('Заезд удалён ✓','ok'); }catch(e){ toast('Не сохранилось: '+e.message,'bad'); b.disabled=false; } });
 }
 function closePilot(){ $('pmodal').classList.remove('open'); openPilotName=''; }
 
@@ -785,28 +982,69 @@ async function addLap(name, btn){
 
 function trackSelect(id, val){
   const ts=allTracks();
-  return `<select id="${id}">${ts.length?'':'<option value="">— сначала добавьте трассу —</option>'}${ts.map(t=>`<option ${t===val?'selected':''}>${esc(t)}</option>`).join('')}</select>`;
+  if(!ts.length) return `<select id="${id}"><option value="">— сначала добавьте трассу —</option></select>`;
+  const g={}; ts.forEach(t=>{ const m=simOf(t); (g[m]=g[m]||[]).push(t); });
+  return `<select id="${id}">${simSort(Object.keys(g)).map(m=>`<optgroup label="${esc(m)}">${g[m].map(t=>`<option value="${esc(t)}" ${t===val?'selected':''}>${esc(t)}</option>`).join('')}</optgroup>`).join('')}</select>`;
 }
 function editTracks(){
   closePilot();
   const more=document.querySelector('[data-tab="more"]'); if(!more) return;
   more.open=true; openEditor(more,'Трассы'); more.scrollIntoView({behavior:'smooth'});
 }
+/* ---------- трассы: добавить пачкой, переименовать, удалить (тренер) ---------- */
+function trkModal(title, body, okText, onOk){
+  $('pbody').innerHTML=`<h2>${title}</h2>${body}<div class="ebar" style="margin-top:12px"><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="tk-ok">${okText}</button></div>`;
+  $('pbody').querySelectorAll('input,textarea').forEach(i=>i.style.cssText+=';width:100%;box-sizing:border-box;font:inherit;font-size:16px;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px');
+  $('pmodal').classList.add('open'); const ok=document.getElementById('tk-ok');
+  ok.onclick=async()=>{ ok.disabled=true; const t0=ok.textContent; ok.textContent='Сохраняю…'; try{ await onOk(); }catch(e){ toast('Не сохранилось: '+e.message,'bad'); ok.disabled=false; ok.textContent=t0; } };
+  const f=$('pbody').querySelector('textarea,input'); if(f) setTimeout(()=>f.focus(),50);
+}
+function trkAdd(sim){
+  trkModal(`Новые трассы: ${esc(sim)}`, `<p class="sub">Впишите названия, каждое с новой строки. Длинные названия можно.</p><textarea id="tk-names" rows="6" placeholder="Офис&#10;Склад: контейнеры и второй этаж"></textarea>`, 'Добавить', async()=>{
+    const have=new Set(allTracks().map(normName));
+    const names=[...new Set(document.getElementById('tk-names').value.split('\n').map(x=>x.trim().replace(/\s+/g,' ')).filter(Boolean))].filter(n=>!have.has(normName(n)));
+    if(!names.length){ toast('Нет новых названий','bad'); throw new Error('нет новых названий'); }
+    await postSheet('Трассы',[...(data['Трассы']||[]),...names.map(n=>({'Название':n,'Формат':sim,'Описание':''}))]);
+    closePilot(); renderAll(); toast(`Добавлено трасс: ${names.length} ✓`,'ok');
+  });
+}
+function trkRename(t){
+  trkModal('Переименовать трассу', `<p class="sub">Заезды на этой трассе сохранятся под новым названием.</p><input id="tk-name" value="${esc(t)}">`, 'Сохранить', async()=>{
+    const n=document.getElementById('tk-name').value.trim().replace(/\s+/g,' ');
+    if(!n||n===t){ closePilot(); return; }
+    if(allTracks().some(x=>x!==t&&normName(x)===normName(n))) throw new Error('такая трасса уже есть');
+    const Z=data['Заезды']||[];
+    if(Z.some(l=>String(l['Трасса']).trim()===t)) await postSheet('Заезды', Z.map(l=>String(l['Трасса']).trim()===t?Object.assign({},l,{'Трасса':n}):l));
+    const T=data['Трассы']||[], has=T.some(x=>String(x['Название']).trim()===t);
+    await postSheet('Трассы', has?T.map(x=>String(x['Название']).trim()===t?Object.assign({},x,{'Название':n}):x):[...T,{'Название':n,'Формат':simOf(t),'Описание':''}]);
+    if(window.SR_RENAMED) SR_RENAMED(t,n); closePilot(); renderAll(); toast('Трасса переименована ✓','ok');
+  });
+}
+async function trkDel(t){
+  const Z=data['Заезды']||[], n=Z.filter(l=>String(l['Трасса']).trim()===t).length;
+  if(!confirm(n?`Удалить трассу "${t}" и ${n} ${plural(n,'заезд','заезда','заездов')} на ней?`:`Удалить трассу "${t}"?`)) return;
+  try{ if(n) await postSheet('Заезды', Z.filter(l=>String(l['Трасса']).trim()!==t));
+    await postSheet('Трассы', (data['Трассы']||[]).filter(x=>String(x['Название']).trim()!==t)); renderAll(); toast('Трасса удалена ✓','ok'); }
+  catch(e){ toast('Не сохранилось: '+e.message,'bad'); }
+}
 /* ---------- заезд группы: одна трасса, время и аварии для всех пилотов ---------- */
-function openSession(){
-  const ps=[...(data['Пилоты']||[])].sort((a,b)=>String(a['Пилот']).localeCompare(String(b['Пилот']),'ru'));
+function openSession(trk){
+  if(typeof trk!=='string') trk=curTrack;
+  const ps=allPilots().sort((a,b)=>String(a['Пилот']).localeCompare(String(b['Пилот']),'ru'));
   $('pbody').innerHTML = `<h2>Заезд группы</h2><p class="sub">Выберите трассу и впишите время лучшего круга и число аварий. Кто не летал — оставьте время пустым.</p>
     <div class="addlap" style="margin-bottom:14px"><label>Дата<input id="ss-date" value="${todayStr()}"></label>
-      <label>Трасса${trackSelect('ss-track', curTrack)}</label>
+      <label>Трасса${trackSelect('ss-track', trk)}</label>
       <button class="btn" onclick="editTracks()">✎ Список трасс</button></div>
-    <div class="tscroll"><table><thead><tr><th>Пилот</th><th>Класс</th><th>Лучший круг</th><th>Аварии</th></tr></thead><tbody>
-    ${ps.map((p,i)=>`<tr><td>${esc(p['Пилот'])}</td><td>${esc(p['Класс'])}</td>
-      <td><input class="ss-time" data-i="${i}" placeholder="00:49.3" style="width:110px"></td>
-      <td><input class="ss-crash" data-i="${i}" type="number" min="0" value="0" style="width:70px"></td></tr>`).join('')}
+    <div class="tscroll"><table><thead><tr><th>Пилот</th><th>Сейчас лучший</th><th>Новое время</th><th>Аварии</th></tr></thead><tbody>
+    ${ps.map((p,i)=>`<tr><td>${esc(p['Пилот'])}</td><td class="ss-best" data-i="${i}">—</td>
+      <td><input class="ss-time" data-i="${i}" placeholder="00:49.3" inputmode="decimal" style="width:84px"></td>
+      <td><input class="ss-crash" data-i="${i}" type="number" min="0" value="0" inputmode="numeric" style="width:50px"></td></tr>`).join('')}
     </tbody></table></div>
     <div class="ebar" style="margin-top:12px"><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="ss-save">Сохранить заезд</button></div>`;
   $('pbody').querySelectorAll('input').forEach(i=>i.style.cssText+=';font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px');
   $('pmodal').classList.add('open');
+  const ssBest=()=>{ const t=document.getElementById('ss-track').value; ps.forEach((p,i)=>{ const b=bestFor(p['Пилот'],t), c=$('pbody').querySelector(`.ss-best[data-i="${i}"]`); if(c) c.textContent=b?fmtLap(b.sec):'—'; }); };
+  document.getElementById('ss-track').onchange=ssBest; ssBest();
   document.getElementById('ss-save').onclick=async ()=>{
     const btn=document.getElementById('ss-save');
     const t=document.getElementById('ss-track').value, d=document.getElementById('ss-date').value.trim();
@@ -839,14 +1077,14 @@ function renderTracks(){
     const best={}; laps().filter(l=>l.track===t).forEach(l=>{ const k=normName(l.pilot); if(!best[k]||l.sec<best[k].sec) best[k]=l; });
     const top=Object.values(best).sort((a,b)=>a.sec-b.sec).slice(0,3);
     const f=top[0]?.fmt ? String(top[0].fmt).toLowerCase() : '';
-    return `<div class="track"><h4>${esc(t)} ${f?`<span class="tag ${f.startsWith('сим')?'sim':'real'}">${esc(top[0].fmt)}</span>`:''}</h4>
-      ${top.map((l,i)=>`<div class="podium"><span class="p">${['🥇','🥈','🥉'][i]}</span><span class="n">${esc(l.pilot)}</span><span class="lap">${fmtLap(l.sec)}</span></div>`).join('')}</div>`;
+    return `<div class="track"><h4>${esc(t)} ${simTag(t)}</h4>
+      ${top.map((l,i)=>`<div class="podium"><span class="p">${['🥇','🥈','🥉'][i]}</span><span class="n">${esc(pnm(l.pilot))}</span><span class="lap">${fmtLap(l.sec)}</span></div>`).join('')}</div>`;
   }).join('') || '<p class="empty">Добавьте заезды во вкладку «Заезды»</p>';
 }
 
 function renderRus(){
   const list=[...(data['Рейтинг России']||[])].sort((a,b)=> num(a['Место'])-num(b['Место']));
-  const ours=new Set((data['Пилоты']||[]).map(p=>normName(p['Пилот'])));
+  const ours=new Set(allPilots().map(p=>normName(p['Пилот'])));
   $('c-rus').textContent = list.length || '';
   $('rus').innerHTML = list.map(r=>`<tr class="${ours.has(normName(r['Пилот']))?'ours':''}"><td class="rank">${esc(r['Место'])}</td>
     <td>${esc(r['Пилот'])}</td><td>${esc(r['Регион'])}</td><td>${esc(r['Очки'])}</td></tr>`).join('')
@@ -862,8 +1100,19 @@ function renderHelp(){
   $('rules').innerHTML = (data['Правила']||[]).map(r=>`<div class="rule"><b>${esc(r['Тема'])}</b>${esc(r['Текст'])}</div>`).join('') || '<p class="empty">Заполните вкладку «Правила»</p>';
 }
 
+/* Пока идёт набор пилотов, гости видят план занятий вместо расписания.
+   Когда группы сформированы и расписание заполнено - поставить true. */
+const SCHED_OPEN = false;
+const SCHED_FORM = `<div class="sform"><p class="lead">🗓 Расписание сформируется по итогам набора пилотов<small>Собираем мини-группы по 6 человек. В клубе 3 компьютера с симуляторами, поэтому группа делится на две тройки и меняется местами.</small></p>
+  <div class="stl"><div><b>0-5'</b><span>Брифинг: цель занятия, разминка для пальцев</span></div>
+  <div><b>5-30'</b><span>🎮 Тройка А - на симуляторах (трасса дня)<br>📚 Тройка Б - Академия: шпаргалка, тест, тренажёр стиков, вопрос дня</span></div>
+  <div class="sw"><b>30-55'</b><span>🔄 Меняемся местами</span></div>
+  <div><b>55-60'</b><span>Разбор: лучшие круги идут в рейтинг клуба</span></div></div>
+  <p class="note">Каждый пилот за занятие: 25 минут в симуляторе + 25 минут теории и тестов. Заявки принимаем во вкладке 🏆 Рейтинг.</p>
+  <div><button class="btn primary" onclick="document.querySelector('#vt [data-t=rate]').click()">🏁 Оставить заявку</button></div></div>`;
 function renderSchedule(){
   const list = data['Расписание']||[];
+  if(MODE==='public' && !SCHED_OPEN){ $('c-schedule').textContent=''; $('schedule').innerHTML=SCHED_FORM; return; }
   const wd = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][new Date().getDay()];
   $('c-schedule').textContent = list.length;
   $('schedule').innerHTML = list.map(s=>`
@@ -871,6 +1120,7 @@ function renderSchedule(){
       <div class="sched-day"><span class="d">${esc(s['День'])}</span><span class="t">${esc(s['Время'])}</span></div>
       <div class="sched-body"><b>${esc(s['Занятие'])}</b><br><span style="color:var(--dim);font-size:12px">${esc(s['Примечание'])}</span></div>
     </div>`).join('') || '<p class="empty">Расписание пусто</p>';
+  if(MODE==='coach' && !SCHED_OPEN) $('schedule').insertAdjacentHTML('afterbegin','<p class="muted" style="margin-bottom:10px">👁 Гости пока видят «Расписание сформируется по итогам набора» и план занятия. Строки ниже видите только вы.</p>');
 }
 
 function safeUrl(u){ u=String(u||'').trim(); return /^https?:\/\//i.test(u) ? u : ''; }
@@ -891,7 +1141,7 @@ function renderFgd(){
 }
 
 function renderStatus(){
-  const list = data['Статус']||[];
+  const list = (data['Статус']||[]).filter(s=>!String(s['Параметр']||'').startsWith('_'));
   $('status-block').innerHTML = list.map(s=>`<p><b>${esc(s['Параметр'])}:</b> ${esc(s['Значение'])}</p>`).join('') || '<p class="empty">—</p>';
 }
 
@@ -957,7 +1207,7 @@ const SCHEMA = {
   'Классы':['Класс','Размер','Взлётный вес','Аккумулятор','Моторы и пропеллеры','Связь и видео','Особенности'],
   'Правила':['Тема','Текст']
 };
-const SELECTS = {'Тип':['симулятор','реал','другое'], 'Выполнено':['нет','да'], 'Формат':['симулятор','реал'], 'День':['Пн','Вт','Ср','Чт','Пт','Сб','Вс']};
+const SELECTS = {'Тип':['симулятор','реал','другое'], 'Выполнено':['нет','да'], 'Формат':['Квадросим','Ворон','реал'], 'День':['Пн','Вт','Ср','Чт','Пт','Сб','Вс']};
 const LONG = new Set(['Текст','Особенности','Задача','Описание']);
 const HINT = {'Дата':'дд.мм.гггг','Время круга':'00:49.3','Лучший круг':'посчитается из заездов','Рейтинг':'посчитается сам','Время':'18:00','Адрес':'https://…','Налёт, ч':'часы'};
 const todayStr = () => new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
@@ -994,9 +1244,9 @@ function openEditor(card, sheet){
   closeEditor(card);
   card.classList.add('editing'); card.querySelector('.edit')?.classList.add('on');
   const ed=document.createElement('div'); ed.className='editor';
-  const rows=(data[sheet]||[]);
+  const rows=(data[sheet]||[]).filter(r=>sheet!=='Статус'||!String(r['Параметр']||'').startsWith('_'));
   ed.innerHTML = `<p class="muted">Раздел «${esc(sheet)}». Изменения увидят все после «Сохранить».</p>
-    <datalist id="pilotList">${(data['Пилоты']||[]).map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
+    <datalist id="pilotList">${allPilots().map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
     <div class="erows">${rows.map(r=>rowHTML(sheet,r)).join('')}</div>
     <div class="ebar"><button class="btn add">+ Добавить</button><span class="sp"></span>
       <button class="btn cancel">Отмена</button><button class="btn primary save">Сохранить</button></div>`;
@@ -1027,6 +1277,7 @@ async function saveEditor(card, sheet, list, btn){
   const rows=[...list.querySelectorAll('.erow')].map(el=>{
     const r={}; el.querySelectorAll('[data-c]').forEach(f=>r[f.dataset.c]=f.value.trim()); return r;
   }).filter(r=>Object.values(r).some(v=>v!=='' && v!=='нет'));
+  if(sheet==='Статус') rows.push(...(data[sheet]||[]).filter(r=>String(r['Параметр']||'').startsWith('_')));
   btn.disabled=true; btn.textContent='Сохраняю…';
   try{ await postSheet(sheet, rows); closeEditor(card); renderAll(); toast('Сохранено ✓','ok'); }
   catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='Сохранить'; }
@@ -1048,10 +1299,11 @@ function openLogout(){
   $('pmodal').classList.add('open'); }
 function logout(silent, hide){ ss_.del(PIN_KEY); ss_.del('vzlet_role'); if(hide) ls.del('vzlet_editor_dev'); if(!silent) location.reload(); }
 function trustedDev(){ return ls.get('vzlet_editor_dev')==='1'; }
-function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0;
-  el.addEventListener('pointerdown',()=>{ clearTimeout(t); t=setTimeout(()=>{ t=null; fn(); },900); });
+function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0, sx=0, sy=0, mv=false;
+  el.addEventListener('pointerdown',e=>{ sx=e.clientX; sy=e.clientY; mv=false; clearTimeout(t); t=setTimeout(()=>{ t=null; if(!mv) fn(); },900); });
+  el.addEventListener('pointermove',e=>{ if(!mv && Math.hypot(e.clientX-sx,e.clientY-sy)>8){ mv=true; clearTimeout(t); } });
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,()=>clearTimeout(t)));
-  el.addEventListener('click',()=>{ const now=Date.now(); n = now-last<600 ? n+1 : 1; last=now; if(n>=5){ n=0; fn(); } });
+  el.addEventListener('click',()=>{ if(mv) return; const now=Date.now(); n = now-last<600 ? n+1 : 1; last=now; if(n>=5){ n=0; fn(); } });
   el.addEventListener('contextmenu',e=>e.preventDefault()); }
 function openLogin(){
   $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Помощник - только записывать заезды: ФИО, трассу и время.</p>
@@ -1081,7 +1333,7 @@ function hlRow(){ return `<div class="hlrow"><input class="hl-name" list="hlPilo
   <input class="hl-time" placeholder="00:49.3" inputmode="decimal"><select class="hl-fmt"><option>реал</option><option>симулятор</option></select><button class="btn hl-del" title="Убрать строку">✕</button></div>`; }
 function openHelper(){
   $('pbody').innerHTML = `<h2>Записать результат</h2><p class="sub">Впишите ФИО участника, трассу и время лучшего круга. Новые участники и трассы добавятся в списки сами.</p>
-    <datalist id="hlPilots">${(data['Пилоты']||[]).map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
+    <datalist id="hlPilots">${allPilots().map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
     <datalist id="hlTracks">${allTracks().map(t=>`<option value="${esc(t)}">`).join('')}</datalist>
     <div class="addlap" style="margin-bottom:10px"><label>Дата<input id="hl-date" value="${todayStr()}" style="width:120px"></label></div>
     <div class="hlhead"><span>ФИО</span><span>Трасса</span><span>Время круга</span><span>Формат</span><span></span></div><div id="hlRows">${hlRow()}</div>
@@ -1119,7 +1371,7 @@ initRole();
 (function(page){ try{ const API='https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec', k='irtysh_hit_'+page;
   if(sessionStorage.getItem(k)!==null) return; const d=new Date().toDateString(), fresh=!localStorage.getItem('irtysh_new_'+page), today=localStorage.getItem('irtysh_day_'+page)!==d;
   fetch(API,{method:'POST', body:JSON.stringify({op:'hit', page, fresh, today})}).then(r=>r.json()).then(j=>{ if(!j.ok) return; localStorage.setItem('irtysh_new_'+page,'1'); localStorage.setItem('irtysh_day_'+page,d); sessionStorage.setItem(k,String(j.total||'')); }).catch(()=>{}); }catch(e){} })('vzlet');
-loadData();
+loadData(); loadSpkPilots();
 setInterval(()=>{ if(sheetId() && !document.hidden && !document.querySelector('.editing')) loadData(); }, REFRESH_MIN*60*1000);
 </script>
 <a id="toSchool" href="../" title="На портал Спектра">&#8592; СПЕКТР</a>
@@ -1193,6 +1445,39 @@ const QUIZ={
   ['Можно ли летать над людьми?',['Да, если низко','Да, если быстро','Нет','Только на соревнованиях'],2],
   ['Что такое failsafe?',['Режим трюков','Реакция дрона на потерю сигнала пульта','Защита пропеллеров','Таймер полёта'],1],
   ['Кто должен находиться рядом с пилотом во время полёта?',['Никто','Наблюдатель','Оператор камеры','Судья'],1]]},
+ safe:{n:'Безопасность',e:'🛡',c:'#f85149',q:[
+  ['Где можно летать на занятиях?',['Только в огороженной зоне, люди за сеткой или линией','Где угодно в спортзале','Над зрителями, если низко','В коридоре'],0],
+  ['Кто даёт команду на запуск моторов на соревнованиях?',['Судья или тренер','Сам пилот, когда готов','Зрители','Наблюдатель другого пилота'],0],
+  ['Дрон упал рядом с людьми. Что делаешь первым?',['Дизарм и ждёшь разрешения подойти','Сразу бежишь за дроном','Пытаешься взлететь','Снимаешь очки и уходишь'],0],
+  ['Можно ли подходить к дрону, если моторы заармлены?',['Нет, сначала дизарм','Да, если газ внизу','Да, если быстро','Да, если пропеллеры маленькие'],0],
+  ['Пропало видео в очках. Что делать?',['Сразу дизарм','Лететь вслепую дальше','Дать полный газ','Снять очки и искать дрон глазами, не дизармя'],0],
+  ['Можно ли ловить дрон руками с крутящимися пропеллерами?',['Никогда','Можно в перчатках','Можно маленький дрон','Можно, если аккуратно'],0],
+  ['С какого веса дрон в России нужно ставить на учёт?',['От 150 г','От 30 кг','От 1 кг','Ни с какого'],0],
+  ['Аккумулятор помят и тёплый после удара. Что делать?',['Не заряжать, отложить в безопасное место и показать тренеру','Сразу поставить на зарядку','Летать дальше','Положить в рюкзак'],0],
+  ['Что делает наблюдатель (споттер)?',['Следит за дроном и людьми, пока пилот в очках','Держит пульт','Чинит дрон','Снимает видео'],0],
+  ['Где можно летать на улице?',['Только где разрешено: смотрим карту зон и правила','Где угодно, если нет людей','Возле аэропорта','Над стадионом во время матча'],0]]},
+ tech:{n:'Устройство дрона',e:'⚙️',c:'#a371f7',q:[
+  ['Что такое полётный контроллер (FC)?',['"Мозг" дрона: стабилизирует и выполняет команды','Видеопередатчик','Аккумулятор','Пропеллер'],0],
+  ['Что делает плата 4in1 ESC?',['Управляет оборотами всех 4 моторов','Передаёт видео','Принимает сигнал пульта','Заряжает аккумулятор'],0],
+  ['Что делает VTX?',['Передаёт видео с камеры в очки','Крутит моторы','Принимает команды пульта','Хранит заряд'],0],
+  ['Что делает приёмник (RX)?',['Принимает команды с пульта','Передаёт видео','Охлаждает моторы','Показывает OSD'],0],
+  ['Где стоит FPV-камера?',['Спереди, смотрит по направлению полёта','Снизу, смотрит в пол','Сзади','На пульте'],0],
+  ['Как обычно собирают стек?',['Снизу ESC, сверху полётный контроллер','Снизу FC, сверху ESC','Рядом на одной плате','Внутри аккумулятора'],0],
+  ['Зачем соседние моторы крутятся в разные стороны?',['Чтобы дрон не закручивался вокруг себя','Чтобы громче гудели','Чтобы меньше грелись','Без причины'],0],
+  ['Из чего делают раму гоночного дрона?',['Из карбона','Из стекла','Из картона','Из алюминиевой фольги'],0],
+  ['Куда крепят аккумулятор на FPV-дроне?',['Сверху или снизу рамы ремешком','Внутрь мотора','На пропеллер','Никуда, держат в руке'],0],
+  ['Что значат цифры мотора 2306?',['Диаметр и высота статора в мм: 23 и 6','Год выпуска','Обороты в минуту','Вес в граммах'],0]]},
+ akb:{n:'Аккумуляторы',e:'🔋',c:'#3fb950',q:[
+  ['До скольки вольт заряжается банка LiHV?',['4,35 В','4,2 В','3,7 В','5 В'],0],
+  ['Полный 4S LiPo показывает 16,8 В. Сколько на одной банке?',['4,2 В','16,8 В','3,7 В','4,0 В'],0],
+  ['6S LiPo в режиме хранения показывает около…',['22,8 В','25,2 В','18 В','12 В'],0],
+  ['Что показывают мАч на аккумуляторе?',['Ёмкость: сколько энергии запасено','Напряжение','Вес','Скорость зарядки'],0],
+  ['Что показывает буква C (например 100C)?',['Какой ток аккумулятор может отдавать','Температуру','Количество банок','Цвет'],0],
+  ['Какой аккумулятор нужен маленькому вупу 75 мм?',['1S, 300-550 мАч','6S, 1300 мАч','4S, 5000 мАч','Батарейка АА'],0],
+  ['Напряжение хранения банки примерно…',['3,8 В','4,2 В','3,0 В','5 В'],0],
+  ['Банка разрядилась ниже 3,0-3,2 В. Что это значит?',['Аккумулятор мог испортиться, им нельзя летать без проверки','Ничего страшного','Он стал ёмче','Пора хранить'],0],
+  ['Ставишь LiHV на зарядку. Что важно?',['Выбрать на зарядке режим LiHV, а для LiPo - режим LiPo','Режим не важен','Всегда режим NiMH','Заряжать без балансира'],0],
+  ['Что самое опасное для LiPo?',['Прокол и сильное смятие','Хранение в сумке для LiPo','Зарядка током 1C','Хранение при 3,8 В'],0]]},
  pilot:{n:'Пилот',e:'🚁',c:'#00d4ff',q:[
   ['Что значит 4S на аккумуляторе?',['4 банки последовательно, около 14,8 В','4000 мАч','4 часа работы','4 разъёма'],0],
   ['Напряжение хранения банки LiPo примерно…',['3,0 В','3,8 В','4,2 В','4,5 В'],1],
@@ -1216,6 +1501,13 @@ const QUIZ={
   ['ELRS (ExpressLRS) - это…',['система радиоуправления','прошивка камеры','тип аккумулятора','трюк'],0],
   ['Что делаем сразу после аварии?',['Дизарм, потом подходим к дрону','Пробуем взлететь снова','Выключаем очки','Ничего'],0]]}
 };
+const QTASK={
+ novice:'Сделай предполётную проверку вслух вместе с тренером.',
+ safe:'Назови тренеру 5 правил безопасности и покажи дизарм на пульте.',
+ tech:'Собери дрон во вкладке Тренировка быстрее 60 секунд и покажи тренеру все детали на настоящем дроне.',
+ akb:'Проверь тестером напряжение каждой банки и скажи: можно ли на этом аккумуляторе летать.',
+ pilot:'Пролети в симуляторе 3 круга подряд без аварий на трассе, которую выберет тренер.',
+ ace:'Побей время тренера на его трассе в симуляторе.'};
 const BADGES=[
  ['novice','🐣','Первый взлёт','Сдать тест "Новичок" на 8+'],
  ['pilot','🚁','Пилот','Сдать тест "Пилот" на 8+'],
@@ -1224,7 +1516,14 @@ const BADGES=[
  ['reader','📚','Знаток','Открыть 6 шпаргалок'],
  ['trainer','🕹','Ловкие пальцы','Собрать 10 огней в тренажёре'],
  ['speed','⚡','Молния','Собрать 10 огней быстрее 30 секунд'],
- ['calc','🧮','Инженер','Воспользоваться 3 калькуляторами']];
+ ['calc','🧮','Инженер','Воспользоваться 3 калькуляторами'],
+ ['safe','🛡','Безопасный пилот','Сдать тест "Безопасность" на 8+'],
+ ['tech','⚙️','Техник','Сдать тест "Устройство дрона" на 8+'],
+ ['akbt','🔌','Энергетик','Сдать тест "Аккумуляторы" на 8+'],
+ ['preflight','✅','Внимательный','Пройти предполётную проверку'],
+ ['build','🔧','Механик','Собрать дрон'],
+ ['build60','⏱','Быстрые руки','Собрать дрон за 60 с без лишних ошибок'],
+ ['akb','🔋','Знаток АКБ','7+ из 8 в "Подбери аккумулятор"']];
 
 
 /* ===== Академия пилота: логика ===== */
@@ -1236,24 +1535,24 @@ let A={best:{},read:[],tr:{best:null,n10:false},calc:[],badges:[]};
 try{A=Object.assign(A,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(A))}catch(e){}if(window.SPK)SPK.sync()};
 const LV=[[0,'🐣 Курсант'],[100,'🛫 Стажёр'],[200,'🚁 Пилот'],[300,'🎯 Пилот-инструктор'],[400,'🏆 Ас']];
-function xp(){let x=0;Object.values(A.best).forEach(v=>x+=v*10);x+=Math.min(A.read.length,10)*5;if(A.tr.best)x+=30;if(A.tr.n10)x+=20;x+=A.calc.length*10;return x}
+function xp(){let x=0;Object.values(A.best).forEach(v=>x+=v*10);x+=Math.min(A.read.length,10)*5;if(A.tr.best)x+=30;if(A.tr.n10)x+=20;x+=A.calc.length*10;const g=A.tg||{};if(g.build)x+=30;x+=Math.min(g.akb||0,8)*3;if(g.pre)x+=10;return x}
 function lvl(x){let i=0;LV.forEach((l,k)=>{if(x>=l[0])i=k});return i}
 window.SPK_PROGRESS=()=>{const x=xp();return{p:x,b:A.badges.length,l:LV[lvl(x)][1]}};
 function renderXP(){const x=xp(),i=lvl(x),a=LV[i][0],b=LV[i+1]?LV[i+1][0]:a+100;$('#ahLvl').textContent=LV[i][1];$('#ahXp').textContent=x+' XP';$('#ahBar').style.width=Math.min(100,(x-a)/(b-a)*100)+'%'}
 /* ---------- значки ---------- */
 function pop(e,t){let p=$('#pop');if(!p){p=document.createElement('div');p.id='pop';document.body.appendChild(p)}p.innerHTML=`<small>НОВЫЙ ЗНАЧОК</small><div class="e">${e}</div><b>${t}</b>`;p.classList.add('on');confetti();clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('on'),2600)}
 function award(id){if(A.badges.includes(id))return;A.badges.push(id);save();const b=BADGES.find(x=>x[0]===id);if(b)pop(b[1],b[2]);renderBadges();renderXP()}
-function checkBadges(){['novice','pilot','ace'].forEach(k=>{if((A.best[k]||0)>=8)award(k)});if(Object.values(A.best).some(v=>v===10))award('perfect');if(A.read.length>=6)award('reader');if(A.tr.n10)award('trainer');if(A.tr.best&&A.tr.best<30)award('speed');if(A.calc.length>=3)award('calc')}
+function checkBadges(){Object.keys(QUIZ).forEach(k=>{if((A.best[k]||0)>=8)award(k==='akb'?'akbt':k)});if(Object.values(A.best).some(v=>v===10))award('perfect');if(A.read.length>=6)award('reader');if(A.tr.n10)award('trainer');if(A.tr.best&&A.tr.best<30)award('speed');if(A.calc.length>=3)award('calc')}
 function renderBadges(){$('#bdg').innerHTML=BADGES.map(b=>`<div class="bd1 ${A.badges.includes(b[0])?'got':''}"><span class="e">${b[1]}</span><b>${b[2]}</b><small>${b[3]}</small></div>`).join('')}
 function confetti(){if(RED)return;const C=['#00d4ff','#3fb950','#d29922','#f85149','#a371f7','#fff'];for(let i=0;i<70;i++){const d=document.createElement('i'),x=innerWidth/2,y=innerHeight*.25,a=Math.random()*6.28,v=120+Math.random()*320;d.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:${6+Math.random()*6}px;height:${4+Math.random()*5}px;background:${C[i%6]};z-index:10000;pointer-events:none;border-radius:2px`;document.body.appendChild(d);d.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*v}px,${Math.sin(a)*v+260}px) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:1300+Math.random()*700,easing:'cubic-bezier(.2,.7,.4,1)'}).onfinish=()=>d.remove()}}
 /* ---------- вкладки ---------- */
-const HERO={learn:['Шпаргалки','Всё главное о дронах - коротко и по делу.'],quiz:['Тесты','Три уровня: от новичка до аса. Проверь себя!'],calc:['Калькуляторы','Время полёта, аккумуляторы, тяга, частоты.'],me:['Мои значки','Собери все значки и стань асом теории.'],rate:['Рейтинг','Тесты, значки и задания - в общий зачёт клуба.']};
+const HERO={learn:['Шпаргалки','Всё главное о дронах - коротко и по делу.'],train:['Тренировка','Проверка перед полётом, сборка дрона, аккумуляторы и стики.'],quiz:['Тесты','Шесть уровней. Новые тесты и задания открывает тренер.'],calc:['Калькуляторы','Время полёта, аккумуляторы, тяга, частоты.'],me:['Мои значки','Собери все значки и стань асом теории.'],rate:['Рейтинг','Тесты, значки и задания - в общий зачёт клуба.']};
 let TAB='club';
 function moveVti(){const b=$('#vt button.on'),i=$('#vti');if(!b)return;i.style.left=b.offsetLeft+'px';i.style.width=b.offsetWidth+'px';const n=$('#vt');if(n.scrollWidth>n.clientWidth)n.scrollTo({left:b.offsetLeft-(n.clientWidth-b.offsetWidth)/2,behavior:'smooth'})}
 function show(t,push){TAB=t;$$('#vt button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));moveVti();
   $$('.vtab').forEach(v=>v.hidden=v.id!=='t-'+t);const h=$('#ahero');h.hidden=t==='club';
   if(t!=='club'){$('#ahT').textContent=HERO[t][0];$('#ahP').textContent=HERO[t][1];h.style.animation='none';h.offsetWidth;h.style.animation='vtin .5s cubic-bezier(.2,.8,.2,1)';renderXP()}
-  if(t==='learn')trSize();if(t==='me')renderBadges();
+  if(t==='train')trSize();if(t==='me')renderBadges();
   if(push)try{history.replaceState(null,'',t==='club'?location.pathname:'#'+t)}catch(e){}
   if(push)window.scrollTo({top:0,behavior:'smooth'})}
 $$('#vt button').forEach(b=>b.onclick=()=>show(b.dataset.t,true));addEventListener('resize',moveVti);
@@ -1273,7 +1572,7 @@ const cv=$('#tcv'),cx=cv.getContext('2d');let W=0,H=0,dpr=Math.min(devicePixelRa
 const D={x:.5,y:.6,vx:0,vy:0,h:0,z:0,trail:[]};const IN={t:0,yw:0,p:0,r:0},KB={};
 let game={on:false,got:0,t:0,tg:null,start:0},raf=0,last=0;
 function trSize(){const r=cv.getBoundingClientRect();if(!r.width)return;W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);if(!raf)loop(performance.now())}
-addEventListener('resize',()=>{if(TAB==='learn')trSize()});
+addEventListener('resize',()=>{if(TAB==='train')trSize()});
 function newTarget(){game.tg={x:.12+Math.random()*.7,y:.12+Math.random()*.6,ph:0}}
 function stickBind(el,side){const k=el.querySelector('i');let id=null;
   const set=(e)=>{const r=el.getBoundingClientRect(),cxp=r.left+r.width/2,cyp=r.top+r.height/2,R=r.width/2-12;let dx=(e.clientX-cxp)/R,dy=(e.clientY-cyp)/R;const m=Math.hypot(dx,dy);if(m>1){dx/=m;dy/=m}
@@ -1283,7 +1582,7 @@ function stickBind(el,side){const k=el.querySelector('i');let id=null;
   const up=e=>{if(e.pointerId!==id)return;id=null;k.style.transform='';if(side==='l'){IN.t=0;IN.yw=0}else{IN.p=0;IN.r=0}};
   el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)}
 stickBind($('.stk.l'),'l');stickBind($('.stk.r'),'r');
-addEventListener('keydown',e=>{if(TAB!=='learn'||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;KB[e.key.toLowerCase()]=1;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});
+addEventListener('keydown',e=>{if(TAB!=='train'||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;KB[e.key.toLowerCase()]=1;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});
 addEventListener('keyup',e=>{KB[e.key.toLowerCase()]=0});
 $('#tStart').onclick=()=>{Object.assign(D,{x:.5,y:.6,vx:0,vy:0,h:0,z:0,trail:[]});game={on:true,got:0,t:0,start:performance.now()};newTarget();$('#tGot').textContent='0';$('#tStart').textContent='↻ Заново'};
 $('#tBest').textContent=A.tr.best?A.tr.best.toFixed(1)+' с':'-';
@@ -1312,9 +1611,15 @@ function draw(t){cx.clearRect(0,0,W,H);cx.strokeStyle='rgba(0,212,255,.07)';cx.l
   cx.fillStyle='#0d1117';cx.strokeStyle='#00d4ff';cx.lineWidth=2;cx.beginPath();cx.roundRect?cx.roundRect(-8,-11,16,22,5):cx.rect(-8,-11,16,22);cx.fill();cx.stroke();cx.fillStyle='#3fb950';cx.beginPath();cx.arc(0,-8,2.5,0,6.28);cx.fill();cx.restore();
   for(let i=P.length-1;i>=0;i--){const p=P[i];p.x+=p.vx/60;p.y+=p.vy/60;p.l-=.03;if(p.l<=0){P.splice(i,1);continue}cx.globalAlpha=p.l;cx.fillStyle='#ffd166';cx.fillRect(p.x,p.y,4,4)}cx.globalAlpha=1;
   if(!game.on&&!game.got){cx.fillStyle='rgba(230,237,243,.8)';cx.font='600 15px Segoe UI,system-ui';cx.textAlign='center';cx.fillText('Нажми "Старт", подними дрон газом и лети к огням',W/2,40)}}
-function loop(ts){raf=requestAnimationFrame(loop);if(TAB!=='learn'||document.hidden){last=ts;return}const dt=Math.min(.05,(ts-last)/1000||0);last=ts;step(dt);draw(ts)}
+function loop(ts){raf=requestAnimationFrame(loop);if(TAB!=='train'||document.hidden){last=ts;return}const dt=Math.min(.05,(ts-last)/1000||0);last=ts;step(dt);draw(ts)}
 /* ---------- тесты ---------- */
-function renderLevels(){$('#qlv').innerHTML=Object.entries(QUIZ).map(([k,q])=>{const b=A.best[k];return `<button class="ql" data-k="${k}" style="--lc:${q.c}"><span class="e">${q.e}</span><b>${q.n}</b><small>${q.q.length} вопросов${b!=null?` · лучший результат ${b}/10`:''}</small><div class="st">${stars(b)}</div></button>`}).join('');$$('.ql').forEach(b=>b.onclick=()=>startQuiz(b.dataset.k))}
+function renderLevels(){const ks=Object.keys(QUIZ),co=typeof MODE!=='undefined'&&MODE==='coach',me=window.vzMe?window.vzMe():null,E=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const head=co?`<div class="qhead"><button class="btn primary" onclick="vzAccOpen()">🔓 Доступ учеников</button><small>Вы тренер: видите все тесты и задания. Ученики видят только то, что вы им открыли.</small></div>`
+  :`<div class="qhead"><small>${me?'👤 '+E(me)+' · новые тесты и задания открывает тренер, когда ты готов.':'Первый тест открыт всем. Остальные откроет тренер. Чтобы увидеть свои, войди по коду во вкладке 🏆 Рейтинг.'}</small></div>`;
+ $('#qlv').innerHTML=head+ks.map((k,i)=>{const q=QUIZ[k],b=A.best[k],st=co?2:(window.vzAcc?window.vzAcc(k,i):(i?0:1)),lk=st<1,t=QTASK[k];
+  const task=t?`<div class="qt ${co||st===2?'on':st>=3?'done':'lock'}"><b>${co?'📝 Задание':st>=3?'✅ Задание выполнено':st===2?'📝 Задание открыто':'🔒 Задание'}</b><span>${co||st>=2?E(t):'Откроется, когда тренер увидит, что тест пройден.'}</span></div>`:'';
+  return `<div class="qcell"><button class="ql ${lk?'lock':''}" data-k="${k}" style="--lc:${q.c}"><span class="e">${lk?'🔒':q.e}</span><b>${q.n}</b><small>${lk?'Откроет тренер':q.q.length+' вопросов'+(b!=null?' · лучший результат '+b+'/10':'')}</small><div class="st">${stars(b)}</div></button>${task}</div>`}).join('');
+ $$('.ql').forEach(b=>b.onclick=()=>{if(b.classList.contains('lock')){if(typeof toast==='function')toast('Этот тест откроет тренер 🔒');return}startQuiz(b.dataset.k)})}
 const stars=b=>{const n=b==null?0:b>=10?3:b>=8?2:b>=5?1:0;return '★'.repeat(n)+'<span style="opacity:.25">'+'★'.repeat(3-n)+'</span>'};
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let Q=null;
@@ -1322,7 +1627,7 @@ function startQuiz(k){const L=QUIZ[k];Q={k,i:0,ok:0,list:shuf(L.q).map(([q,ans,c
 function renderQ(){const L=QUIZ[Q.k],it=Q.list[Q.i];$('#qbox').innerHTML=`<div class="qtop"><span>${L.e} ${L.n} · вопрос ${Q.i+1} из ${Q.list.length}</span><span>✔ ${Q.ok}</span></div><div class="qprog"><i style="width:${Q.i/Q.list.length*100}%"></i></div><div class="qq">${it.q}</div><div class="qa">${it.o.map((o,i)=>`<button data-i="${i}"><i>${'АБВГ'[i]}</i>${o.a}</button>`).join('')}</div>`;
   $$('.qa button').forEach(b=>b.onclick=()=>{const o=it.o[+b.dataset.i];$$('.qa button').forEach(x=>{x.disabled=true;if(it.o[+x.dataset.i].ok)x.classList.add('ok')});if(o.ok)Q.ok++;else b.classList.add('no');setTimeout(()=>{Q.i++;Q.i<Q.list.length?renderQ():endQuiz()},o.ok?800:1500)})}
 function endQuiz(){const L=QUIZ[Q.k],s=Q.ok,prev=A.best[Q.k];if(prev==null||s>prev)A.best[Q.k]=s;save();
-  const msg=s===10?'Идеально! Ты настоящий ас.':s>=8?'Отлично! Уровень пройден.':s>=5?'Неплохо! Загляни в шпаргалки и попробуй ещё.':'Есть над чем поработать. Шпаргалки помогут!';
+  const msg=s===10?'Идеально! Ты настоящий ас.'+(QTASK[Q.k]?' Покажи результат тренеру: он откроет задание.':''):s>=8?'Отлично! Уровень пройден.'+(QTASK[Q.k]?' Покажи результат тренеру: он откроет задание.':''):s>=5?'Неплохо! Загляни в шпаргалки и попробуй ещё.':'Есть над чем поработать. Шпаргалки помогут!';
   $('#qbox').innerHTML=`<div class="qend"><div class="stars">${stars(s).replace(/★/g,'<span>★</span>')}</div><div class="big">${s}/10</div><p>${msg}</p><div style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="btn primary" id="qAgain">↻ Ещё раз</button><button class="btn" id="qBack">← Все уровни</button>${s<8?'<button class="btn" id="qLearn">📚 Шпаргалки</button>':''}</div></div>`;
   if(s>=8)confetti();$('#qAgain').onclick=()=>startQuiz(Q.k);$('#qBack').onclick=()=>{$('#qbox').hidden=true;$('#qlv').hidden=false;renderLevels()};if($('#qLearn'))$('#qLearn').onclick=()=>show('learn',true);checkBadges();renderXP()}
 /* ---------- калькуляторы ---------- */
@@ -1330,7 +1635,7 @@ const v=id=>parseFloat($('#'+id).value)||0, nf=(n,d=1)=>n.toLocaleString('ru-RU'
 const RB=[5658,5695,5732,5769,5806,5843,5880,5917];let busy=new Set();
 function calc(){
   {const m=v('c1a')/1000*.8/(v('c1b')||1)*60,mm=Math.floor(m),ss=Math.round((m-mm)*60);$('#c1r').textContent=isFinite(m)?`${mm} мин ${ss} с`:'-'}
-  {const S=v('c2a');$('#c2o').textContent=S+'S';$('#c2r').textContent=`${nf(S*3.7)} В номинал · ${nf(S*4.2)} В полный`;$('#c2s').textContent=`хранение ≈ ${nf(S*3.8)} В · садиться при ≈ ${nf(S*3.5)} В · энергия ${nf(S*3.7*v('c2b')/1000)} Вт·ч`;
+  {const S=v('c2a'),hv=$('#c2t')&&$('#c2t').value==='LiHV',F=hv?4.35:4.2,N=hv?3.8:3.7,ST=hv?3.85:3.8;$('#c2o').textContent=S+'S';$('#c2r').textContent=`${nf(S*N,2)} В номинал · ${nf(S*F,2)} В полный`;$('#c2s').textContent=`${hv?'LiHV · ':''}хранение ≈ ${nf(S*ST,2)} В · садиться при ≈ ${nf(S*3.5)} В · энергия ${nf(S*N*v('c2b')/1000)} Вт·ч`;
     const c=$('#c2cells');if(c.children.length!==S)c.innerHTML=Array.from({length:S},(_, i)=>`<i style="animation-delay:${i*60}ms"></i>`).join('')}
   {const r=v('c3b')*v('c3c')/(v('c3a')||1);$('#c3r').textContent=isFinite(r)?nf(r)+' : 1':'-';const m=$('#c3m');m.style.width=Math.min(100,r/12*100)+'%';
     const [col,t]=r<2?['#f85149','мало: дрон будет вялым и опасным']:r<4?['#d29922','для спокойных полётов и съёмки']:r<8?['#3fb950','отлично для фристайла']:['#00d4ff','очень мощно - гоночный уровень'];m.style.background=col;$('#c3s').textContent=t}
@@ -1345,6 +1650,7 @@ function calc(){
 function used(c){if(!A.calc.includes(c)){A.calc.push(c);save();checkBadges();renderXP()}}
 $$('.calc').forEach(el=>el.addEventListener('input',()=>{used(el.dataset.c);calc()}));
 /* ---------- старт ---------- */
+window.ACAD={get A(){return A},save,award,renderXP,checkBadges,renderLevels,trSize,show};
 renderCheats();renderLevels();renderBadges();calc();renderXP();
 const h=location.hash.slice(1);if(HERO[h])show(h,false);else show('club',false);
 setTimeout(moveVti,300);document.fonts&&document.fonts.ready.then(moveVti);
@@ -1352,5 +1658,228 @@ setTimeout(moveVti,300);document.fonts&&document.fonts.ready.then(moveVti);
 
 </script>
 <script src="/students.js" defer></script>
+
+<script>
+/* ===== пульт клуба: обратный отсчёт, пьедестал, вопрос дня, предполётный чек-лист ===== */
+(function(){
+const q=id=>document.getElementById(id), RED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const st={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const toRate=()=>{const b=document.querySelector('#vt button[data-t="rate"]');if(b)b.click()};
+/* ---- обратный отсчёт до ближайшего события ---- */
+let evT=null,evTimer=0;
+const DRONE=`<span class="drone" aria-hidden="true"><svg viewBox="0 0 120 90" width="78" height="58"><g stroke="#8be9ff" stroke-width="5" stroke-linecap="round"><line x1="30" y1="28" x2="90" y2="62"/><line x1="90" y1="28" x2="30" y2="62"/></g><rect x="44" y="34" width="32" height="22" rx="7" fill="#0d2233" stroke="#00d4ff" stroke-width="2.5"/><circle cx="60" cy="45" r="5" fill="#00d4ff"/><circle cx="60" cy="45" r="2" fill="#fff"/>${[[30,28],[90,28],[30,62],[90,62]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="5" fill="#a371f7"/><g class="prop" style="transform-origin:${x}px ${y}px;animation-delay:-${i*.07}s"><ellipse cx="${x}" cy="${y}" rx="19" ry="3.2" fill="rgba(180,240,255,.55)"/><ellipse cx="${x}" cy="${y}" rx="3.2" ry="19" fill="rgba(180,240,255,.35)"/></g>`).join('')}<circle cx="44" cy="58" r="2.5" fill="#3fb950"/><circle cx="76" cy="58" r="2.5" fill="#f85149"/></svg></span>`;
+function renderEv(){const ev=(typeof upcomingEvents==='function'?upcomingEvents():[]).find(e=>e._d);const el=q('plEv');
+  if(!ev){el.innerHTML=DRONE+'<h3>Ближайший старт</h3><div class="nm">Скоро объявим</div><p class="pl-place">Следи за новостями клуба - даты соревнований появятся здесь.</p>';evT=null;return}
+  evT=+ev._d;el.innerHTML=DRONE+`<h3>Ближайший старт <b>${ev['Тип']?esc(ev['Тип']):''}</b></h3><div class="nm">${esc(ev['Название'])}</div><p class="pl-place">📍 ${esc(ev['Место']||'')} · ${esc(ev['Дата']||'')}</p>
+   <div class="cd"><div><b id="cdD">0</b><small>дней</small></div><div><b id="cdH">0</b><small>часов</small></div><div><b id="cdM">0</b><small>минут</small></div><div><b id="cdS">0</b><small>секунд</small></div></div>`;tick()}
+function setN(id,v){const b=q(id);if(!b)return;v=String(v);if(b.textContent!==v){b.textContent=v;if(!RED){b.classList.remove('tick');void b.offsetWidth;b.classList.add('tick')}}}
+function tick(){if(!evT)return;let d=Math.max(0,evT-Date.now())/1000;setN('cdD',Math.floor(d/86400));setN('cdH',Math.floor(d%86400/3600));setN('cdM',Math.floor(d%3600/60));setN('cdS',Math.floor(d%60))}
+evTimer=setInterval(()=>{if(!document.hidden&&!q('t-club').hidden)tick()},1000);
+/* ---- рейтинг пилотов: симулятор → трасса → кто лучший ----
+   Трасса относится к симулятору по столбцу "Формат" листа "Трассы" (Квадросим / Ворон).
+   Общий зачёт симулятора: на каждой трассе лидер получает 100, остальные 100 × (время лидера ÷ своё),
+   очки по трассам складываются. Кто не летал - прочерк внизу списка. */
+const SR_ICON={'Квадросим':'🎮','Ворон':'🦅','Симулятор':'🕹','Реал':'🛸'};
+let SR=st.get('vzlet_simrate',{sim:'Квадросим',t:'',all:0});
+const srSave=()=>st.set('vzlet_simrate',SR);
+function srSims(){return ['Квадросим','Ворон']}
+function srTracks(sim){return allTracks().filter(t=>simOf(t)===sim)}
+function srBest(L,t){const m={};L.forEach(l=>{if(l.track!==t)return;const k=normName(l.pilot);if(!m[k]||l.sec<m[k].sec)m[k]=l});return m}
+/* строки рейтинга: [{p, has, v, sub}] по порядку мест */
+function srRows(sim,t){const P=allPilots(),L=laps(),key=p=>normName(p['Пилот']);
+  if(t){const m=srBest(L,t);const r=P.map(p=>{const b=m[key(p)];return{p,has:!!b,sec:b?b.sec:Infinity,crash:b?b.crash:0}});
+    r.sort((a,b)=>a.sec-b.sec||String(a.p['Пилот']).localeCompare(String(b.p['Пилот']),'ru'));return r}
+  const TS=srTracks(sim),M=TS.map(x=>srBest(L,x)),B=M.map(m=>Math.min(...Object.values(m).map(l=>l.sec)));
+  const r=P.map(p=>{let pts=0,n=0;M.forEach((m,i)=>{const b=m[key(p)];if(b){pts+=Math.round(100*B[i]/b.sec);n++}});return{p,has:n>0,pts,n,of:TS.length}});
+  r.sort((a,b)=>b.pts-a.pts||b.n-a.n||String(a.p['Пилот']).localeCompare(String(b.p['Пилот']),'ru'));return r}
+function srLeader(sim){const r=srRows(sim,'')[0];return r&&r.has?r:null}
+function renderPod(){const el=q('plPod');
+  el.innerHTML=`<h3>🏆 Рейтинг пилотов</h3><div class="sr" id="sr"></div>`;srDraw()}
+function srDraw(anim){const box=q('sr');if(!box)return;
+  const sims=srSims();if(!sims.includes(SR.sim))SR.sim=sims[0];
+  const TS=srTracks(SR.sim);if(SR.t&&!TS.includes(SR.t))SR.t='';
+  const k=SR.t?TS.indexOf(SR.t)+1:0,coach=MODE==='coach';
+  let h=`<div class="sr-sims" role="tablist">${sims.map(m=>`<button role="tab" aria-selected="${m===SR.sim}" class="${m===SR.sim?'on':''}" data-m="${esc(m)}"><i>${SR_ICON[m]||'🏁'}</i>${esc(m)}<small>${srTracks(m).length} ${plural(srTracks(m).length,'трасса','трассы','трасс')}</small></button>`).join('')}</div>`;
+  if(!TS.length){
+    h+=`<div class="sr-none"><b>${SR_ICON[SR.sim]||'🏁'} Трассы ${esc(SR.sim)} скоро появятся</b>`+(coach?`<span>Нажмите "+ Трассы" и впишите названия. Потом выберите трассу и впишите время пилотов.</span><button class="btn primary" id="srAdd">+ Трассы ${esc(SR.sim)}</button>`:`<span>Тренер добавит трассы, и здесь будет видно, кто летает быстрее всех.</span>`)+`</div>`;
+    box.innerHTML=h;srBind(box);return}
+  h+=`<div class="sr-trk"><button class="sr-ar" data-d="-1" aria-label="Предыдущая трасса" ${k===0?'disabled':''}>‹</button>
+    <select id="srSel" aria-label="Трасса">${[`<option value="">🏁 Общий зачёт - ${TS.length} ${plural(TS.length,'трасса','трассы','трасс')}</option>`,...TS.map((t,i)=>`<option value="${esc(t)}" ${t===SR.t?'selected':''}>${i+1}. ${esc(t)}</option>`)].join('')}</select>
+    <button class="sr-ar" data-d="1" aria-label="Следующая трасса" ${k===TS.length?'disabled':''}>›</button></div>`;
+  const rows=srRows(SR.sim,SR.t),flew=rows.filter(r=>r.has).length,lead=rows[0]&&rows[0].has?rows[0]:null;
+  h+=`<div class="sr-sub">${SR.t?(SR.t.length>26?`<b>${k}. ${esc(SR.t)}</b><br>`:'')+'Лучший круг на трассе':'Сумма очков по трассам: лидер трассы получает 100'} · летали ${flew} из ${rows.length}</div>`;
+  if(!rows.length)h+=`<div class="sr-none"><b>Пилотов пока нет</b><span>Пилоты появляются здесь после одобрения заявки.</span><button class="btn primary" id="srCta">🏁 Оставить заявку</button></div>`;
+  else{const lim=SR.all?rows.length:10,show=rows.slice(0,lim);
+    h+=`<ol class="sr-list${anim?' an':''}">${show.map((r,i)=>{const pl=r.has?(i<3?['🥇','🥈','🥉'][i]:i+1):'—';
+      let val,sub;
+      if(SR.t){val=r.has?fmtLap(r.sec):'—';sub=r.has?(r===lead?'лидер':'+'+(r.sec-lead.sec).toFixed(1)+' с'):'не летал'}
+      else{val=r.has?r.pts:'—';sub=r.has?`${r.n} из ${r.of} ${plural(r.of,'трассы','трасс','трасс')}`:'не летал'}
+      const bar=r.has?(SR.t?Math.round(100*lead.sec/r.sec):Math.round(100*r.pts/Math.max(1,100*r.of))):0;
+      return `<li class="${r.has?'':'no'}${r.has&&i<3?' top':''}" data-p="${esc(r.p['Пилот'])}" style="--d:${Math.min(i,12)*35}ms"><span class="rk">${pl}</span><span class="nm">${esc(pnm(r.p['Пилот']))}${r.p['Класс']&&!/\(.+\)$/.test(r.p['Пилот'])?`<small>${esc(r.p['Класс'])}</small>`:''}<i class="bar"><b style="width:${bar}%"></b></i></span><span class="vl">${val}<small>${sub}</small></span></li>`}).join('')}</ol>`;
+    if(rows.length>10)h+=`<div class="plcta"><button class="btn" id="srAll">${SR.all?'Свернуть до 10':'Показать всех ('+rows.length+')'}</button></div>`;
+    if(!flew)h+=`<p class="sr-hint">На этой ${SR.t?'трассе':'площадке'} ещё никто не летал - первое место свободно!</p>`}
+  if(ROLE==='helper')h+=`<div class="sr-coach"><button class="btn primary" onclick="openHelper()">＋ Записать результат</button></div>`;
+  if(coach)h+=`<div class="sr-coach">${SR.t?`<button class="btn primary" id="srTime">⏱ Вписать время</button><button class="btn" id="srRen">✎ Название</button><button class="btn" id="srDel">🗑</button>`:`<button class="btn primary" id="srTime">⏱ Вписать время</button>`}<button class="btn" id="srAdd">+ Трассы</button></div>`;
+  box.innerHTML=h;srBind(box)}
+function srBind(box){
+  box.querySelectorAll('.sr-sims button').forEach(b=>b.onclick=()=>{if(SR.sim===b.dataset.m)return;SR.sim=b.dataset.m;SR.t='';SR.all=0;srSave();srDraw(1);srPeek()});
+  const sel=q('srSel');if(sel)sel.onchange=()=>{SR.t=sel.value;SR.all=0;srSave();srDraw(1);srPeek()};
+  box.querySelectorAll('.sr-ar').forEach(b=>b.onclick=()=>{const TS=srTracks(SR.sim),k=(SR.t?TS.indexOf(SR.t)+1:0)+ +b.dataset.d;if(k<0||k>TS.length)return;SR.t=k?TS[k-1]:'';srSave();srDraw(1);srPeek()});
+  box.querySelectorAll('.sr-list li').forEach(li=>li.onclick=()=>openPilot(li.dataset.p));
+  const a=q('srAll');if(a)a.onclick=()=>{SR.all=SR.all?0:1;srSave();srDraw()};
+  const c=q('srCta');if(c)c.onclick=toRate;
+  const ad=q('srAdd');if(ad)ad.onclick=()=>trkAdd(SR.sim);
+  const tm=q('srTime');if(tm)tm.onclick=()=>openSession(SR.t||srTracks(SR.sim)[0]||'');
+  const rn=q('srRen');if(rn)rn.onclick=()=>trkRename(SR.t);
+  const dl=q('srDel');if(dl)dl.onclick=()=>trkDel(SR.t)}
+window.SR_RENAMED=(a,b)=>{if(SR.t===a){SR.t=b;srSave()}};
+function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=SR.sim+': '+(L?'1 место - '+pnm(L.p['Пилот']):'ждём первых заездов')}
+/* ---- вопрос дня ---- */
+/* банк: 30 вопросов из тестов + 38 вопросов только для "вопроса дня" = 68 дней без повторов */
+const DAILY=[
+ ['Какого цвета обычно "плюсовой" провод аккумулятора?',['Красный','Чёрный','Синий','Зелёный'],0],
+ ['Пора садиться, когда на каждой банке LiPo осталось примерно…',['4,1 В','3,5 В','2,5 В','1,0 В'],1],
+ ['Где правильно заряжать LiPo?',['В огнеупорном пакете или ящике, под присмотром','В рюкзаке','На солнце на подоконнике','Под подушкой'],0],
+ ['"Гейт" на гоночной трассе - это…',['ворота, через которые надо пролететь','зарядная станция','тип пропеллера','судья'],0],
+ ['Хват "щипок" (pinch) - это когда стики держат…',['большим и указательным пальцами','только большими пальцами','одной рукой','ладонями'],0],
+ ['Режим "черепаха" (Turtle) нужен, чтобы…',['перевернуть дрон, упавший на спину','лететь медленно','заряжать аккумулятор','снимать видео'],0],
+ ['Рыскание (yaw) - это…',['поворот дрона вокруг вертикальной оси','наклон вперёд','подъём вверх','наклон вбок'],0],
+ ['Крен (roll) - это…',['наклон дрона влево-вправо','поворот носом','подъём вверх','наклон вперёд'],0],
+ ['Зачем пилоты тренируются в симуляторе?',['Учиться без риска разбить дрон','Чтобы зарядить пульт','Чтобы обновить прошивку','Так быстрее летит дрон'],0],
+ ['Дизарм - это…',['блокировка моторов','взлёт','смена аккумулятора','включение камеры'],0],
+ ['Сколько моторов у квадрокоптера?',['2','3','4','6'],2],
+ ['Сколько моторов у гексакоптера?',['4','6','8','3'],1],
+ ['Сколько банок в аккумуляторе 6S?',['3','6','12','1'],1],
+ ['Номинальное (среднее) напряжение банки LiPo…',['1,5 В','3,7 В','4,2 В','12 В'],1],
+ ['Сколько вольт у полностью заряженного 4S?',['12,6 В','14,8 В','16,8 В','25,2 В'],2],
+ ['RSSI или LQ на экране показывает…',['качество связи с пультом','заряд аккумулятора','скорость','высоту'],0],
+ ['Трюк, когда дрон делает петлю вокруг препятствия, называют…',['Power loop','Split-S','Flip','Yaw spin'],0],
+ ['Задержка (латентность) видео - это…',['насколько картинка в очках отстаёт от реальности','яркость картинки','разрешение','цвет'],0],
+ ['Какую поляризацию антенн обычно используют в FPV?',['Круговую (RHCP или LHCP)','Квадратную','Магнитную','Никакую'],0],
+ ['Антенны очков и дрона должны быть…',['одной поляризации (обе RHCP или обе LHCP)','разной поляризации','любыми','только без антенн'],0],
+ ['Можно ли включать видеопередатчик без антенны?',['Да, если ненадолго','Нет, он может сгореть','Да, так меньше помех','Только в помещении'],1],
+ ['Betaflight - это…',['программа и прошивка для полётного контроллера','марка дрона','трюк','тип аккумулятора'],0],
+ ['Маленький дрон с защитой пропеллеров для полётов в зале называют…',['вупп (Whoop)','рейсер','гексакоптер','планер'],0],
+ ['Фристайл (фрирайд) в FPV - это…',['свободный полёт с трюками','гонка на время','полёт по GPS','фотосъёмка'],0],
+ ['Зачем перед полётом проверяют, свободен ли видеоканал?',['Чтобы не сбить видео другому пилоту','Чтобы зарядить очки','Для красоты','Чтобы дрон летел быстрее'],0],
+ ['Где LiPo хуже отдаёт ток и быстрее садится?',['На морозе','В тёплой комнате','Летом в тени','Нигде, не зависит'],0],
+ ['Газ (throttle) управляет…',['силой тяги моторов - вверх и вниз','поворотом','наклоном вбок','камерой'],0],
+ ['В режиме Mode 2 правый стик управляет…',['газом и поворотом','креном и тангажом','только газом','камерой'],1],
+ ['Зачем камеру на гоночном дроне наклоняют вверх (uptilt)?',['Чтобы на скорости в наклоне видеть, куда летишь','Чтобы снимать землю','Для посадки','Чтобы не было бликов'],0],
+ ['1,5 А·ч - это сколько мАч?',['150','1500','15','15 000'],1],
+ ['Сколько обычно летает гоночный 5-дюймовый дрон на одном аккумуляторе?',['3-5 минут','30-40 минут','1 час','10 секунд'],0],
+ ['"5 дюймов" у FPV-дрона - это размер…',['пропеллеров','камеры','аккумулятора','очков'],0],
+ ['Полёт LOS - это…',['полёт, когда дрон видишь глазами, без очков','полёт в очках','ночной полёт','полёт по GPS'],0],
+ ['Почему нельзя летать рядом с аэропортом?',['Это опасно для самолётов и запрещено','Там плохой Wi-Fi','Там сильный ветер','Можно, если низко'],0],
+ ['Что включают первым перед полётом?',['Пульт, потом аккумулятор дрона','Аккумулятор дрона, потом пульт','Неважно','Только очки'],0],
+ ['Что отключают первым после полёта?',['Аккумулятор дрона, потом пульт','Пульт, потом аккумулятор','Очки','Ничего не отключают'],0],
+ ['Рейты (rates) в настройках - это…',['насколько быстро дрон вращается от движения стика','цена дрона','место в рейтинге','частота видео'],0],
+ ['На какой частоте работает большинство пультов (например ELRS 2.4)?',['433 МГц','2,4 ГГц','5,8 ГГц','100 МГц'],1]];
+const ALLQ=[];Object.values(typeof QUIZ==='object'?QUIZ:{}).forEach(l=>l.q.forEach(x=>ALLQ.push(x)));DAILY.forEach(x=>ALLQ.push(x));
+const dayN=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()))/864e5)};
+function renderDay(){const el=q('plDay');if(!ALLQ.length){el.hidden=true;return}const n=dayN(),qq=ALLQ[(n*7919)%ALLQ.length],S=st.get('vzlet_daily',{d:0,ok:null,pick:-1,streak:0,best:0});
+  const order=qq[1].map((t,i)=>i).sort((a,b)=>((a*31+n)%7)-((b*31+n)%7));const done=S.d===n;
+  el.innerHTML=`<h3>🧠 Вопрос дня <span class="streak">🔥 ${S.d>=n-1?S.streak:0} ${['день','дня','дней'][(S.streak%10===1&&S.streak%100!==11)?0:(S.streak%10>=2&&S.streak%10<=4&&(S.streak%100<10||S.streak%100>=20))?1:2]} подряд</span></h3><p class="q">${esc(qq[0])}</p>
+   <div class="opts">${order.map(i=>`<button class="qopt ${done?(i===qq[2]?'ok':i===S.pick?'no':''):''}" data-i="${i}" ${done?'disabled':''}>${esc(qq[1][i])}</button>`).join('')}</div>
+   <div class="res">${done?(S.ok?'✅ Верно! Новый вопрос завтра.':'❌ Не угадал. Завтра будет новый вопрос - серия начнётся заново.')+(S.best>1?` Рекорд серии: ${S.best}.`:''):'Ответь правильно каждый день, чтобы держать серию.'}</div>`;
+  if(!done)el.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i===qq[2];const streak=ok?((S.d===n-1&&S.ok)?S.streak+1:1):0;
+    st.set('vzlet_daily',{d:n,ok,pick:i,streak,best:Math.max(S.best||0,streak)});if(ok&&navigator.vibrate)navigator.vibrate(30);renderDay()})}
+/* ---- предполётный чек-лист ---- */
+const CK=['Аккумулятор заряжен и не вздут','Пропеллеры целые, гайки затянуты','Пропеллеры стоят по направлению вращения','Антенны видео и приёмника на месте','Пульт включён, тумблеры в исходном положении','Очки включены, канал не занят другими','Площадка свободна, наблюдатель рядом','Failsafe проверен'];
+let CS=[];try{CS=JSON.parse(sessionStorage.getItem('vzlet_ck')||'[]')}catch(e){}
+function renderChk(){const el=q('plChk'),n=CS.length,all=n===CK.length;
+  el.innerHTML=`<h3>✅ Предполётная проверка <span class="streak" style="color:var(--accent)">${n}/${CK.length}</span></h3><div class="ckbar"><i style="width:${n/CK.length*100}%"></i></div>
+   <div class="ck">${CK.map((t,i)=>`<button class="${CS.includes(i)?'on':''}" data-i="${i}"><i>${CS.includes(i)?'✓':''}</i>${esc(t)}</button>`).join('')}</div>
+   <div class="plcta"><button class="btn" id="ckReset">↺ Сбросить</button></div><div class="stamp ${all?'on':''}">ГОТОВ К ВЗЛЁТУ</div>`;
+  el.querySelectorAll('.ck button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,k=CS.indexOf(i);k<0?CS.push(i):CS.splice(k,1);try{sessionStorage.setItem('vzlet_ck',JSON.stringify(CS))}catch(e){}
+    const was=all;renderChk();if(!was&&CS.length===CK.length&&navigator.vibrate)navigator.vibrate([40,40,80])});
+  q('ckReset').onclick=()=>{CS=[];try{sessionStorage.removeItem('vzlet_ck')}catch(e){}renderChk()}}
+/* ---- сворачиваемые блоки: плавно раскрываются по нажатию, состояние запоминается ---- */
+const FK='vzlet_fold',FOPEN={plEv:1,plPod:1,plDay:1};let FS=st.get(FK,{});
+const isClosed=k=>k in FS?!!FS[k]:!FOPEN[k];
+const fsave=(k,c)=>{FS[k]=c?1:0;st.set(FK,FS)};
+function fold(el,peek){const h=el.querySelector(':scope>h3');if(!h)return;const k=el.id;
+  const fb=document.createElement('div');fb.className='fb';const fi=document.createElement('div');fi.className='fi';fb.appendChild(fi);
+  [...el.childNodes].filter(n=>n!==h&&!(n.classList&&(n.classList.contains('drone')||n.classList.contains('stamp')))).forEach(n=>fi.appendChild(n));el.appendChild(fb);
+  const sp=document.createElement('i');sp.className='sp';const s0=h.querySelector('.streak');s0?h.insertBefore(sp,s0):h.appendChild(sp);
+  if(peek){const p=document.createElement('span');p.className='peek';p.textContent=peek;h.appendChild(p)}
+  const a=document.createElement('span');a.className='fa';a.textContent='▾';a.setAttribute('aria-hidden','true');h.appendChild(a);
+  h.classList.add('fh');h.setAttribute('role','button');h.tabIndex=0;el.classList.add('fold');el.classList.toggle('closed',isClosed(k));
+  h.onclick=e=>{if(e.target.closest('button:not(.fh),a'))return;const c=!el.classList.contains('closed');el.classList.toggle('closed',c);fsave(k,c)};
+  h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();h.click()}}}
+const _ev=renderEv;renderEv=function(){_ev();const ev=evT?Math.max(0,Math.ceil((evT-Date.now())/864e5)):null;fold(q('plEv'),ev===null?'скоро объявим':ev===0?'сегодня!':'через '+ev+' дн.')};
+const _pd=renderPod;renderPod=function(){_pd();const L=srLeader(SR.sim);fold(q('plPod'),SR.sim+': '+(L?'1 место - '+pnm(L.p['Пилот']):'ждём первых заездов'))};
+const _dy=renderDay;renderDay=function(){_dy();const S=st.get('vzlet_daily',{});fold(q('plDay'),(S.d===dayN()?(S.ok?'✅ отвечено':'❌ завтра новый вопрос'):'ждёт ответа')+(S.streak&&S.d>=dayN()-1?' · 🔥 '+S.streak:''))};
+const _ck=renderChk;renderChk=function(){_ck();fold(q('plChk'),CS.length===CK.length?'✅ готов к взлёту':'отмечено '+CS.length+' из '+CK.length)};
+/* карточки-раскрывашки (details): плавная высота */
+function initDetails(){document.querySelectorAll('#t-club details.card').forEach(d=>{const k=d.dataset.fold||d.dataset.tab||d.id;if(!k||k==='more'||d._fold)return;d._fold=1;
+  const sm=d.querySelector(':scope>summary');if(!sm)return;const b=document.createElement('div');b.className='dbody';
+  [...d.childNodes].filter(n=>n!==sm&&!(n.classList&&n.classList.contains('editor'))).forEach(n=>b.appendChild(n));d.appendChild(b);
+  d.open=!isClosed('d:'+k);
+  sm.addEventListener('click',e=>{if(e.target.closest('.edit'))return;e.preventDefault();if(d.classList.contains('editing')){d.open=!d.open;return}
+    const an=d._an;if(an){an.cancel();d._an=null}
+    if(!d.open||d._closing){d._closing=false;d.open=true;const h=b.scrollHeight;
+      if(!RED)d._an=b.animate([{height:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:480,easing:'cubic-bezier(.3,.8,.3,1)'});fsave('d:'+k,false)}
+    else{d._closing=true;const h=b.offsetHeight;fsave('d:'+k,true);
+      if(RED){d.open=false;d._closing=false;return}
+      const a=b.animate([{height:h+'px',opacity:1},{height:'0px',opacity:0}],{duration:360,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});d._an=a;
+      a.onfinish=()=>{if(d._closing){d.open=false;d._closing=false}a.cancel();d._an=null}}})})}
+FOPEN['d:События']=0;
+initDetails();
+/* ?demo=1 - показать рейтинг на придуманных заездах (только в памяти, сохранение выключено) */
+const DEMO=/[?&]demo=1\b/.test(location.search);
+function demoData(d){
+  const Q=['Трасса 1','Трасса 2','Трасса 3','Трасса 4','Трасса 5','Трасса 6','Трасса 7','Трасса 8','Трасса 9','Трасса 10'],
+    V=['Офис','Склад: контейнеры, узкие пролёты и второй этаж','Ночной город - мосты, туннели и парковка','Спортзал'];
+  const N=['Артём (7Б)','Соня (6А)','Миша (8В)','Даша (5Б)','Егор (7А)','Лиза (9Б)','Тимур (6В)','Варя (5А)','Кирилл (8А)','Полина (7В)','Глеб (6Б)','Ника (9А)'];
+  let x=7;const R=()=>(x=(x*16807)%2147483647)/2147483647;
+  const T=[...Q.map(n=>({'Название':n,'Формат':'Квадросим','Описание':''})),...V.map(n=>({'Название':n,'Формат':'Ворон','Описание':''}))];
+  const Z=[];T.forEach((t,ti)=>{const base=38+R()*30;N.forEach((n,ni)=>{if(R()<.3)return;const skill=.82+ni*.025;
+    for(let k=0;k<2;k++)Z.push({'Дата':(10+k*3)+'.10.2026','Пилот':n,'Трасса':t['Название'],'Время круга':fmtLap(base*skill*(1+R()*.12)),'Формат':t['Формат'],'Аварии':String(R()<.2?1:0)})})});
+  return Object.assign({},d,{'Трассы':T,'Заезды':Z,_demo:1});
+}
+if(DEMO){postSheet=async()=>{throw new Error('демо-режим: изменения не сохраняются')};
+  const b=document.createElement('div');b.className='demo-flag';b.textContent='ДЕМО: заезды придуманы';document.body.appendChild(b)}
+/* ---- видимость блоков: тренер скрывает лишнее от всех; список хранится в листе "Статус", строка "_скрыто" ---- */
+const BLK=[['plEv','Ближайший старт'],['plPod','Рейтинг пилотов (симуляторы)'],['plDay','Вопрос дня'],['kpi','Клуб в цифрах'],['События','Ближайшие события'],['Задачи','Задачи клуба'],['Пилоты','Старая таблица рейтинга'],['Расписание','Расписание недели'],['Новости','Новости и документы'],['Статус','Статус лицензии и федерации'],['Заезды','Рекорды трасс'],['Рейтинг России','Рейтинг пилотов России'],['fgd','Новости ФГД']];
+const HIDE_DEF=['Пилоты','Заезды'];
+const blkEl=k=>k.startsWith('pl')?q(k):k==='kpi'?q('kpiBox'):k==='fgd'?q('fgd-card'):document.querySelector(`#t-club details[data-tab="${k}"]`);
+function hideList(){const r=(data&&data['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_скрыто');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):HIDE_DEF}
+function applyHide(){const H=hideList();BLK.forEach(([k])=>{const el=blkEl(k);if(!el)return;const h=H.includes(k);if(MODE==='coach'){el.hidden=false;el.classList.toggle('hid4all',h)}else el.hidden=h})}
+function openVis(){const H=hideList();
+  $('pbody').innerHTML=`<h2>👁 Что видят все</h2><p class="sub">Снимите галочку, чтобы спрятать блок от гостей и учеников. Вы в режиме тренера видите всё, спрятанные блоки - полупрозрачные.</p>
+   <div class="vis">${BLK.map(([k,n])=>`<label><input type="checkbox" data-k="${esc(k)}" ${H.includes(k)?'':'checked'}><span>${esc(n)}</span></label>`).join('')}</div>
+   <div class="ebar" style="margin-top:12px"><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="visOk">Сохранить</button></div>`;
+  $('pmodal').classList.add('open');
+  q('visOk').onclick=async()=>{const b=q('visOk');const nh=[...$('pbody').querySelectorAll('.vis input')].filter(i=>!i.checked).map(i=>i.dataset.k);
+    const S=(data['Статус']||[]).filter(x=>String(x['Параметр']||'').trim()!=='_скрыто');
+    b.disabled=true;b.textContent='Сохраняю…';
+    try{await postSheet('Статус',[...S,{'Параметр':'_скрыто','Значение':nh.join(', ')}]);closePilot();renderAll();toast('Сохранено ✓','ok')}
+    catch(e){toast('Не сохранилось: '+e.message,'bad');b.disabled=false;b.textContent='Сохранить'}}}
+window.openVis=openVis;
+if(MODE==='coach'){const p=q('pult');if(p)p.insertAdjacentHTML('beforebegin','<div class="cbar"><button class="btn" onclick="openVis()">👁 Что видят все</button><span class="muted">Блоки с пометкой "скрыто" видите только вы.</span></div>')}
+function renderPult(){try{renderEv();renderPod();renderDay()}catch(e){console.warn('pult',e)}}
+window.renderPult=renderPult;
+const _ra=renderAll;renderAll=function(){if(DEMO&&data&&!data._demo)data=demoData(data);_ra.apply(this,arguments);renderPult();applyHide()};
+if(typeof data==='object'&&data){if(DEMO)renderAll();else{renderPult();applyHide()}}
+})();
+</script>
+<script>
+/* значок клуба: крути пальцем, по инерции крутится и плавно возвращается к своей скорости */
+(function(){const b=document.getElementById('vzb');if(!b)return;const d=b.querySelector('.vzd');
+  let A=0,w=0,held=false,id=null,pa=0,pt=0,run=false,lt=0;
+  const ang=e=>{const r=b.getBoundingClientRect();return Math.atan2(e.clientY-r.top-r.height/2,e.clientX-r.left-r.width/2)*57.2958};
+  const put=()=>{d.style.rotate=A.toFixed(1)+'deg';const f=Math.min(1,Math.abs(w)/900);b.style.filter=f>.05?`drop-shadow(0 0 ${(f*12).toFixed(1)}px rgba(0,212,255,${(f*.9).toFixed(2)}))`:''};
+  function loop(ts){const dt=Math.min(.05,(ts-lt)/1000||.016);lt=ts;
+    if(held)w*=Math.exp(-dt*8);else{A+=w*dt;w*=Math.exp(-dt*1.2);if(Math.abs(w)<4){w=0;A%=360;put();run=false;return}}
+    put();requestAnimationFrame(loop)}
+  const go=()=>{if(!run){run=true;lt=performance.now();requestAnimationFrame(loop)}};
+  b.addEventListener('pointerdown',e=>{held=true;id=e.pointerId;try{b.setPointerCapture(id)}catch(_){}pa=ang(e);pt=e.timeStamp;w*=.3;b.classList.add('hold');go()});
+  b.addEventListener('pointermove',e=>{if(!held||e.pointerId!==id)return;const a=ang(e);let x=a-pa;if(x>180)x-=360;if(x<-180)x+=360;pa=a;
+    const dt=Math.max(.008,(e.timeStamp-pt)/1000);pt=e.timeStamp;A+=x;w=w*.5+(x/dt)*.5});
+  const up=e=>{if(!held||e.pointerId!==id)return;held=false;b.classList.remove('hold');w=Math.max(-1800,Math.min(1800,w));go()};
+  b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up)})();
+</script>
+<script src="trening.js"></script>
 </body>
 </html>

@@ -455,7 +455,14 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 .stl .sw{border-color:rgba(163,113,247,.45);background:rgba(163,113,247,.10)}
 .sform .note{font-size:12.5px;color:var(--dim)}
 @media (prefers-reduced-motion: reduce){.fb,.fh .fa,details.card>summary::after{transition:none}}
-@media (prefers-reduced-motion: reduce){header::after,.logo-badge,.plev .drone,.drone .prop{animation:none}}
+.vzb{flex:none;position:relative;display:grid;place-items:center;width:48px;height:48px;padding:0;border-radius:50%;background:radial-gradient(circle at 50% 40%,#123049,#071019 72%);touch-action:none;cursor:grab;overflow:visible}
+.vzb.hold{cursor:grabbing}.vzb .vzd{width:46px;height:46px;animation:vzr 16s linear infinite;will-change:transform}
+.vzb .vzp{animation:vzs .22s linear infinite}.vzb .vzp.r{animation-direction:reverse}
+.vzb .vzo{position:absolute;inset:-5px;border-radius:50%;border:1.5px dashed rgba(0,212,255,.45);animation:vzr 28s linear infinite reverse;pointer-events:none}
+.vzb .vzo::before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#3fb950;top:-4px;left:calc(50% - 3.5px);box-shadow:0 0 10px #3fb950}
+.vzb .vzo::after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:#ffb02e;bottom:-3px;left:calc(50% - 3px);box-shadow:0 0 10px #ffb02e}
+@keyframes vzr{to{transform:rotate(360deg)}}@keyframes vzs{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){header::after,.logo-badge,.plev .drone,.drone .prop,.vzb .vzd,.vzb .vzo,.vzb .vzp{animation:none}}
 .drone .prop{animation:prop .18s linear infinite}@keyframes prop{to{transform:rotate(360deg)}}
 @media(max-width:600px){.plev .drone svg{width:60px;height:45px}}
 </style>
@@ -464,7 +471,7 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 
 <header>
   <div class="logo">
-    <div class="logo-badge">ВЗ</div>
+    <div class="logo-badge vzb" id="vzb" title="Клуб Взлёт"><span class="vzo"></span><svg class="vzd" viewBox="6 6 88 88" aria-hidden="true"><g stroke="#5b7a96" stroke-width="7" stroke-linecap="round"><line x1="24" y1="24" x2="76" y2="76"/><line x1="76" y1="24" x2="24" y2="76"/></g><rect x="38" y="33" width="24" height="34" rx="8" fill="#0d2233" stroke="#00d4ff" stroke-width="2.5"/><circle cx="50" cy="39" r="4" fill="#a371f7"/><rect x="44" y="49" width="12" height="12" rx="3" fill="#ffb02e"/><circle cx="24" cy="24" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp" style="transform-origin:24px 24px"><ellipse cx="24" cy="24" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="24" cy="24" r="2.6" fill="#00d4ff"/></g><circle cx="76" cy="24" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp r" style="transform-origin:76px 24px"><ellipse cx="76" cy="24" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="76" cy="24" r="2.6" fill="#00d4ff"/></g><circle cx="24" cy="76" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp r" style="transform-origin:24px 76px"><ellipse cx="24" cy="76" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="24" cy="76" r="2.6" fill="#00d4ff"/></g><circle cx="76" cy="76" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp" style="transform-origin:76px 76px"><ellipse cx="76" cy="76" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="76" cy="76" r="2.6" fill="#00d4ff"/></g></svg></div>
     <div>
       <h1>Клуб «Взлёт» <span class="grant-note">(при поддержке Росмолодёжь.Гранты)</span> <span class="coach-badge coach-only">тренер</span></h1>
       <p>FPV-тренировки · с. Иртыш · Черлакский район · Омская область</p>
@@ -1292,10 +1299,11 @@ function openLogout(){
   $('pmodal').classList.add('open'); }
 function logout(silent, hide){ ss_.del(PIN_KEY); ss_.del('vzlet_role'); if(hide) ls.del('vzlet_editor_dev'); if(!silent) location.reload(); }
 function trustedDev(){ return ls.get('vzlet_editor_dev')==='1'; }
-function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0;
-  el.addEventListener('pointerdown',()=>{ clearTimeout(t); t=setTimeout(()=>{ t=null; fn(); },900); });
+function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0, sx=0, sy=0, mv=false;
+  el.addEventListener('pointerdown',e=>{ sx=e.clientX; sy=e.clientY; mv=false; clearTimeout(t); t=setTimeout(()=>{ t=null; if(!mv) fn(); },900); });
+  el.addEventListener('pointermove',e=>{ if(!mv && Math.hypot(e.clientX-sx,e.clientY-sy)>8){ mv=true; clearTimeout(t); } });
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,()=>clearTimeout(t)));
-  el.addEventListener('click',()=>{ const now=Date.now(); n = now-last<600 ? n+1 : 1; last=now; if(n>=5){ n=0; fn(); } });
+  el.addEventListener('click',()=>{ if(mv) return; const now=Date.now(); n = now-last<600 ? n+1 : 1; last=now; if(n>=5){ n=0; fn(); } });
   el.addEventListener('contextmenu',e=>e.preventDefault()); }
 function openLogin(){
   $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Помощник - только записывать заезды: ФИО, трассу и время.</p>
@@ -1855,6 +1863,22 @@ window.renderPult=renderPult;
 const _ra=renderAll;renderAll=function(){if(DEMO&&data&&!data._demo)data=demoData(data);_ra.apply(this,arguments);renderPult();applyHide()};
 if(typeof data==='object'&&data){if(DEMO)renderAll();else{renderPult();applyHide()}}
 })();
+</script>
+<script>
+/* значок клуба: крути пальцем, по инерции крутится и плавно возвращается к своей скорости */
+(function(){const b=document.getElementById('vzb');if(!b)return;const d=b.querySelector('.vzd');
+  let A=0,w=0,held=false,id=null,pa=0,pt=0,run=false,lt=0;
+  const ang=e=>{const r=b.getBoundingClientRect();return Math.atan2(e.clientY-r.top-r.height/2,e.clientX-r.left-r.width/2)*57.2958};
+  const put=()=>{d.style.rotate=A.toFixed(1)+'deg';const f=Math.min(1,Math.abs(w)/900);b.style.filter=f>.05?`drop-shadow(0 0 ${(f*12).toFixed(1)}px rgba(0,212,255,${(f*.9).toFixed(2)}))`:''};
+  function loop(ts){const dt=Math.min(.05,(ts-lt)/1000||.016);lt=ts;
+    if(held)w*=Math.exp(-dt*8);else{A+=w*dt;w*=Math.exp(-dt*1.2);if(Math.abs(w)<4){w=0;A%=360;put();run=false;return}}
+    put();requestAnimationFrame(loop)}
+  const go=()=>{if(!run){run=true;lt=performance.now();requestAnimationFrame(loop)}};
+  b.addEventListener('pointerdown',e=>{held=true;id=e.pointerId;try{b.setPointerCapture(id)}catch(_){}pa=ang(e);pt=e.timeStamp;w*=.3;b.classList.add('hold');go()});
+  b.addEventListener('pointermove',e=>{if(!held||e.pointerId!==id)return;const a=ang(e);let x=a-pa;if(x>180)x-=360;if(x<-180)x+=360;pa=a;
+    const dt=Math.max(.008,(e.timeStamp-pt)/1000);pt=e.timeStamp;A+=x;w=w*.5+(x/dt)*.5});
+  const up=e=>{if(!held||e.pointerId!==id)return;held=false;b.classList.remove('hold');w=Math.max(-1800,Math.min(1800,w));go()};
+  b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up)})();
 </script>
 <script src="trening.js"></script>
 </body>
