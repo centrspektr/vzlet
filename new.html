@@ -404,7 +404,13 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 #kpiBox .kpi{background:rgba(0,0,0,.25);box-shadow:none;border-color:rgba(255,255,255,.06)}
 #kpiBox #kpi-grid{margin:0}
 #t-club>.grid{align-items:start}
-.hid4all{opacity:.45;position:relative}.hid4all::before{content:"скрыто от всех";position:absolute;z-index:3;top:8px;left:50%;transform:translateX(-50%);padding:2px 10px;border-radius:9px;background:#3d1d0b;color:#ffab6c;font:800 11px var(--fh);pointer-events:none}
+.vblk{position:relative;padding-top:50px!important}
+.vbtn{position:absolute;top:11px;left:14px;z-index:4;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 13px;border-radius:999px;border:1px solid rgba(80,220,140,.55);background:rgba(16,58,38,.9);color:#a6f3c6;font:800 12px var(--fh);letter-spacing:.3px;text-transform:none;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .25s,color .25s,border-color .25s,transform .2s}
+.vbtn:active{transform:scale(.95)}
+.vbtn.off{border-color:rgba(255,140,60,.7);background:#3d1d0b;color:#ffab6c}
+.vbtn[disabled]{opacity:.6;cursor:wait}
+.hid4all{outline:2px dashed rgba(255,140,60,.75);outline-offset:-2px}
+.hid4all>.dbody,.pl.hid4all>*:not(.vbtn){opacity:.4;transition:opacity .3s}
 .cbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 .vis{display:grid;gap:6px}.vis label{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:10px;border:1px solid var(--line);cursor:pointer}.vis input{width:20px;height:20px;accent-color:var(--accent)}
 /* рейтинг пилотов в пульте: симулятор → трасса */
@@ -1879,7 +1885,22 @@ const BLK=[['plEv','Ближайший старт'],['plPod','Рейтинг п�
 const HIDE_DEF=['Пилоты','Заезды'];
 const blkEl=k=>k.startsWith('pl')?q(k):k==='kpi'?q('kpiBox'):k==='fgd'?q('fgd-card'):document.querySelector(`#t-club details[data-tab="${k}"]`);
 function hideList(){const r=(data&&data['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_скрыто');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):HIDE_DEF}
-function applyHide(){const H=hideList();BLK.forEach(([k])=>{const el=blkEl(k);if(!el)return;const h=H.includes(k);if(MODE==='coach'){el.hidden=false;el.classList.toggle('hid4all',h)}else el.hidden=h})}
+function applyHide(){const H=hideList();BLK.forEach(([k])=>{const el=blkEl(k);if(!el)return;const h=H.includes(k);
+  if(MODE==='coach'){el.hidden=false;el.classList.toggle('hid4all',h);el.classList.add('vblk');
+    const host=el.tagName==='DETAILS'?el.querySelector(':scope>summary'):el;if(!host)return;
+    let b=host.querySelector(':scope>.vbtn');if(!b){b=document.createElement('button');b.type='button';b.className='vbtn';b.dataset.vk=k;host.prepend(b);
+      b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();visToggle(k)});
+      if(el.tagName!=='DETAILS'&&!el._vmo){el._vmo=new MutationObserver(()=>{if(!el.querySelector(':scope>.vbtn'))applyHide()});el._vmo.observe(el,{childList:true})}}
+    b.classList.toggle('off',h);b.textContent=h?'🙈 Скрыто от всех':'👁 Видят все';b.title=h?'Нажмите, чтобы показать всем':'Нажмите, чтобы спрятать от гостей и учеников'}
+  else el.hidden=h})}
+let visBusy=false;
+async function visToggle(k){if(visBusy)return;visBusy=true;const H=hideList(),was=H.includes(k),nh=was?H.filter(x=>x!==k):[...H,k];
+  const S=(data['Статус']||[]).filter(x=>String(x['Параметр']||'').trim()!=='_скрыто'),old=data['Статус'];
+  const rows=[...S,{'Параметр':'_скрыто','Значение':nh.join(', ')}];data['Статус']=rows;applyHide();
+  document.querySelectorAll('.vbtn').forEach(x=>x.disabled=true);
+  try{await postSheet('Статус',rows);toast(was?'Блок снова виден всем ✓':'Блок спрятан от всех ✓','ok')}
+  catch(e){data['Статус']=old;applyHide();toast('Не сохранилось: '+e.message,'bad')}
+  finally{visBusy=false;document.querySelectorAll('.vbtn').forEach(x=>x.disabled=false)}}
 function openVis(){const H=hideList();
   $('pbody').innerHTML=`<h2>👁 Что видят все</h2><p class="sub">Снимите галочку, чтобы спрятать блок от гостей и учеников. Вы в режиме тренера видите всё, спрятанные блоки - полупрозрачные.</p>
    <div class="vis">${BLK.map(([k,n])=>`<label><input type="checkbox" data-k="${esc(k)}" ${H.includes(k)?'':'checked'}><span>${esc(n)}</span></label>`).join('')}</div>
@@ -1891,7 +1912,7 @@ function openVis(){const H=hideList();
     try{await postSheet('Статус',[...S,{'Параметр':'_скрыто','Значение':nh.join(', ')}]);closePilot();renderAll();toast('Сохранено ✓','ok')}
     catch(e){toast('Не сохранилось: '+e.message,'bad');b.disabled=false;b.textContent='Сохранить'}}}
 window.openVis=openVis;
-if(MODE==='coach'){const p=q('pult');if(p)p.insertAdjacentHTML('beforebegin','<div class="cbar"><button class="btn" onclick="openVis()">👁 Что видят все</button><span class="muted">Блоки с пометкой "скрыто" видите только вы.</span></div>')}
+if(MODE==='coach'){const p=q('pult');if(p)p.insertAdjacentHTML('beforebegin','<div class="cbar"><span class="muted">Кнопка над каждым блоком: 👁 видят все или 🙈 скрыто от всех. Скрытые блоки видите только вы.</span></div>')}
 function renderPult(){try{renderEv();renderPod();renderDay()}catch(e){console.warn('pult',e)}}
 window.renderPult=renderPult;
 const _ra=renderAll;renderAll=function(){if(DEMO&&data&&!data._demo)data=demoData(data);_ra.apply(this,arguments);renderPult();applyHide()};
