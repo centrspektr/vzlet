@@ -262,6 +262,7 @@
 .stk small{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:10.5px;color:var(--dim);white-space:nowrap}
 @media(max-width:600px){.trn-w{height:440px}.stk{width:96px;height:96px}.stk.r{right:28px}}
 /* тесты */
+.qhead{grid-column:1/-1;display:flex;gap:12px;align-items:center;flex-wrap:wrap;color:var(--muted)}.qhead small{font-size:13.5px;line-height:1.4}
 .qlv{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:16px}
 .ql{position:relative;overflow:hidden;padding:20px;border-radius:18px;border:1px solid var(--line);background:var(--panel);cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s;text-align:left;color:var(--text);font:inherit}
 .ql:hover{transform:translateY(-4px);border-color:var(--lc);box-shadow:0 16px 40px color-mix(in srgb,var(--lc) 25%,transparent)}
@@ -480,7 +481,7 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 </header>
 
 <nav class="vt" id="vt"><span class="vti" id="vti"></span>
-  <button data-t="club" class="on">🏁 Клуб</button><button data-t="learn">📚 Шпаргалки</button><button data-t="quiz">🧠 Тесты</button><button data-t="calc">🧮 Калькуляторы</button><button data-t="me">🎖 Мои значки</button><button data-t="rate">🏆 Рейтинг</button>
+  <button data-t="club" class="on">🏁 Клуб</button><button data-t="learn">📚 Шпаргалки</button><button data-t="train">🎮 Тренировка</button><button data-t="quiz">🧠 Тесты</button><button data-t="calc">🧮 Калькуляторы</button><button data-t="me">🎖 Мои значки</button><button data-t="rate">🏆 Рейтинг</button>
 </nav>
 <section class="ahero" id="ahero" hidden>
   <div class="ah-ph"><img src="drone.webp" alt=""></div><div class="ah-scan"></div>
@@ -498,6 +499,7 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
   </div>
 </div>
 
+<div class="vtab" id="t-train" hidden></div>
 <div class="vtab" id="t-quiz" hidden>
   <div class="qlv" id="qlv"></div>
   <div class="card qbox" id="qbox" hidden></div>
@@ -509,7 +511,7 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
       <label>Ёмкость, мАч<input type="number" id="c1a" value="1500" min="50"></label><label>Средний ток, А<input type="number" id="c1b" value="20" min="0.1" step="0.1"></label>
       <div class="res"><b id="c1r"></b><small>с запасом: используем 80% ёмкости, чтобы не пересадить аккумулятор</small></div></div>
     <div class="card calc" data-c="lipo"><h3>🔋 Напряжение пачки</h3>
-      <label>Число банок (S)<input type="range" id="c2a" min="1" max="6" value="4"><output id="c2o">4S</output></label><label>Ёмкость, мАч<input type="number" id="c2b" value="1500"></label>
+      <label>Число банок (S)<input type="range" id="c2a" min="1" max="6" value="4"><output id="c2o">4S</output></label><label>Ёмкость, мАч<input type="number" id="c2b" value="1500"></label><label>Тип<select id="c2t"><option>LiPo</option><option>LiHV</option></select></label>
       <div class="cells" id="c2cells"></div><div class="res"><b id="c2r"></b><small id="c2s"></small></div></div>
     <div class="card calc" data-c="twr"><h3>💪 Тяговооружённость</h3>
       <label>Вес дрона со всем, г<input type="number" id="c3a" value="650"></label><label>Тяга одного мотора, г<input type="number" id="c3b" value="1300"></label><label>Моторов<input type="number" id="c3c" value="4" min="1"></label>
@@ -549,7 +551,6 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
   <div class="card pl plev" id="plEv"></div>
   <div class="card pl" id="plPod"></div>
   <div class="card pl qd" id="plDay"></div>
-  <div class="card pl" id="plChk"></div>
 </section>
 <details class="card" id="kpiBox" data-fold="kpi"><summary>📊 Клуб в цифрах</summary><div class="grid" id="kpi-grid"></div></details>
 
@@ -1236,7 +1237,7 @@ function openEditor(card, sheet){
   closeEditor(card);
   card.classList.add('editing'); card.querySelector('.edit')?.classList.add('on');
   const ed=document.createElement('div'); ed.className='editor';
-  const rows=(data[sheet]||[]);
+  const rows=(data[sheet]||[]).filter(r=>sheet!=='Статус'||!String(r['Параметр']||'').startsWith('_'));
   ed.innerHTML = `<p class="muted">Раздел «${esc(sheet)}». Изменения увидят все после «Сохранить».</p>
     <datalist id="pilotList">${allPilots().map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
     <div class="erows">${rows.map(r=>rowHTML(sheet,r)).join('')}</div>
@@ -1269,6 +1270,7 @@ async function saveEditor(card, sheet, list, btn){
   const rows=[...list.querySelectorAll('.erow')].map(el=>{
     const r={}; el.querySelectorAll('[data-c]').forEach(f=>r[f.dataset.c]=f.value.trim()); return r;
   }).filter(r=>Object.values(r).some(v=>v!=='' && v!=='нет'));
+  if(sheet==='Статус') rows.push(...(data[sheet]||[]).filter(r=>String(r['Параметр']||'').startsWith('_')));
   btn.disabled=true; btn.textContent='Сохраняю…';
   try{ await postSheet(sheet, rows); closeEditor(card); renderAll(); toast('Сохранено ✓','ok'); }
   catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='Сохранить'; }
@@ -1435,6 +1437,39 @@ const QUIZ={
   ['Можно ли летать над людьми?',['Да, если низко','Да, если быстро','Нет','Только на соревнованиях'],2],
   ['Что такое failsafe?',['Режим трюков','Реакция дрона на потерю сигнала пульта','Защита пропеллеров','Таймер полёта'],1],
   ['Кто должен находиться рядом с пилотом во время полёта?',['Никто','Наблюдатель','Оператор камеры','Судья'],1]]},
+ safe:{n:'Безопасность',e:'🛡',c:'#f85149',q:[
+  ['Где можно летать на занятиях?',['Только в огороженной зоне, люди за сеткой или линией','Где угодно в спортзале','Над зрителями, если низко','В коридоре'],0],
+  ['Кто даёт команду на запуск моторов на соревнованиях?',['Судья или тренер','Сам пилот, когда готов','Зрители','Наблюдатель другого пилота'],0],
+  ['Дрон упал рядом с людьми. Что делаешь первым?',['Дизарм и ждёшь разрешения подойти','Сразу бежишь за дроном','Пытаешься взлететь','Снимаешь очки и уходишь'],0],
+  ['Можно ли подходить к дрону, если моторы заармлены?',['Нет, сначала дизарм','Да, если газ внизу','Да, если быстро','Да, если пропеллеры маленькие'],0],
+  ['Пропало видео в очках. Что делать?',['Сразу дизарм','Лететь вслепую дальше','Дать полный газ','Снять очки и искать дрон глазами, не дизармя'],0],
+  ['Можно ли ловить дрон руками с крутящимися пропеллерами?',['Никогда','Можно в перчатках','Можно маленький дрон','Можно, если аккуратно'],0],
+  ['С какого веса дрон в России нужно ставить на учёт?',['От 150 г','От 30 кг','От 1 кг','Ни с какого'],0],
+  ['Аккумулятор помят и тёплый после удара. Что делать?',['Не заряжать, отложить в безопасное место и показать тренеру','Сразу поставить на зарядку','Летать дальше','Положить в рюкзак'],0],
+  ['Что делает наблюдатель (споттер)?',['Следит за дроном и людьми, пока пилот в очках','Держит пульт','Чинит дрон','Снимает видео'],0],
+  ['Где можно летать на улице?',['Только где разрешено: смотрим карту зон и правила','Где угодно, если нет людей','Возле аэропорта','Над стадионом во время матча'],0]]},
+ tech:{n:'Устройство дрона',e:'⚙️',c:'#a371f7',q:[
+  ['Что такое полётный контроллер (FC)?',['"Мозг" дрона: стабилизирует и выполняет команды','Видеопередатчик','Аккумулятор','Пропеллер'],0],
+  ['Что делает плата 4in1 ESC?',['Управляет оборотами всех 4 моторов','Передаёт видео','Принимает сигнал пульта','Заряжает аккумулятор'],0],
+  ['Что делает VTX?',['Передаёт видео с камеры в очки','Крутит моторы','Принимает команды пульта','Хранит заряд'],0],
+  ['Что делает приёмник (RX)?',['Принимает команды с пульта','Передаёт видео','Охлаждает моторы','Показывает OSD'],0],
+  ['Где стоит FPV-камера?',['Спереди, смотрит по направлению полёта','Снизу, смотрит в пол','Сзади','На пульте'],0],
+  ['Как обычно собирают стек?',['Снизу ESC, сверху полётный контроллер','Снизу FC, сверху ESC','Рядом на одной плате','Внутри аккумулятора'],0],
+  ['Зачем соседние моторы крутятся в разные стороны?',['Чтобы дрон не закручивался вокруг себя','Чтобы громче гудели','Чтобы меньше грелись','Без причины'],0],
+  ['Из чего делают раму гоночного дрона?',['Из карбона','Из стекла','Из картона','Из алюминиевой фольги'],0],
+  ['Куда крепят аккумулятор на FPV-дроне?',['Сверху или снизу рамы ремешком','Внутрь мотора','На пропеллер','Никуда, держат в руке'],0],
+  ['Что значат цифры мотора 2306?',['Диаметр и высота статора в мм: 23 и 6','Год выпуска','Обороты в минуту','Вес в граммах'],0]]},
+ akb:{n:'Аккумуляторы',e:'🔋',c:'#3fb950',q:[
+  ['До скольки вольт заряжается банка LiHV?',['4,35 В','4,2 В','3,7 В','5 В'],0],
+  ['Полный 4S LiPo показывает 16,8 В. Сколько на одной банке?',['4,2 В','16,8 В','3,7 В','4,0 В'],0],
+  ['6S LiPo в режиме хранения показывает около…',['22,8 В','25,2 В','18 В','12 В'],0],
+  ['Что показывают мАч на аккумуляторе?',['Ёмкость: сколько энергии запасено','Напряжение','Вес','Скорость зарядки'],0],
+  ['Что показывает буква C (например 100C)?',['Какой ток аккумулятор может отдавать','Температуру','Количество банок','Цвет'],0],
+  ['Какой аккумулятор нужен маленькому вупу 75 мм?',['1S, 300-550 мАч','6S, 1300 мАч','4S, 5000 мАч','Батарейка АА'],0],
+  ['Напряжение хранения банки примерно…',['3,8 В','4,2 В','3,0 В','5 В'],0],
+  ['Банка разрядилась ниже 3,0-3,2 В. Что это значит?',['Аккумулятор мог испортиться, им нельзя летать без проверки','Ничего страшного','Он стал ёмче','Пора хранить'],0],
+  ['Ставишь LiHV на зарядку. Что важно?',['Выбрать на зарядке режим LiHV, а для LiPo - режим LiPo','Режим не важен','Всегда режим NiMH','Заряжать без балансира'],0],
+  ['Что самое опасное для LiPo?',['Прокол и сильное смятие','Хранение в сумке для LiPo','Зарядка током 1C','Хранение при 3,8 В'],0]]},
  pilot:{n:'Пилот',e:'🚁',c:'#00d4ff',q:[
   ['Что значит 4S на аккумуляторе?',['4 банки последовательно, около 14,8 В','4000 мАч','4 часа работы','4 разъёма'],0],
   ['Напряжение хранения банки LiPo примерно…',['3,0 В','3,8 В','4,2 В','4,5 В'],1],
@@ -1458,6 +1493,13 @@ const QUIZ={
   ['ELRS (ExpressLRS) - это…',['система радиоуправления','прошивка камеры','тип аккумулятора','трюк'],0],
   ['Что делаем сразу после аварии?',['Дизарм, потом подходим к дрону','Пробуем взлететь снова','Выключаем очки','Ничего'],0]]}
 };
+const QTASK={
+ novice:'Сделай предполётную проверку вслух вместе с тренером.',
+ safe:'Назови тренеру 5 правил безопасности и покажи дизарм на пульте.',
+ tech:'Собери дрон во вкладке Тренировка быстрее 60 секунд и покажи тренеру все детали на настоящем дроне.',
+ akb:'Проверь тестером напряжение каждой банки и скажи: можно ли на этом аккумуляторе летать.',
+ pilot:'Пролети в симуляторе 3 круга подряд без аварий на трассе, которую выберет тренер.',
+ ace:'Побей время тренера на его трассе в симуляторе.'};
 const BADGES=[
  ['novice','🐣','Первый взлёт','Сдать тест "Новичок" на 8+'],
  ['pilot','🚁','Пилот','Сдать тест "Пилот" на 8+'],
@@ -1466,7 +1508,14 @@ const BADGES=[
  ['reader','📚','Знаток','Открыть 6 шпаргалок'],
  ['trainer','🕹','Ловкие пальцы','Собрать 10 огней в тренажёре'],
  ['speed','⚡','Молния','Собрать 10 огней быстрее 30 секунд'],
- ['calc','🧮','Инженер','Воспользоваться 3 калькуляторами']];
+ ['calc','🧮','Инженер','Воспользоваться 3 калькуляторами'],
+ ['safe','🛡','Безопасный пилот','Сдать тест "Безопасность" на 8+'],
+ ['tech','⚙️','Техник','Сдать тест "Устройство дрона" на 8+'],
+ ['akbt','🔌','Энергетик','Сдать тест "Аккумуляторы" на 8+'],
+ ['preflight','✅','Внимательный','Пройти предполётную проверку'],
+ ['build','🔧','Механик','Собрать дрон'],
+ ['build60','⏱','Быстрые руки','Собрать дрон за 60 с без лишних ошибок'],
+ ['akb','🔋','Знаток АКБ','7+ из 8 в "Подбери аккумулятор"']];
 
 
 /* ===== Академия пилота: логика ===== */
@@ -1478,24 +1527,24 @@ let A={best:{},read:[],tr:{best:null,n10:false},calc:[],badges:[]};
 try{A=Object.assign(A,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(A))}catch(e){}if(window.SPK)SPK.sync()};
 const LV=[[0,'🐣 Курсант'],[100,'🛫 Стажёр'],[200,'🚁 Пилот'],[300,'🎯 Пилот-инструктор'],[400,'🏆 Ас']];
-function xp(){let x=0;Object.values(A.best).forEach(v=>x+=v*10);x+=Math.min(A.read.length,10)*5;if(A.tr.best)x+=30;if(A.tr.n10)x+=20;x+=A.calc.length*10;return x}
+function xp(){let x=0;Object.values(A.best).forEach(v=>x+=v*10);x+=Math.min(A.read.length,10)*5;if(A.tr.best)x+=30;if(A.tr.n10)x+=20;x+=A.calc.length*10;const g=A.tg||{};if(g.build)x+=30;x+=Math.min(g.akb||0,8)*3;if(g.pre)x+=10;return x}
 function lvl(x){let i=0;LV.forEach((l,k)=>{if(x>=l[0])i=k});return i}
 window.SPK_PROGRESS=()=>{const x=xp();return{p:x,b:A.badges.length,l:LV[lvl(x)][1]}};
 function renderXP(){const x=xp(),i=lvl(x),a=LV[i][0],b=LV[i+1]?LV[i+1][0]:a+100;$('#ahLvl').textContent=LV[i][1];$('#ahXp').textContent=x+' XP';$('#ahBar').style.width=Math.min(100,(x-a)/(b-a)*100)+'%'}
 /* ---------- значки ---------- */
 function pop(e,t){let p=$('#pop');if(!p){p=document.createElement('div');p.id='pop';document.body.appendChild(p)}p.innerHTML=`<small>НОВЫЙ ЗНАЧОК</small><div class="e">${e}</div><b>${t}</b>`;p.classList.add('on');confetti();clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('on'),2600)}
 function award(id){if(A.badges.includes(id))return;A.badges.push(id);save();const b=BADGES.find(x=>x[0]===id);if(b)pop(b[1],b[2]);renderBadges();renderXP()}
-function checkBadges(){['novice','pilot','ace'].forEach(k=>{if((A.best[k]||0)>=8)award(k)});if(Object.values(A.best).some(v=>v===10))award('perfect');if(A.read.length>=6)award('reader');if(A.tr.n10)award('trainer');if(A.tr.best&&A.tr.best<30)award('speed');if(A.calc.length>=3)award('calc')}
+function checkBadges(){Object.keys(QUIZ).forEach(k=>{if((A.best[k]||0)>=8)award(k==='akb'?'akbt':k)});if(Object.values(A.best).some(v=>v===10))award('perfect');if(A.read.length>=6)award('reader');if(A.tr.n10)award('trainer');if(A.tr.best&&A.tr.best<30)award('speed');if(A.calc.length>=3)award('calc')}
 function renderBadges(){$('#bdg').innerHTML=BADGES.map(b=>`<div class="bd1 ${A.badges.includes(b[0])?'got':''}"><span class="e">${b[1]}</span><b>${b[2]}</b><small>${b[3]}</small></div>`).join('')}
 function confetti(){if(RED)return;const C=['#00d4ff','#3fb950','#d29922','#f85149','#a371f7','#fff'];for(let i=0;i<70;i++){const d=document.createElement('i'),x=innerWidth/2,y=innerHeight*.25,a=Math.random()*6.28,v=120+Math.random()*320;d.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:${6+Math.random()*6}px;height:${4+Math.random()*5}px;background:${C[i%6]};z-index:10000;pointer-events:none;border-radius:2px`;document.body.appendChild(d);d.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*v}px,${Math.sin(a)*v+260}px) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:1300+Math.random()*700,easing:'cubic-bezier(.2,.7,.4,1)'}).onfinish=()=>d.remove()}}
 /* ---------- вкладки ---------- */
-const HERO={learn:['Шпаргалки','Всё главное о дронах - коротко и по делу.'],quiz:['Тесты','Три уровня: от новичка до аса. Проверь себя!'],calc:['Калькуляторы','Время полёта, аккумуляторы, тяга, частоты.'],me:['Мои значки','Собери все значки и стань асом теории.'],rate:['Рейтинг','Тесты, значки и задания - в общий зачёт клуба.']};
+const HERO={learn:['Шпаргалки','Всё главное о дронах - коротко и по делу.'],train:['Тренировка','Проверка перед полётом, сборка дрона, аккумуляторы и стики.'],quiz:['Тесты','Шесть уровней. Новые тесты и задания открывает тренер.'],calc:['Калькуляторы','Время полёта, аккумуляторы, тяга, частоты.'],me:['Мои значки','Собери все значки и стань асом теории.'],rate:['Рейтинг','Тесты, значки и задания - в общий зачёт клуба.']};
 let TAB='club';
 function moveVti(){const b=$('#vt button.on'),i=$('#vti');if(!b)return;i.style.left=b.offsetLeft+'px';i.style.width=b.offsetWidth+'px';const n=$('#vt');if(n.scrollWidth>n.clientWidth)n.scrollTo({left:b.offsetLeft-(n.clientWidth-b.offsetWidth)/2,behavior:'smooth'})}
 function show(t,push){TAB=t;$$('#vt button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));moveVti();
   $$('.vtab').forEach(v=>v.hidden=v.id!=='t-'+t);const h=$('#ahero');h.hidden=t==='club';
   if(t!=='club'){$('#ahT').textContent=HERO[t][0];$('#ahP').textContent=HERO[t][1];h.style.animation='none';h.offsetWidth;h.style.animation='vtin .5s cubic-bezier(.2,.8,.2,1)';renderXP()}
-  if(t==='learn')trSize();if(t==='me')renderBadges();
+  if(t==='train')trSize();if(t==='me')renderBadges();
   if(push)try{history.replaceState(null,'',t==='club'?location.pathname:'#'+t)}catch(e){}
   if(push)window.scrollTo({top:0,behavior:'smooth'})}
 $$('#vt button').forEach(b=>b.onclick=()=>show(b.dataset.t,true));addEventListener('resize',moveVti);
@@ -1515,7 +1564,7 @@ const cv=$('#tcv'),cx=cv.getContext('2d');let W=0,H=0,dpr=Math.min(devicePixelRa
 const D={x:.5,y:.6,vx:0,vy:0,h:0,z:0,trail:[]};const IN={t:0,yw:0,p:0,r:0},KB={};
 let game={on:false,got:0,t:0,tg:null,start:0},raf=0,last=0;
 function trSize(){const r=cv.getBoundingClientRect();if(!r.width)return;W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);if(!raf)loop(performance.now())}
-addEventListener('resize',()=>{if(TAB==='learn')trSize()});
+addEventListener('resize',()=>{if(TAB==='train')trSize()});
 function newTarget(){game.tg={x:.12+Math.random()*.7,y:.12+Math.random()*.6,ph:0}}
 function stickBind(el,side){const k=el.querySelector('i');let id=null;
   const set=(e)=>{const r=el.getBoundingClientRect(),cxp=r.left+r.width/2,cyp=r.top+r.height/2,R=r.width/2-12;let dx=(e.clientX-cxp)/R,dy=(e.clientY-cyp)/R;const m=Math.hypot(dx,dy);if(m>1){dx/=m;dy/=m}
@@ -1525,7 +1574,7 @@ function stickBind(el,side){const k=el.querySelector('i');let id=null;
   const up=e=>{if(e.pointerId!==id)return;id=null;k.style.transform='';if(side==='l'){IN.t=0;IN.yw=0}else{IN.p=0;IN.r=0}};
   el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)}
 stickBind($('.stk.l'),'l');stickBind($('.stk.r'),'r');
-addEventListener('keydown',e=>{if(TAB!=='learn'||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;KB[e.key.toLowerCase()]=1;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});
+addEventListener('keydown',e=>{if(TAB!=='train'||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;KB[e.key.toLowerCase()]=1;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});
 addEventListener('keyup',e=>{KB[e.key.toLowerCase()]=0});
 $('#tStart').onclick=()=>{Object.assign(D,{x:.5,y:.6,vx:0,vy:0,h:0,z:0,trail:[]});game={on:true,got:0,t:0,start:performance.now()};newTarget();$('#tGot').textContent='0';$('#tStart').textContent='↻ Заново'};
 $('#tBest').textContent=A.tr.best?A.tr.best.toFixed(1)+' с':'-';
@@ -1554,9 +1603,15 @@ function draw(t){cx.clearRect(0,0,W,H);cx.strokeStyle='rgba(0,212,255,.07)';cx.l
   cx.fillStyle='#0d1117';cx.strokeStyle='#00d4ff';cx.lineWidth=2;cx.beginPath();cx.roundRect?cx.roundRect(-8,-11,16,22,5):cx.rect(-8,-11,16,22);cx.fill();cx.stroke();cx.fillStyle='#3fb950';cx.beginPath();cx.arc(0,-8,2.5,0,6.28);cx.fill();cx.restore();
   for(let i=P.length-1;i>=0;i--){const p=P[i];p.x+=p.vx/60;p.y+=p.vy/60;p.l-=.03;if(p.l<=0){P.splice(i,1);continue}cx.globalAlpha=p.l;cx.fillStyle='#ffd166';cx.fillRect(p.x,p.y,4,4)}cx.globalAlpha=1;
   if(!game.on&&!game.got){cx.fillStyle='rgba(230,237,243,.8)';cx.font='600 15px Segoe UI,system-ui';cx.textAlign='center';cx.fillText('Нажми "Старт", подними дрон газом и лети к огням',W/2,40)}}
-function loop(ts){raf=requestAnimationFrame(loop);if(TAB!=='learn'||document.hidden){last=ts;return}const dt=Math.min(.05,(ts-last)/1000||0);last=ts;step(dt);draw(ts)}
+function loop(ts){raf=requestAnimationFrame(loop);if(TAB!=='train'||document.hidden){last=ts;return}const dt=Math.min(.05,(ts-last)/1000||0);last=ts;step(dt);draw(ts)}
 /* ---------- тесты ---------- */
-function renderLevels(){$('#qlv').innerHTML=Object.entries(QUIZ).map(([k,q])=>{const b=A.best[k];return `<button class="ql" data-k="${k}" style="--lc:${q.c}"><span class="e">${q.e}</span><b>${q.n}</b><small>${q.q.length} вопросов${b!=null?` · лучший результат ${b}/10`:''}</small><div class="st">${stars(b)}</div></button>`}).join('');$$('.ql').forEach(b=>b.onclick=()=>startQuiz(b.dataset.k))}
+function renderLevels(){const ks=Object.keys(QUIZ),co=typeof MODE!=='undefined'&&MODE==='coach',me=window.vzMe?window.vzMe():null,E=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const head=co?`<div class="qhead"><button class="btn primary" onclick="vzAccOpen()">🔓 Доступ учеников</button><small>Вы тренер: видите все тесты и задания. Ученики видят только то, что вы им открыли.</small></div>`
+  :`<div class="qhead"><small>${me?'👤 '+E(me)+' · новые тесты и задания открывает тренер, когда ты готов.':'Первый тест открыт всем. Остальные откроет тренер. Чтобы увидеть свои, войди по коду во вкладке 🏆 Рейтинг.'}</small></div>`;
+ $('#qlv').innerHTML=head+ks.map((k,i)=>{const q=QUIZ[k],b=A.best[k],st=co?2:(window.vzAcc?window.vzAcc(k,i):(i?0:1)),lk=st<1,t=QTASK[k];
+  const task=t?`<div class="qt ${co||st===2?'on':st>=3?'done':'lock'}"><b>${co?'📝 Задание':st>=3?'✅ Задание выполнено':st===2?'📝 Задание открыто':'🔒 Задание'}</b><span>${co||st>=2?E(t):'Откроется, когда тренер увидит, что тест пройден.'}</span></div>`:'';
+  return `<div class="qcell"><button class="ql ${lk?'lock':''}" data-k="${k}" style="--lc:${q.c}"><span class="e">${lk?'🔒':q.e}</span><b>${q.n}</b><small>${lk?'Откроет тренер':q.q.length+' вопросов'+(b!=null?' · лучший результат '+b+'/10':'')}</small><div class="st">${stars(b)}</div></button>${task}</div>`}).join('');
+ $$('.ql').forEach(b=>b.onclick=()=>{if(b.classList.contains('lock')){if(typeof toast==='function')toast('Этот тест откроет тренер 🔒');return}startQuiz(b.dataset.k)})}
 const stars=b=>{const n=b==null?0:b>=10?3:b>=8?2:b>=5?1:0;return '★'.repeat(n)+'<span style="opacity:.25">'+'★'.repeat(3-n)+'</span>'};
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let Q=null;
@@ -1564,7 +1619,7 @@ function startQuiz(k){const L=QUIZ[k];Q={k,i:0,ok:0,list:shuf(L.q).map(([q,ans,c
 function renderQ(){const L=QUIZ[Q.k],it=Q.list[Q.i];$('#qbox').innerHTML=`<div class="qtop"><span>${L.e} ${L.n} · вопрос ${Q.i+1} из ${Q.list.length}</span><span>✔ ${Q.ok}</span></div><div class="qprog"><i style="width:${Q.i/Q.list.length*100}%"></i></div><div class="qq">${it.q}</div><div class="qa">${it.o.map((o,i)=>`<button data-i="${i}"><i>${'АБВГ'[i]}</i>${o.a}</button>`).join('')}</div>`;
   $$('.qa button').forEach(b=>b.onclick=()=>{const o=it.o[+b.dataset.i];$$('.qa button').forEach(x=>{x.disabled=true;if(it.o[+x.dataset.i].ok)x.classList.add('ok')});if(o.ok)Q.ok++;else b.classList.add('no');setTimeout(()=>{Q.i++;Q.i<Q.list.length?renderQ():endQuiz()},o.ok?800:1500)})}
 function endQuiz(){const L=QUIZ[Q.k],s=Q.ok,prev=A.best[Q.k];if(prev==null||s>prev)A.best[Q.k]=s;save();
-  const msg=s===10?'Идеально! Ты настоящий ас.':s>=8?'Отлично! Уровень пройден.':s>=5?'Неплохо! Загляни в шпаргалки и попробуй ещё.':'Есть над чем поработать. Шпаргалки помогут!';
+  const msg=s===10?'Идеально! Ты настоящий ас.'+(QTASK[Q.k]?' Покажи результат тренеру: он откроет задание.':''):s>=8?'Отлично! Уровень пройден.'+(QTASK[Q.k]?' Покажи результат тренеру: он откроет задание.':''):s>=5?'Неплохо! Загляни в шпаргалки и попробуй ещё.':'Есть над чем поработать. Шпаргалки помогут!';
   $('#qbox').innerHTML=`<div class="qend"><div class="stars">${stars(s).replace(/★/g,'<span>★</span>')}</div><div class="big">${s}/10</div><p>${msg}</p><div style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="btn primary" id="qAgain">↻ Ещё раз</button><button class="btn" id="qBack">← Все уровни</button>${s<8?'<button class="btn" id="qLearn">📚 Шпаргалки</button>':''}</div></div>`;
   if(s>=8)confetti();$('#qAgain').onclick=()=>startQuiz(Q.k);$('#qBack').onclick=()=>{$('#qbox').hidden=true;$('#qlv').hidden=false;renderLevels()};if($('#qLearn'))$('#qLearn').onclick=()=>show('learn',true);checkBadges();renderXP()}
 /* ---------- калькуляторы ---------- */
@@ -1572,7 +1627,7 @@ const v=id=>parseFloat($('#'+id).value)||0, nf=(n,d=1)=>n.toLocaleString('ru-RU'
 const RB=[5658,5695,5732,5769,5806,5843,5880,5917];let busy=new Set();
 function calc(){
   {const m=v('c1a')/1000*.8/(v('c1b')||1)*60,mm=Math.floor(m),ss=Math.round((m-mm)*60);$('#c1r').textContent=isFinite(m)?`${mm} мин ${ss} с`:'-'}
-  {const S=v('c2a');$('#c2o').textContent=S+'S';$('#c2r').textContent=`${nf(S*3.7)} В номинал · ${nf(S*4.2)} В полный`;$('#c2s').textContent=`хранение ≈ ${nf(S*3.8)} В · садиться при ≈ ${nf(S*3.5)} В · энергия ${nf(S*3.7*v('c2b')/1000)} Вт·ч`;
+  {const S=v('c2a'),hv=$('#c2t')&&$('#c2t').value==='LiHV',F=hv?4.35:4.2,N=hv?3.8:3.7,ST=hv?3.85:3.8;$('#c2o').textContent=S+'S';$('#c2r').textContent=`${nf(S*N,2)} В номинал · ${nf(S*F,2)} В полный`;$('#c2s').textContent=`${hv?'LiHV · ':''}хранение ≈ ${nf(S*ST,2)} В · садиться при ≈ ${nf(S*3.5)} В · энергия ${nf(S*N*v('c2b')/1000)} Вт·ч`;
     const c=$('#c2cells');if(c.children.length!==S)c.innerHTML=Array.from({length:S},(_, i)=>`<i style="animation-delay:${i*60}ms"></i>`).join('')}
   {const r=v('c3b')*v('c3c')/(v('c3a')||1);$('#c3r').textContent=isFinite(r)?nf(r)+' : 1':'-';const m=$('#c3m');m.style.width=Math.min(100,r/12*100)+'%';
     const [col,t]=r<2?['#f85149','мало: дрон будет вялым и опасным']:r<4?['#d29922','для спокойных полётов и съёмки']:r<8?['#3fb950','отлично для фристайла']:['#00d4ff','очень мощно - гоночный уровень'];m.style.background=col;$('#c3s').textContent=t}
@@ -1587,6 +1642,7 @@ function calc(){
 function used(c){if(!A.calc.includes(c)){A.calc.push(c);save();checkBadges();renderXP()}}
 $$('.calc').forEach(el=>el.addEventListener('input',()=>{used(el.dataset.c);calc()}));
 /* ---------- старт ---------- */
+window.ACAD={get A(){return A},save,award,renderXP,checkBadges,renderLevels,trSize,show};
 renderCheats();renderLevels();renderBadges();calc();renderXP();
 const h=location.hash.slice(1);if(HERO[h])show(h,false);else show('club',false);
 setTimeout(moveVti,300);document.fonts&&document.fonts.ready.then(moveVti);
@@ -1777,7 +1833,7 @@ function demoData(d){
 if(DEMO){postSheet=async()=>{throw new Error('демо-режим: изменения не сохраняются')};
   const b=document.createElement('div');b.className='demo-flag';b.textContent='ДЕМО: заезды придуманы';document.body.appendChild(b)}
 /* ---- видимость блоков: тренер скрывает лишнее от всех; список хранится в листе "Статус", строка "_скрыто" ---- */
-const BLK=[['plEv','Ближайший старт'],['plPod','Рейтинг пилотов (симуляторы)'],['plDay','Вопрос дня'],['plChk','Предполётная проверка'],['kpi','Клуб в цифрах'],['События','Ближайшие события'],['Задачи','Задачи клуба'],['Пилоты','Старая таблица рейтинга'],['Расписание','Расписание недели'],['Новости','Новости и документы'],['Статус','Статус лицензии и федерации'],['Заезды','Рекорды трасс'],['Рейтинг России','Рейтинг пилотов России'],['fgd','Новости ФГД']];
+const BLK=[['plEv','Ближайший старт'],['plPod','Рейтинг пилотов (симуляторы)'],['plDay','Вопрос дня'],['kpi','Клуб в цифрах'],['События','Ближайшие события'],['Задачи','Задачи клуба'],['Пилоты','Старая таблица рейтинга'],['Расписание','Расписание недели'],['Новости','Новости и документы'],['Статус','Статус лицензии и федерации'],['Заезды','Рекорды трасс'],['Рейтинг России','Рейтинг пилотов России'],['fgd','Новости ФГД']];
 const HIDE_DEF=['Пилоты','Заезды'];
 const blkEl=k=>k.startsWith('pl')?q(k):k==='kpi'?q('kpiBox'):k==='fgd'?q('fgd-card'):document.querySelector(`#t-club details[data-tab="${k}"]`);
 function hideList(){const r=(data&&data['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_скрыто');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):HIDE_DEF}
@@ -1794,11 +1850,12 @@ function openVis(){const H=hideList();
     catch(e){toast('Не сохранилось: '+e.message,'bad');b.disabled=false;b.textContent='Сохранить'}}}
 window.openVis=openVis;
 if(MODE==='coach'){const p=q('pult');if(p)p.insertAdjacentHTML('beforebegin','<div class="cbar"><button class="btn" onclick="openVis()">👁 Что видят все</button><span class="muted">Блоки с пометкой "скрыто" видите только вы.</span></div>')}
-function renderPult(){try{renderEv();renderPod();renderDay();renderChk()}catch(e){console.warn('pult',e)}}
+function renderPult(){try{renderEv();renderPod();renderDay()}catch(e){console.warn('pult',e)}}
 window.renderPult=renderPult;
 const _ra=renderAll;renderAll=function(){if(DEMO&&data&&!data._demo)data=demoData(data);_ra.apply(this,arguments);renderPult();applyHide()};
 if(typeof data==='object'&&data){if(DEMO)renderAll();else{renderPult();applyHide()}}
 })();
 </script>
+<script src="trening.js"></script>
 </body>
 </html>
