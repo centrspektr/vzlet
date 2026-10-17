@@ -64,6 +64,7 @@ function spkTok() {
   return '';
 }
 let TR = null;   // { 'имя (класс)': {k: [балл, 'дата лучшего', попыток, 'дата последней']} }
+let TRID = {}, TRTOK = '';   // id ученика на общем сервере и токен - для кнопки "Обнулить"
 async function loadTests(pin) {
   let tok = pin ? '' : spkTok();
   if (!tok && !pin && ses.get('vz_spk_try') !== '1') {
@@ -78,9 +79,12 @@ async function loadTests(pin) {
   if (!tok) return { auth: true };
   const j = await spkCall({ op: 'slist', token: tok });
   if (!j.ok) { ses.set('vz_spk_tok', ''); return { auth: true, error: j.error }; }
-  const M = {}, names = [];
+  TRTOK = tok; return trParse(j);
+}
+function trParse(j) {
+  const M = {}, names = []; TRID = {};
   (j.list || []).filter(x => x.club === 'vzlet' && x.st === 'принят').forEach(x => {
-    const n = x.first + ' (' + x.cls + ')'; M[nrm(n)] = x.tests || {}; names.push({ n, c: x.cls });
+    const n = x.first + ' (' + x.cls + ')'; M[nrm(n)] = x.tests || {}; TRID[nrm(n)] = x.id; names.push({ n, c: x.cls });
   });
   return { M, names };
 }
@@ -129,15 +133,24 @@ window.vzAccOpen = function () {
   }
   function draw() {
     const box = $('accBox'); if (!box) return;
-    box.innerHTML = list.length ? `<table class="acc"><thead><tr><th><button class="ac all" id="accAll" title="Выбрать всех">☑</button></th><th>Ученик</th>${keys.map(k => `<th title="${E(Q[k].n)}">${Q[k].e}<small>${E(Q[k].n)}</small></th>`).join('')}</tr></thead><tbody>${list.map((s, r) => `<tr class="${sel.has(r) ? 'sel' : ''}"><td><input type="checkbox" data-r="${r}" ${sel.has(r) ? 'checked' : ''}></td><td class="an">${E(s.n)}</td>${keys.map((k, i) => `<td>${cell(r, i)}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+    box.innerHTML = list.length ? `<table class="acc"><thead><tr><th><button class="ac all" id="accAll" title="Выбрать всех">☑</button></th><th>Ученик</th>${keys.map(k => `<th title="${E(Q[k].n)}">${Q[k].e}<small>${E(Q[k].n)}</small></th>`).join('')}</tr></thead><tbody>${list.map((s, r) => `<tr class="${sel.has(r) ? 'sel' : ''}"><td><input type="checkbox" data-r="${r}" ${sel.has(r) ? 'checked' : ''}></td><td class="an">${E(s.n)}${TR && TRID[nrm(s.n)] ? `<button class="arst" data-z="${r}" title="Обнулить результаты ученика">↺</button>` : ''}</td>${keys.map((k, i) => `<td>${cell(r, i)}</td>`).join('')}</tr>`).join('')}</tbody></table>`
       : '<p class="empty">Учеников пока нет. Они появятся здесь после одобрения заявок.</p>';
     box.querySelectorAll('.ac[data-r]').forEach(b => b.onclick = () => { const r = +b.dataset.r, i = +b.dataset.i; let v = (st[r][i] + 1) % 4; if (i === 0 && v === 0) v = 1; st[r][i] = v; snd('tap'); draw(); });
     box.querySelectorAll('input[data-r]').forEach(c => c.onchange = () => { const r = +c.dataset.r; c.checked ? sel.add(r) : sel.delete(r); draw(); });
+    box.querySelectorAll('.arst').forEach(b => b.onclick = async () => {
+      const r = +b.dataset.z, s = list[r], id = TRID[nrm(s.n)];
+      if (!id || !confirm(`Обнулить результаты: ${s.n}?\n\nОчки, значки, баллы тестов и очки за задания станут 0. На телефоне ученика результаты сотрутся сами при следующем заходе на сайт. Доступ к тестам вернётся к первому тесту.`)) return;
+      b.disabled = true; b.textContent = '⏳';
+      let j; try { j = await spkCall({ op: 'sset', act: 'reset', id, token: TRTOK }); } catch (e) { j = { error: 'Нет связи с сервером' }; }
+      if (!j || !j.ok) { toast('Не обнулилось: ' + ((j && j.error) || 'ошибка'), 'bad'); if (j && j.auth) { TRTOK = ''; ses.set('vz_spk_tok', ''); trMsg = 'auth'; trBar(); } draw(); return; }
+      TR = trParse(j).M; st[r] = keys.map((k, i) => i === 0 ? 1 : 0); snd('ok'); draw();
+      toast(`${s.n}: результаты обнулены ✓ Нажмите "Сохранить", чтобы закрыть открытые тесты`, 'ok');
+    });
     const a = $('accAll'); if (a) a.onclick = () => { if (sel.size === list.length) sel.clear(); else list.forEach((_, r) => sel.add(r)); draw(); };
     const nx = $('accNext'); if (nx) { nx.disabled = !sel.size; nx.textContent = sel.size ? `▶ Следующий шаг выбранным (${sel.size})` : '▶ Следующий шаг выбранным'; }
   }
   modal(`<h2>🔓 Доступ учеников</h2>
-    <p class="sub">Нажимай на клетку, чтобы сменить шаг: 🔒 закрыто → 📖 тест открыт → 📝 открыто задание → ✅ задание выполнено. Первый тест открыт всем.<br>Пришли не все? Отметь галочками тех, кто пришёл, и нажми "Следующий шаг": каждому откроется его следующий шаг.<br>Под значком - лучший балл ученика и дата: <b class="asc g">зелёный</b> - тест пройден (8 и больше), <b class="asc y">жёлтый</b> - 5-7, <b class="asc r">красный</b> - меньше 5. Баллы приходят, если ученик вошёл по коду во вкладке 🏆 Рейтинг. Видите их только вы.</p>
+    <p class="sub">Нажимай на клетку, чтобы сменить шаг: 🔒 закрыто → 📖 тест открыт → 📝 открыто задание → ✅ задание выполнено. Первый тест открыт всем.<br>Пришли не все? Отметь галочками тех, кто пришёл, и нажми "Следующий шаг": каждому откроется его следующий шаг.<br>Под значком - лучший балл ученика и дата: <b class="asc g">зелёный</b> - тест пройден (8 и больше), <b class="asc y">жёлтый</b> - 5-7, <b class="asc r">красный</b> - меньше 5. Баллы приходят, если ученик вошёл по коду во вкладке 🏆 Рейтинг. Видите их только вы. Кнопка ↺ рядом с именем обнуляет результаты ученика, на его телефоне они сотрутся сами.</p>
     <div id="accTr"></div>
     <div class="accbar"><button class="btn" id="accNext" disabled>▶ Следующий шаг выбранным</button></div>
     <div class="tscroll" id="accBox"></div>
@@ -561,6 +574,7 @@ html.fx .tglock{backdrop-filter:none}
 table.acc{border-collapse:collapse;width:100%}table.acc th,table.acc td{padding:4px;text-align:center;border-bottom:1px solid var(--line)}table.acc th small{display:block;font-size:10px;color:var(--dim);font-weight:600;max-width:64px;margin:0 auto;line-height:1.1}
 table.acc td.an{text-align:left;font-weight:700;white-space:nowrap}table.acc tr.sel{background:rgba(0,212,255,.08)}
 .asc{display:block;font-size:11px;font-weight:800;line-height:1.15;margin-top:2px;color:var(--dim);white-space:nowrap}.asc i{display:block;font-style:normal;font-weight:600;font-size:9.5px;opacity:.8}b.asc{display:inline}.asc.g{color:var(--ok)}.asc.y{color:#d29922}.asc.r{color:var(--bad)}
+.arst{margin-left:6px;width:24px;height:24px;border-radius:7px;border:1px solid var(--line);background:none;color:var(--dim);cursor:pointer;font:700 13px/1 system-ui;vertical-align:middle}.arst:hover{color:var(--bad,#f85149);border-color:var(--bad,#f85149)}
 .trf{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px;font-size:13px}.trf input{width:110px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:inherit;font-size:16px}
 .ac{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);font-size:17px;cursor:pointer}.ac.s1{border-color:#58a6ff}.ac.s2{border-color:#d29922}.ac.s3{border-color:var(--ok);background:rgba(63,185,80,.15)}
 table.acc input{width:20px;height:20px;accent-color:var(--accent)}

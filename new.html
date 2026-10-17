@@ -1605,6 +1605,7 @@ const LV=[[0,'🐣 Курсант'],[100,'🛫 Стажёр'],[200,'🚁 Пил�
 function xp(){let x=0;Object.values(A.best).forEach(v=>x+=v*10);x+=Math.min(A.read.length,10)*5;if(A.tr.best)x+=30;if(A.tr.n10)x+=20;x+=A.calc.length*10;const g=A.tg||{};if(g.build)x+=30;x+=Math.min(g.akb||0,8)*3;if(g.pre)x+=10;return x}
 function lvl(x){let i=0;LV.forEach((l,k)=>{if(x>=l[0])i=k});return i}
 window.SPK_PROGRESS=()=>{const x=xp(),t={};Object.keys(A.best).forEach(k=>t[k]=[A.best[k],(A.qn||{})[k]||1]);return{p:x,b:A.badges.length,l:LV[lvl(x)][1],t}};
+window.SPK_RESET=()=>{A={best:{},qn:{},read:[],tr:{best:null,n10:false},calc:[],badges:[]};try{localStorage.setItem(KEY,JSON.stringify(A))}catch(e){}try{renderXP();renderLevels();renderBadges()}catch(e){}if(typeof toast==='function')toast('Тренер обнулил твои результаты - начинаем заново 🚀')};
 function renderXP(){const x=xp(),i=lvl(x),a=LV[i][0],b=LV[i+1]?LV[i+1][0]:a+100;$('#ahLvl').textContent=LV[i][1];$('#ahXp').textContent=x+' XP';$('#ahBar').style.width=Math.min(100,(x-a)/(b-a)*100)+'%'}
 /* ---------- значки ---------- */
 function pop(e,t){let p=$('#pop');if(!p){p=document.createElement('div');p.id='pop';document.body.appendChild(p)}p.innerHTML=`<small>НОВЫЙ ЗНАЧОК</small><div class="e">${e}</div><b>${t}</b>`;p.classList.add('on');confetti();clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('on'),2600)}
