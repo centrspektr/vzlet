@@ -223,7 +223,9 @@
 @media(hover:hover) and (pointer:fine){.vtb .tba{display:block}.vtb .tbt{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 86%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 86%,transparent 100%)}}
 @media(max-width:860px){.vtb{height:78px}.vtb .tbt button{flex-basis:84px;height:74px;font-size:11.5px}.vtb .tbt{padding:0 calc(50% - 42px)}.vtb .ic{width:42px;height:42px;border-radius:14px}.vtb .ic svg{width:22px;height:22px}}
 @media (prefers-reduced-motion: reduce){.vtb .tbt button.on .ic::after,.vtb .tbt button.on .ic svg{animation:none}}
-.vtab{animation:vtin .5s cubic-bezier(.2,.8,.2,1)}
+.vtab{animation:none}
+.tabwave{position:fixed;inset:0;z-index:60;pointer-events:none;background:linear-gradient(100deg,transparent 28%,rgba(120,190,255,.13) 40%,rgba(255,255,255,.22) 50%,rgba(210,130,255,.13) 60%,transparent 72%)}
+
 @keyframes vtin{from{opacity:0;transform:translateY(18px)}}
 .ahero{position:relative;height:260px;border-radius:18px;overflow:hidden;margin-bottom:16px;border:1px solid var(--line);isolation:isolate}
 .ahero{background:radial-gradient(80% 120% at 85% 50%,#123049,#0d1117 70%)}
@@ -1618,8 +1620,19 @@ const HERO={learn:['Шпаргалки','Всё главное о дронах -
 let TAB='club';
 const TBT=$('#vt');let tbInit=false,tbProg=0;
 function moveVti(){const b=$('#vt button.on');if(!b)return;const x=b.offsetLeft+b.offsetWidth/2-TBT.clientWidth/2;tbProg=Date.now();TBT.scrollTo({left:x,behavior:tbInit&&!RED?'smooth':'auto'});tbInit=true;if(window.tbFx)tbFx()}
-function show(t,push){TAB=t;$$('#vt button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));moveVti();
-  $$('.vtab').forEach(v=>v.hidden=v.id!=='t-'+t);const h=$('#ahero');h.hidden=t==='club';
+
+/* смена раздела с эффектом: блоки выезжают каскадом, по экрану проходит световая волна */
+window.tabFx=function(el,dir,wave){
+  if(!el||!el.animate||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  let k=[...el.children];while(k.length===1&&k[0].children.length)k=[...k[0].children];
+  k=k.filter(c=>c.getClientRects().length).slice(0,14);
+  const soft=matchMedia('(hover:hover) and (pointer:fine)').matches,dx=(dir||0)*46;
+  k.forEach((c,i)=>{const r=c.getBoundingClientRect();if(r.top>innerHeight+40)return;
+    c.animate([{opacity:0,transform:`translate(${dx}px,30px) scale(.96) rotateX(8deg)`,filter:soft?'blur(6px)':'none'},{opacity:1,offset:.6},{opacity:1,transform:'none',filter:'none'}],{duration:680,delay:60+i*75,easing:'cubic-bezier(.2,.9,.25,1)',fill:'backwards'})});
+  if(!wave)return;const w=document.createElement('div');w.className='tabwave';document.body.appendChild(w);
+  w.animate([{transform:`translateX(${dir<0?100:-100}%)`,opacity:0},{opacity:1,offset:.25},{opacity:1,offset:.7},{transform:`translateX(${dir<0?-100:100}%)`,opacity:0}],{duration:850,easing:'cubic-bezier(.45,.05,.35,1)'}).onfinish=()=>w.remove()};
+function show(t,push){const pv=TAB,OR=$$('#vt button').map(b=>b.dataset.t);TAB=t;$$('#vt button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));moveVti();
+  $$('.vtab').forEach(v=>v.hidden=v.id!=='t-'+t);if(pv!==t)requestAnimationFrame(()=>tabFx($('#t-'+t),pv?Math.sign(OR.indexOf(t)-OR.indexOf(pv)):0,!!pv));const h=$('#ahero');h.hidden=t==='club';
   if(t!=='club'){$('#ahT').textContent=HERO[t][0];$('#ahP').textContent=HERO[t][1];h.style.animation='none';h.offsetWidth;h.style.animation='vtin .5s cubic-bezier(.2,.8,.2,1)';renderXP()}
   if(t==='train')trSize();if(t==='me')renderBadges();
   if(push)try{history.replaceState(null,'',t==='club'?location.pathname:'#'+t)}catch(e){}
