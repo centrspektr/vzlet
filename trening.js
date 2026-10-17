@@ -54,6 +54,37 @@ window.vzAcc = (k, i) => {
 };
 const STI = ['🔒', '📖', '📝', '✅'], STN = ['закрыто', 'тест открыт', 'открыто задание', 'задание выполнено'];
 
+/* Результаты тестов учеников (балл, дата, попытки) - с общего сервера СПЕКТРа, только для педагога.
+   Вход: токен портала из этой вкладки; если его нет - один раз пробуем PIN тренера, иначе просим PIN портала. */
+const SPK_API = 'https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec';
+const spkCall = q => fetch(SPK_API, { method: 'POST', body: JSON.stringify(q) }).then(r => r.json());
+function spkTok() {
+  const t = ses.get('vz_spk_tok'); if (t) return t;
+  try { const S = JSON.parse(ses.get('spectr_sess') || 'null'); if (S && S.token) return S.token; } catch (e) {}
+  return '';
+}
+let TR = null;   // { 'имя (класс)': {k: [балл, 'дата лучшего', попыток, 'дата последней']} }
+async function loadTests(pin) {
+  let tok = pin ? '' : spkTok();
+  if (!tok && !pin && ses.get('vz_spk_try') !== '1') {
+    ses.set('vz_spk_try', '1');
+    try { pin = typeof ss_ !== 'undefined' && typeof PIN_KEY !== 'undefined' ? ss_.get(PIN_KEY) : ''; } catch (e) { pin = ''; }
+  }
+  if (!tok && pin) {
+    const j = await spkCall({ op: 'login', pin });
+    if (!j.ok) return { auth: true, error: j.error };
+    tok = j.token; ses.set('vz_spk_tok', tok);
+  }
+  if (!tok) return { auth: true };
+  const j = await spkCall({ op: 'slist', token: tok });
+  if (!j.ok) { ses.set('vz_spk_tok', ''); return { auth: true, error: j.error }; }
+  const M = {}, names = [];
+  (j.list || []).filter(x => x.club === 'vzlet' && x.st === 'принят').forEach(x => {
+    const n = x.first + ' (' + x.cls + ')'; M[nrm(n)] = x.tests || {}; names.push({ n, c: x.cls });
+  });
+  return { M, names };
+}
+
 window.vzAccOpen = function () {
   const Q = typeof QUIZ === 'object' ? QUIZ : {}, keys = Object.keys(Q), M = accMap();
   const seen = new Set(), list = [];
@@ -61,10 +92,41 @@ window.vzAccOpen = function () {
   (typeof SPK_PIL !== 'undefined' ? SPK_PIL : []).forEach(p => add(p['Пилот'], p['Класс']));
   Object.values(M).forEach(r => add(r.name, ''));
   (typeof allPilots === 'function' ? allPilots() : []).forEach(p => add(p['Пилот'], p['Класс']));
-  list.sort((a, b) => (parseInt(a.c) || 99) - (parseInt(b.c) || 99) || a.n.localeCompare(b.n, 'ru'));
-  const st = list.map(s => { const r = M[nrm(s.n)]; return keys.map((k, i) => { const v = r ? (r.o[k] || 0) : 0; return i === 0 ? Math.max(1, v) : v; }); });
+  const stOf = s => { const r = M[nrm(s.n)]; return keys.map((k, i) => { const v = r ? (r.o[k] || 0) : 0; return i === 0 ? Math.max(1, v) : v; }); };
+  const sort = () => list.sort((a, b) => (parseInt(a.c) || 99) - (parseInt(b.c) || 99) || a.n.localeCompare(b.n, 'ru'));
+  sort();
+  let st = list.map(stOf);
   const sel = new Set();
-  function cell(r, i) { const v = st[r][i]; return `<button class="ac s${v}" data-r="${r}" data-i="${i}" title="${E(STN[v])}">${STI[v]}</button>`; }
+  let trMsg = TR ? '' : '⏳ Загружаю баллы тестов…';
+  const dd = d => String(d || '').slice(0, 5);
+  function score(r, k) {
+    if (!TR) return '';
+    const t = (TR[nrm(list[r].n)] || {})[k];
+    if (!t || t[0] < 0) return '<small class="asc">-</small>';
+    const c = t[0] >= 8 ? 'g' : t[0] >= 5 ? 'y' : 'r';
+    return `<small class="asc ${c}" title="${E(`Лучший результат ${t[0]}/10 (${t[1]}). Попыток: ${t[2]}, последняя ${t[3]}`)}">${t[0]}/10<i>${E(dd(t[1]))}${t[2] > 1 ? ' · ' + t[2] + '×' : ''}</i></small>`;
+  }
+  function cell(r, i) { const v = st[r][i]; return `<button class="ac s${v}" data-r="${r}" data-i="${i}" title="${E(STN[v])}">${STI[v]}</button>${score(r, keys[i])}`; }
+  function trBar() {
+    const el = $('accTr'); if (!el) return;
+    if (trMsg === 'auth') {
+      el.innerHTML = `<form id="accTrF" class="trf"><span>Чтобы видеть баллы тестов, войдите PIN-ом портала СПЕКТР:</span><input id="accTrP" type="password" inputmode="numeric" maxlength="8" placeholder="PIN" autocomplete="off"><button class="btn">Показать баллы</button></form>`;
+      $('accTrF').onsubmit = e => { e.preventDefault(); const p = $('accTrP').value.trim(); if (!p) return; trMsg = '⏳ Проверяю…'; trBar(); getTests(p); };
+    } else el.innerHTML = trMsg ? `<small class="muted">${E(trMsg)}</small>` : '';
+  }
+  async function getTests(pin) {
+    let r; try { r = await loadTests(pin); } catch (e) { r = { error: 'Нет связи с сервером' }; }
+    if (!$('accBox')) return;
+    if (r.auth) { trMsg = 'auth'; if (r.error && pin) toast(r.error, 'bad'); trBar(); return; }
+    if (r.error) { trMsg = 'Баллы не загрузились: ' + r.error; trBar(); return; }
+    TR = r.M; trMsg = '';
+    const was = list.length; r.names.forEach(x => add(x.n, x.c));
+    if (list.length !== was) {   // новые ученики из списка принятых: сохраняем уже нажатые шаги
+      const old = new Map(list.slice(0, was).map((s, i) => [s, st[i]])), sv = [...sel].map(i => list[i]);
+      sort(); st = list.map(s => old.get(s) || stOf(s)); sel.clear(); sv.forEach(s => sel.add(list.indexOf(s)));
+    }
+    trBar(); draw();
+  }
   function draw() {
     const box = $('accBox'); if (!box) return;
     box.innerHTML = list.length ? `<table class="acc"><thead><tr><th><button class="ac all" id="accAll" title="Выбрать всех">☑</button></th><th>Ученик</th>${keys.map(k => `<th title="${E(Q[k].n)}">${Q[k].e}<small>${E(Q[k].n)}</small></th>`).join('')}</tr></thead><tbody>${list.map((s, r) => `<tr class="${sel.has(r) ? 'sel' : ''}"><td><input type="checkbox" data-r="${r}" ${sel.has(r) ? 'checked' : ''}></td><td class="an">${E(s.n)}</td>${keys.map((k, i) => `<td>${cell(r, i)}</td>`).join('')}</tr>`).join('')}</tbody></table>`
@@ -75,7 +137,8 @@ window.vzAccOpen = function () {
     const nx = $('accNext'); if (nx) { nx.disabled = !sel.size; nx.textContent = sel.size ? `▶ Следующий шаг выбранным (${sel.size})` : '▶ Следующий шаг выбранным'; }
   }
   modal(`<h2>🔓 Доступ учеников</h2>
-    <p class="sub">Нажимай на клетку, чтобы сменить шаг: 🔒 закрыто → 📖 тест открыт → 📝 открыто задание → ✅ задание выполнено. Первый тест открыт всем.<br>Пришли не все? Отметь галочками тех, кто пришёл, и нажми "Следующий шаг": каждому откроется его следующий шаг.</p>
+    <p class="sub">Нажимай на клетку, чтобы сменить шаг: 🔒 закрыто → 📖 тест открыт → 📝 открыто задание → ✅ задание выполнено. Первый тест открыт всем.<br>Пришли не все? Отметь галочками тех, кто пришёл, и нажми "Следующий шаг": каждому откроется его следующий шаг.<br>Под значком - лучший балл ученика и дата: <b class="asc g">зелёный</b> - тест пройден (8 и больше), <b class="asc y">жёлтый</b> - 5-7, <b class="asc r">красный</b> - меньше 5. Баллы приходят, если ученик вошёл по коду во вкладке 🏆 Рейтинг. Видите их только вы.</p>
+    <div id="accTr"></div>
     <div class="accbar"><button class="btn" id="accNext" disabled>▶ Следующий шаг выбранным</button></div>
     <div class="tscroll" id="accBox"></div>
     <div class="ebar" style="margin-top:12px"><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="accSave">Сохранить</button></div>`);
@@ -88,7 +151,7 @@ window.vzAccOpen = function () {
     try { await postSheet('Статус', [...keep, ...rows]); closePilot(); renderAll(); toast('Доступ сохранён ✓', 'ok'); }
     catch (e) { toast('Не сохранилось: ' + e.message, 'bad'); b.disabled = false; b.textContent = 'Сохранить'; }
   };
-  draw();
+  draw(); trBar(); getTests('');
 };
 
 /* =====================================================================
@@ -497,6 +560,8 @@ html.fx .tglock{backdrop-filter:none}
 .accbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 table.acc{border-collapse:collapse;width:100%}table.acc th,table.acc td{padding:4px;text-align:center;border-bottom:1px solid var(--line)}table.acc th small{display:block;font-size:10px;color:var(--dim);font-weight:600;max-width:64px;margin:0 auto;line-height:1.1}
 table.acc td.an{text-align:left;font-weight:700;white-space:nowrap}table.acc tr.sel{background:rgba(0,212,255,.08)}
+.asc{display:block;font-size:11px;font-weight:800;line-height:1.15;margin-top:2px;color:var(--dim);white-space:nowrap}.asc i{display:block;font-style:normal;font-weight:600;font-size:9.5px;opacity:.8}b.asc{display:inline}.asc.g{color:var(--ok)}.asc.y{color:#d29922}.asc.r{color:var(--bad)}
+.trf{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px;font-size:13px}.trf input{width:110px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:inherit;font-size:16px}
 .ac{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);font-size:17px;cursor:pointer}.ac.s1{border-color:#58a6ff}.ac.s2{border-color:#d29922}.ac.s3{border-color:var(--ok);background:rgba(63,185,80,.15)}
 table.acc input{width:20px;height:20px;accent-color:var(--accent)}
 .qacc{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}

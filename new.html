@@ -1580,13 +1580,13 @@ const BADGES=[
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const RED=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const KEY='vzlet_academy';
-let A={best:{},read:[],tr:{best:null,n10:false},calc:[],badges:[]};
+let A={best:{},qn:{},read:[],tr:{best:null,n10:false},calc:[],badges:[]};
 try{A=Object.assign(A,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(A))}catch(e){}if(window.SPK)SPK.sync()};
 const LV=[[0,'🐣 Курсант'],[100,'🛫 Стажёр'],[200,'🚁 Пилот'],[300,'🎯 Пилот-инструктор'],[400,'🏆 Ас']];
 function xp(){let x=0;Object.values(A.best).forEach(v=>x+=v*10);x+=Math.min(A.read.length,10)*5;if(A.tr.best)x+=30;if(A.tr.n10)x+=20;x+=A.calc.length*10;const g=A.tg||{};if(g.build)x+=30;x+=Math.min(g.akb||0,8)*3;if(g.pre)x+=10;return x}
 function lvl(x){let i=0;LV.forEach((l,k)=>{if(x>=l[0])i=k});return i}
-window.SPK_PROGRESS=()=>{const x=xp();return{p:x,b:A.badges.length,l:LV[lvl(x)][1]}};
+window.SPK_PROGRESS=()=>{const x=xp(),t={};Object.keys(A.best).forEach(k=>t[k]=[A.best[k],(A.qn||{})[k]||1]);return{p:x,b:A.badges.length,l:LV[lvl(x)][1],t}};
 function renderXP(){const x=xp(),i=lvl(x),a=LV[i][0],b=LV[i+1]?LV[i+1][0]:a+100;$('#ahLvl').textContent=LV[i][1];$('#ahXp').textContent=x+' XP';$('#ahBar').style.width=Math.min(100,(x-a)/(b-a)*100)+'%'}
 /* ---------- значки ---------- */
 function pop(e,t){let p=$('#pop');if(!p){p=document.createElement('div');p.id='pop';document.body.appendChild(p)}p.innerHTML=`<small>НОВЫЙ ЗНАЧОК</small><div class="e">${e}</div><b>${t}</b>`;p.classList.add('on');confetti();clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('on'),2600)}
@@ -1675,8 +1675,9 @@ let Q=null;
 function startQuiz(k){const L=QUIZ[k];Q={k,i:0,ok:0,list:shuf(L.q).map(([q,ans,c])=>{const o=shuf(ans.map((a,i)=>({a,ok:i===c})));return{q,o}})};$('#qbox').hidden=false;$('#qbox').style.setProperty('--lc',L.c);$('#qlv').hidden=true;renderQ();$('#qbox').scrollIntoView({behavior:'smooth',block:'start'})}
 function renderQ(){const L=QUIZ[Q.k],it=Q.list[Q.i];$('#qbox').innerHTML=`<div class="qtop"><span>${L.e} ${L.n} · вопрос ${Q.i+1} из ${Q.list.length}</span><span>✔ ${Q.ok}</span></div><div class="qprog"><i style="width:${Q.i/Q.list.length*100}%"></i></div><div class="qq">${it.q}</div><div class="qa">${it.o.map((o,i)=>`<button data-i="${i}"><i>${'АБВГ'[i]}</i>${o.a}</button>`).join('')}</div>`;
   $$('.qa button').forEach(b=>b.onclick=()=>{const o=it.o[+b.dataset.i];$$('.qa button').forEach(x=>{x.disabled=true;if(it.o[+x.dataset.i].ok)x.classList.add('ok')});if(o.ok)Q.ok++;else b.classList.add('no');setTimeout(()=>{Q.i++;Q.i<Q.list.length?renderQ():endQuiz()},o.ok?800:1500)})}
-function endQuiz(){const L=QUIZ[Q.k],s=Q.ok,prev=A.best[Q.k];if(prev==null||s>prev)A.best[Q.k]=s;save();
-  const msg=s===10?'Идеально! Ты настоящий ас.'+(QTASK[Q.k]?' Покажи результат тренеру: он откроет задание.':''):s>=8?'Отлично! Уровень пройден.'+(QTASK[Q.k]?' Покажи результат тренеру: он откроет задание.':''):s>=5?'Неплохо! Загляни в шпаргалки и попробуй ещё.':'Есть над чем поработать. Шпаргалки помогут!';
+function endQuiz(){const L=QUIZ[Q.k],s=Q.ok,prev=A.best[Q.k];if(prev==null||s>prev)A.best[Q.k]=s;A.qn=A.qn||{};A.qn[Q.k]=(A.qn[Q.k]||(prev==null?0:1))+1;save();
+  const me=window.vzMe?window.vzMe():null,tw=QTASK[Q.k]?(me?' Тренер увидит результат и откроет задание.':' Войди по коду во вкладке 🏆 Рейтинг, чтобы тренер увидел результат и открыл задание.'):'';
+  const msg=s===10?'Идеально! Ты настоящий ас.'+tw:s>=8?'Отлично! Уровень пройден.'+tw:s>=5?'Неплохо! Загляни в шпаргалки и попробуй ещё.':'Есть над чем поработать. Шпаргалки помогут!';
   $('#qbox').innerHTML=`<div class="qend"><div class="stars">${stars(s).replace(/★/g,'<span>★</span>')}</div><div class="big">${s}/10</div><p>${msg}</p><div style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="btn primary" id="qAgain">↻ Ещё раз</button><button class="btn" id="qBack">← Все уровни</button>${s<8?'<button class="btn" id="qLearn">📚 Шпаргалки</button>':''}</div></div>`;
   if(s>=8)confetti();$('#qAgain').onclick=()=>startQuiz(Q.k);$('#qBack').onclick=()=>{$('#qbox').hidden=true;$('#qlv').hidden=false;renderLevels()};if($('#qLearn'))$('#qLearn').onclick=()=>show('learn',true);checkBadges();renderXP()}
 /* ---------- калькуляторы ---------- */
