@@ -203,6 +203,26 @@
 .vt button{position:relative;z-index:1;flex:1;min-width:max-content;border:none;background:none;color:var(--dim);font:600 14px 'Segoe UI',system-ui,sans-serif;padding:10px 14px;border-radius:10px;cursor:pointer;transition:color .3s;white-space:nowrap}
 .vt button.on{color:#04121b}
 .vti{position:absolute;top:5px;bottom:5px;left:5px;width:0;border-radius:10px;background:linear-gradient(135deg,#00d4ff,#0077ff);box-shadow:0 6px 22px rgba(0,180,255,.45);transition:left .45s cubic-bezier(.5,1.5,.5,1),width .45s cubic-bezier(.5,1.5,.5,1)}
+/* вкладки-карусель как в студии: листается пальцем, раздел в центре открывается сам */
+.vtb{position:sticky;top:6px;z-index:60;height:84px;margin:0 0 16px;border:1px solid var(--line);border-radius:18px;background:color-mix(in srgb,var(--panel) 94%,transparent);box-shadow:0 14px 30px -18px rgba(0,0,0,.8)}
+.vtb .tbt{position:relative;width:100%;display:flex;align-items:center;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;padding:0 calc(50% - 46px);gap:2px;touch-action:pan-x;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16%,#000 84%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 16%,#000 84%,transparent 100%)}
+.vtb .tbt::-webkit-scrollbar{display:none}
+.vtb .tbt button{flex:0 0 92px;height:80px;scroll-snap-align:center;border:0;background:none;color:var(--dim);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;font:700 12px Manrope,'Segoe UI',system-ui,sans-serif;will-change:transform,opacity;-webkit-tap-highlight-color:transparent;padding:0;transition:color .35s;position:relative;overflow:visible}
+.vtb .ic{position:relative;width:46px;height:46px;border-radius:16px;display:grid;place-items:center;color:var(--c);background:linear-gradient(150deg,color-mix(in srgb,var(--c) 22%,transparent),rgba(255,255,255,.03));border:1px solid color-mix(in srgb,var(--c) 38%,transparent);transition:background .4s,box-shadow .4s,border-color .4s,color .4s,border-radius .4s}
+.vtb .ic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.vtb .tbt b{font-weight:800;white-space:nowrap;letter-spacing:.2px;line-height:1}
+.vtb .tbt button.on{color:#fff}
+.vtb .tbt button.on .ic{color:#fff;border-color:transparent;border-radius:50%;background:linear-gradient(135deg,var(--c),#0077ff 60%,#7c3aed);box-shadow:0 8px 24px -4px color-mix(in srgb,var(--c) 70%,transparent),0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent)}
+.vtb .tbt button.on .ic::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--c) 55%,transparent);animation:tbring 2.6s ease-out infinite}
+@keyframes tbring{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+.vtb .tbt button.on .ic svg{animation:tbpop .55s cubic-bezier(.3,1.6,.5,1)}
+@keyframes tbpop{0%{transform:scale(.6) rotate(-12deg)}100%{transform:none}}
+.vtb .tba{display:none;position:absolute;top:50%;z-index:3;width:36px;height:36px;margin-top:-18px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:800 20px/1 system-ui,sans-serif;cursor:pointer;transition:border-color .2s,transform .2s}
+.vtb .tba.l{left:10px}.vtb .tba.r{right:10px}
+.vtb .tba:hover{border-color:var(--accent)}.vtb .tba:active{transform:scale(.9)}
+@media(hover:hover) and (pointer:fine){.vtb .tba{display:block}.vtb .tbt{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 86%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 86%,transparent 100%)}}
+@media(max-width:860px){.vtb{height:78px}.vtb .tbt button{flex-basis:84px;height:74px;font-size:11.5px}.vtb .tbt{padding:0 calc(50% - 42px)}.vtb .ic{width:42px;height:42px;border-radius:14px}.vtb .ic svg{width:22px;height:22px}}
+@media (prefers-reduced-motion: reduce){.vtb .tbt button.on .ic::after,.vtb .tbt button.on .ic svg{animation:none}}
 .vtab{animation:vtin .5s cubic-bezier(.2,.8,.2,1)}
 @keyframes vtin{from{opacity:0;transform:translateY(18px)}}
 .ahero{position:relative;height:260px;border-radius:18px;overflow:hidden;margin-bottom:16px;border:1px solid var(--line);isolation:isolate}
@@ -493,9 +513,7 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
   </div>
 </header>
 
-<nav class="vt" id="vt"><span class="vti" id="vti"></span>
-  <button data-t="club" class="on">🏁 Клуб</button><button data-t="learn">📚 Шпаргалки</button><button data-t="train">🎮 Тренировка</button><button data-t="quiz">🧠 Тесты</button><button data-t="calc">🧮 Калькуляторы</button><button data-t="me">🎖 Мои значки</button><button data-t="rate">🏆 Рейтинг</button>
-</nav>
+<nav class="vtb" id="vtb" aria-label="Разделы клуба"><button class="tba l" type="button" aria-label="Предыдущий раздел">‹</button><div class="tbt" id="vt"><button data-t="club" class="on" style="--c:#00d4ff"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h11l-2.2 3.6L16 11H5"/></svg></span><b>Клуб</b></button><button data-t="learn" style="--c:#facc15"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.6C5.6 4 8.6 4 12 6.2c3.4-2.2 6.4-2.2 9-.6V19c-2.6-1.5-5.6-1.5-9 .6-3.4-2.1-6.4-2.1-9-.6z"/><path d="M12 6.2v13.4"/></svg></span><b>Шпаргалки</b></button><button data-t="train" style="--c:#a78bfa"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.9 3.1l.9 4.3a2.6 2.6 0 0 1-4.7 2l-1.6-2.4H8.5l-1.6 2.4a2.6 2.6 0 0 1-4.7-2l.9-4.3A4 4 0 0 1 7 8z"/><path d="M8 10.5v3M6.5 12h3"/><circle cx="15.6" cy="11" r=".6"/><circle cx="17.6" cy="13" r=".6"/></svg></span><b>Тренировка</b></button><button data-t="quiz" style="--c:#ff2d8a"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.4 9.4a2.7 2.7 0 1 1 3.6 2.5c-.6.3-1 .8-1 1.5v.6"/><circle cx="12" cy="17" r=".7"/></svg></span><b>Тесты</b></button><button data-t="calc" style="--c:#22c55e"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.8" width="14" height="18.4" rx="2.6"/><path d="M8.4 6.6h7.2"/><path d="M8.6 11h.01M12 11h.01M15.4 11h.01M8.6 14.4h.01M12 14.4h.01M15.4 14.4h.01M8.6 17.8h.01M12 17.8h.01M15.4 17.8h.01" stroke-width="2.6"/></svg></span><b>Калькуляторы</b></button><button data-t="me" style="--c:#fb923c"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14.6" r="5.4"/><path d="M8.6 10.4 6 3h4l2 4.4L14 3h4l-2.6 7.4"/><path d="m12 12.4.8 1.6 1.7.2-1.3 1.2.4 1.7-1.6-.9-1.6.9.4-1.7-1.3-1.2 1.7-.2z"/></svg></span><b>Мои значки</b></button><button data-t="rate" style="--c:#fde047"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M16 5.6h3V7a3 3 0 0 1-3 3M8 5.6H5V7a3 3 0 0 0 3 3"/><path d="M12 13v3.6M9 20.6h6M9.8 16.6h4.4l.5 4h-5.4z"/></svg></span><b>Рейтинг</b></button></div><button class="tba r" type="button" aria-label="Следующий раздел">›</button></nav>
 <section class="ahero" id="ahero" hidden>
   <div class="ah-ph"><img src="drone.webp" alt=""></div><div class="ah-scan"></div>
   <div class="ah-osd"><span id="osdV">16.8V</span><span>⏱ <b id="osdT">00:00</b></span><span>📶 <b id="osdL">99</b></span><span class="rec">● REC</span></div>
@@ -1597,14 +1615,32 @@ function confetti(){if(RED)return;const C=['#00d4ff','#3fb950','#d29922','#f8514
 /* ---------- вкладки ---------- */
 const HERO={learn:['Шпаргалки','Всё главное о дронах - коротко и по делу.'],train:['Тренировка','Проверка перед полётом, сборка дрона, аккумуляторы и стики.'],quiz:['Тесты','Шесть уровней. Новые тесты и задания открывает тренер.'],calc:['Калькуляторы','Время полёта, аккумуляторы, тяга, частоты.'],me:['Мои значки','Собери все значки и стань асом теории.'],rate:['Рейтинг','Тесты, значки и задания - в общий зачёт клуба.']};
 let TAB='club';
-function moveVti(){const b=$('#vt button.on'),i=$('#vti');if(!b)return;i.style.left=b.offsetLeft+'px';i.style.width=b.offsetWidth+'px';const n=$('#vt');if(n.scrollWidth>n.clientWidth)n.scrollTo({left:b.offsetLeft-(n.clientWidth-b.offsetWidth)/2,behavior:'smooth'})}
+const TBT=$('#vt');let tbInit=false,tbProg=0;
+function moveVti(){const b=$('#vt button.on');if(!b)return;const x=b.offsetLeft+b.offsetWidth/2-TBT.clientWidth/2;tbProg=Date.now();TBT.scrollTo({left:x,behavior:tbInit&&!RED?'smooth':'auto'});tbInit=true;if(window.tbFx)tbFx()}
 function show(t,push){TAB=t;$$('#vt button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));moveVti();
   $$('.vtab').forEach(v=>v.hidden=v.id!=='t-'+t);const h=$('#ahero');h.hidden=t==='club';
   if(t!=='club'){$('#ahT').textContent=HERO[t][0];$('#ahP').textContent=HERO[t][1];h.style.animation='none';h.offsetWidth;h.style.animation='vtin .5s cubic-bezier(.2,.8,.2,1)';renderXP()}
   if(t==='train')trSize();if(t==='me')renderBadges();
   if(push)try{history.replaceState(null,'',t==='club'?location.pathname:'#'+t)}catch(e){}
   if(push)window.scrollTo({top:0,behavior:'smooth'})}
-$$('#vt button').forEach(b=>b.onclick=()=>show(b.dataset.t,true));addEventListener('resize',moveVti);
+$$('#vt button').forEach(b=>b.onclick=()=>{tbProg=Date.now();show(b.dataset.t,true)});addEventListener('resize',moveVti);
+/* карусель разделов: плавно, только transform/opacity */
+(function(){const B=[...TBT.children];let raf=0,set=0,touch=false,cw=0,mid=[];
+  const meas=()=>{cw=TBT.clientWidth;mid=B.map(b=>b.offsetLeft+b.offsetWidth/2)};
+  function fx(){raf=0;if(!cw)meas();const c=TBT.scrollLeft+cw/2,u=B[0]?B[0].offsetWidth:90;
+    B.forEach((b,i)=>{const d=(mid[i]-c)/u,a=Math.min(Math.abs(d),3);const sc=1-Math.min(a,2.2)*.13,y=a*a*2.2,ry=Math.max(-40,Math.min(40,d*-14));
+      b.style.transform=`translate3d(0,${y.toFixed(1)}px,0) perspective(400px) rotateY(${ry.toFixed(1)}deg) scale(${sc.toFixed(3)})`;b.style.opacity=(1-Math.min(a,2.6)*.25).toFixed(3)})}
+  window.tbFx=()=>{if(!raf)raf=requestAnimationFrame(fx)};
+  const near=()=>{const c=TBT.scrollLeft+cw/2;let k=0,m=1e9;mid.forEach((x,i)=>{const d=Math.abs(x-c);if(d<m){m=d;k=i}});return B[k]};
+  const settle=()=>{if(touch||Date.now()-tbProg<700)return;const b=near();if(b&&!b.classList.contains('on'))show(b.dataset.t,true)};
+  TBT.addEventListener('scroll',()=>{tbFx();clearTimeout(set);set=setTimeout(settle,170)},{passive:true});
+  if('onscrollend' in window)TBT.addEventListener('scrollend',()=>{clearTimeout(set);settle()});
+  TBT.addEventListener('touchstart',()=>{touch=true},{passive:true});
+  TBT.addEventListener('touchend',()=>{touch=false;tbProg=0;clearTimeout(set);set=setTimeout(settle,220)},{passive:true});
+  const step=k=>{const i=B.findIndex(b=>b.classList.contains('on')),j=Math.max(0,Math.min(B.length-1,i+k));if(j!==i){tbProg=Date.now();show(B[j].dataset.t,true)}};
+  $('#vtb .tba.l').onclick=()=>step(-1);$('#vtb .tba.r').onclick=()=>step(1);
+  TBT.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){e.preventDefault();step(1);$('#vt button.on').focus()}else if(e.key==='ArrowLeft'){e.preventDefault();step(-1);$('#vt button.on').focus()}});
+  addEventListener('resize',()=>{meas();tbFx()});document.fonts&&document.fonts.ready.then(()=>{meas();tbFx()});meas();fx()})();
 /* OSD */
 const t0=Date.now();setInterval(()=>{if(TAB==='club')return;const s=(Date.now()-t0)/1000;$('#osdT').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');$('#osdV').textContent=(16.8-((s/6)%20)*.1).toFixed(1)+'V';$('#osdL').textContent=95+Math.floor(Math.random()*5)},1000);
 /* ---------- шпаргалки ---------- */
