@@ -278,9 +278,14 @@ function mount(html, quiet) {
   box.classList.toggle('kq', !!quiet);
   CARD = null;
   navRec();
-  box.innerHTML = '<div class="kr">' + html + navHtml() + '</div>';
+  const coV = isCoach() && !CO.as && VIEW.co;
+  box.innerHTML = '<div class="kr">' + (coV ? coPath() : '') + html + navHtml() + '</div>';
   bodyCls();
-  if (!quiet && window.tabFx && !RED) window.tabFx(box, 0, false);
+  /* тренер: вглубь - экран "приближается" из места нажатия, назад - "отдаляется" */
+  const dp = coV ? coDepth() : 0, dir = coV && !quiet && CO.dp && dp !== CO.dp ? (dp > CO.dp ? 'zin' : 'zout') : '';
+  if (coV) CO.dp = dp;
+  if (dir && !RED) { const k = box.firstElementChild, r = box.getBoundingClientRect(); k.style.transformOrigin = Math.max(0, PX - r.left) + 'px ' + Math.max(0, PY - r.top) + 'px'; k.classList.add(dir); }
+  else if (!quiet && window.tabFx && !RED) window.tabFx(box, 0, false);
 }
 /* класс на body, пока открыта вкладка Курс: прячем плавающие кнопки других скриптов, в окне тренера - плашку и шапку для учеников */
 function bodyCls() {
@@ -1314,8 +1319,8 @@ function gPop(sid, mid) {
   el.className = 'on'; const dg = $('.kr-shb', el); if (dg) dg.focus({ preventScroll: true });
 }
 /* мышью - сразу в задание по клику на кусочек полоски; пальцем - через окошко со списком */
-let gPT = '';
-document.addEventListener('pointerdown', e => { gPT = e.pointerType || ''; }, true);
+let gPT = '', PX = 0, PY = 0;
+document.addEventListener('pointerdown', e => { gPT = e.pointerType || ''; PX = e.clientX; PY = e.clientY; }, true);
 /* предыдущий экран тренера - таблица? тогда кнопка назад ведёт в неё */
 function coFromGrid() {
   const j = JSON.stringify(navCur()), i = NAV.h[NAV.i] && NAV.h[NAV.i].j === j ? NAV.i - 1 : NAV.i, d = i >= 0 && NAV.h[i] && NAV.h[i].d;
@@ -1325,6 +1330,31 @@ function gPopClose() { const el = document.getElementById('krGp'); if (el) el.cl
 /* провалиться в задания модуля у ученика, нужное задание - по центру и подсвечено */
 function gGo(sid, mid, tid) { CO.who = sid; CO.mod = mid; CO.cm = null; CO.ct = null; CO.hl = tid; coDraw(); if (!tid) scrollTop(); }
 
+/* где я: дерево уровней (как папки) и стрелки назад / вперёд */
+const coDepth = () => 1 + (CO.who ? 1 : 0) + (CO.mod ? 1 : 0) + (CO.cm ? 1 : 0) + (CO.ct ? 1 : 0);
+function coPath() {
+  const lv = [['co-back', '', { gr: '📊 Обзор', st: '👥 Ученики', mo: '📦 Модули' }[CO.tab || 'gr'] || '📊 Обзор']];
+  if (CO.who && CO.via && CO.via === CO.mod && mOf(CO.via)) { const s = coStud(), m = mOf(CO.via); lv.push(['co-cm', `data-m="${m.id}"`, '📁 Модуль ' + m.n + ': ' + m.t], ['co-mod', `data-m="${m.id}"`, '👤 ' + (s ? s.n + ', ' + s.c : 'Ученик')]); }
+  else if (CO.who) { const s = coStud(); lv.push(['co-who', `data-s="${CO.who}"`, '👤 ' + (s ? s.n + ', ' + s.c : 'Ученик')]);
+    const m = CO.mod && mOf(CO.mod); if (m) lv.push(['co-mod', `data-m="${m.id}"`, '📁 Модуль ' + m.n + ': ' + m.t]); }
+  if (CO.cm) { const m = mOf(CO.cm); if (m) { lv.push(['co-cm', `data-m="${m.id}"`, '📁 Модуль ' + m.n + ': ' + m.t]);
+    if (CO.ct && K.lib[CO.ct]) lv.push(['co-ct', `data-t="${CO.ct}"`, '📄 ' + (m.tasks.indexOf(CO.ct) + 1) + '. ' + K.lib[CO.ct].t]); } }
+  const n = lv.length - 1, back = NAV.i > 0 || n > 0, fwd = NAV.i < NAV.h.length - 1;
+  return `<nav class="co-path" aria-label="Где я"><div class="co-pa"><button class="kr-btn sm" data-k="nav-b" ${back ? '' : 'disabled'} aria-label="Назад" title="Назад">‹</button><button class="kr-btn sm" data-k="nav-f" ${fwd ? '' : 'disabled'} aria-label="Вперёд" title="Вперёд">›</button></div>
+    <ol class="co-tree">${lv.map((x, i) => `<li style="--l:${i}" class="${i === n ? 'on' : ''}">${i ? '<i aria-hidden="true">└</i>' : ''}<button data-k="${x[0]}" ${x[1]} ${i === n ? 'aria-current="page"' : ''}>${E(x[2])}</button></li>`).join('')}</ol></nav>`;
+}
+/* модуль: ученики по строкам, задания по столбцам - таблица листается вбок */
+function coMx(L, m) {
+  if (!L.length) return '';
+  const head = m.tasks.map((id, k) => { const Lb = K.lib[id], ps = L.map(s => (kRec(s, id) || {}).p).filter(v => v != null), av = ps.length ? Math.round(ps.reduce((a, b) => a + b, 0) / ps.length) : null;
+    return `<th scope="col"><button class="co-mxh" data-k="co-ct" data-t="${id}" title="${E(Lb.t)}"><b>${k + 1} ${Lb.e}</b><span>${E(Lb.t)}</span><small class="${av != null ? 'co-pc ' + pcCls(av) : 'mut'}">${av != null ? av + '%' : '-'}</small></button></th>`; }).join('');
+  const rows = gRows(L).map(([s]) => `<tr><th scope="row"><button class="co-gn" data-k="co-who" data-s="${s.id}"><b>${E(s.n)}</b><small>${E(s.c)}</small></button></th>${m.tasks.map((id, k) => {
+      const g = gSeg(s, id), r = kRec(s, id), p = r && r.p != null ? r.p : null, cls = g.k.split(' ').map(x => 'm-' + x.replace('s-', '')).join(' ');
+      const txt = p != null ? p + '%' : { d: '✓', n: '⚠', r: '↩', k: '⏭', p: '▶' }[g.k.split(' ')[0]] || '·';
+      return `<td><button class="co-mxc ${cls}"${g.c ? ` style="--c:${g.c}"` : ''} data-k="co-mx" data-s="${s.id}" data-m="${m.id}" data-t="${id}" title="${E(s.n)} · ${k + 1}. ${E(K.lib[id].t)} - ${E(g.t)}">${txt}${g.k.indexOf('s-w') >= 0 ? '<i>⏳</i>' : r && r.fb ? '<i>💬</i>' : ''}</button></td>`; }).join('')}</tr>`).join('');
+  return `<div class="kr-sec">Ученики × задания</div><div class="co-gw co-mxw" tabindex="-1"><table class="co-gt co-mx"><thead><tr><th scope="col" class="co-g0">Ученик</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="mut co-gtip">Листай таблицу вбок. Клетка - задание ученика подробно, заголовок задания - все ученики по нему, имя - страница ученика. Чем зеленее, тем вернее, красный - много ошибок.</p>`;
+}
 function coDraw(quiet) {
   if (!box || !isCoach() || CO.as) return;
   VIEW = { m: null, t: null, step: null, co: 1 };
@@ -1440,6 +1470,7 @@ function coModOver(quiet) {
     ${CO.opEd ? `<p class="mut" style="margin:8px 0">Отметь учеников, потом открой или закрой модуль. Зелёная рамка - уже открыт.</p>
       <div class="co-ch">${L.map(s => `<button data-k="co-sel" data-s="${s.id}" class="${CO.sel.has(s.id) ? 'on' : ''} ${kOpenM(s, m) ? 'op' : ''}" aria-pressed="${CO.sel.has(s.id)}">${kOpenM(s, m) ? '✓ ' : ''}${E(s.n)} ${E(s.c)}</button>`).join('')}</div>
       <div class="kr-back" style="margin-top:10px"><button class="kr-btn sm" data-k="co-all">${all ? 'Снять выбор' : 'Выбрать всех'}</button>${CO.sel.size ? `<button class="kr-btn sm pri" data-k="co-bulk" data-m="${m.id}">Открыть выбранным (${CO.sel.size})</button><button class="kr-btn sm" data-k="co-bulkc" data-m="${m.id}">Закрыть выбранным</button>` : ''}</div>` : ''}</div>`;
+  h += coMx(L, m);
   const W = coWeak(L, m.tasks);
   if (W.length) h += `<div class="kr-card co-wk"><div class="kr-sec">❗ Чаще всего ошибаются</div><ul>${W.map(w => `<li><b>${E(w.t)}</b><small><span class="co-pc ${w.x / w.y >= .5 ? 'r' : 'a'}">ошиблись ${w.x} из ${w.y}</span> · ${K.lib[w.tid].e} ${E(K.lib[w.tid].t)}</small></li>`).join('')}</ul><p class="mut" style="margin-top:8px;font-size:12.5px">Эти вопросы стоит разобрать на занятии.</p></div>`;
   h += `<div class="kr-sec">Задания модуля</div><div class="kr-road">${m.tasks.map((id, k) => { const Lb = K.lib[id];
@@ -1448,7 +1479,9 @@ function coModOver(quiet) {
       let up = 0, dn = 0; L.forEach(s => { const v = (kRec(s, id) || {}).k; if (v > 0) up++; if (v < 0) dn++; });
       const hard = stuck >= 2 || (avg != null && avg < 70 && ps.length >= 2);
       return `<button class="kr-t co-mt2" data-k="co-ct" data-t="${id}"><span class="d">${k + 1}</span><span class="e">${Lb.e}</span><span class="co-tb"><b>${E(Lb.t)}</b>${hard ? '<em class="co-hard">⚠ трудное задание</em>' : ''}<small>Сдали ${done} из ${L.length}${avg != null ? ` · средний результат <b class="co-pc ${pcCls(avg)}">${avg}%</b>` : ''}${stuck ? ` · <span class="cn">застряли ${stuck}</span>` : ''}${w ? ` · <span class="cw">ждут проверки ${w}</span>` : ''}${sk ? ` · пропустили ${sk}` : ''}${up || dn ? ` · 👍 ${up} 👎 ${dn}` : ''}</small><span class="kr-bar thin"><i style="width:${L.length ? done / L.length * 100 : 0}%"></i></span></span><span class="r">›</span></button>`; }).join('')}</div>`;
+  const mw = box && $('.co-mxw', box), mx = mw ? mw.scrollLeft : 0;
   mount(h, quiet);
+  const mw2 = $('.co-mxw', box); if (mw2 && mx && quiet) mw2.scrollLeft = mx;
 }
 /* одно задание: все ученики по группам */
 function coTaskView(quiet) {
@@ -1529,6 +1562,29 @@ body.kr-co #ahero,body.kr-co #pnBeta{display:none !important}
 .kr-sha{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
 @media (prefers-reduced-motion:reduce){#krUndo,#krRet,#krRet .kr-shb{transition:none}#krUndo.on i{animation:none}}
 /* таблица ученики x модули */
+.co-path{display:flex;gap:10px;align-items:flex-start;margin:0 0 12px;padding:10px 12px;border-radius:16px;border:1px solid rgba(127,127,160,.26);background:rgba(12,13,30,.86)}
+.co-pa{display:flex;gap:6px;flex:none}.co-pa .kr-btn{min-width:44px;min-height:44px;font-size:20px;padding:0}
+.co-tree{list-style:none;margin:0;padding:0;display:grid;gap:2px;min-width:0;flex:1}
+.co-tree li{display:flex;align-items:center;gap:4px;padding-left:calc(var(--l) * 14px);min-width:0}
+.co-tree i{font-style:normal;opacity:.45;font-size:13px}
+.co-tree button{min-height:32px;padding:4px 8px;border-radius:9px;border:0;background:none;color:inherit;font:inherit;font-size:13.5px;font-weight:700;text-align:left;cursor:pointer;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.co-tree button:hover{opacity:1;background:rgba(127,127,160,.12)}
+.co-tree li.on button{opacity:1;background:rgba(var(--krgb),.18);box-shadow:0 0 0 1px var(--ka) inset}
+.kr.zin{animation:coZin .4s cubic-bezier(.2,.8,.2,1) both}.kr.zout{animation:coZout .34s cubic-bezier(.2,.8,.2,1) both}
+@keyframes coZin{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:none}}
+@keyframes coZout{from{opacity:0;transform:scale(1.12)}to{opacity:1;transform:none}}
+.co-mx th[scope=col]{min-width:78px;vertical-align:bottom}
+.co-mxh{display:grid;gap:2px;justify-items:center;width:100%;min-height:68px;padding:6px 4px;border:0;background:none;color:inherit;font:inherit;text-align:center;cursor:pointer}
+.co-mxh span{font-size:11px;opacity:.8;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.co-mxh small{font-size:11.5px;font-weight:800}
+.co-mxc{position:relative;display:flex;align-items:center;justify-content:center;width:calc(100% - 8px);min-width:64px;min-height:44px;margin:4px;border-radius:10px;border:1px solid rgba(127,127,160,.3);background:rgba(127,127,160,.08);color:inherit;font:inherit;font-weight:800;font-size:13px;cursor:pointer;transition:transform .15s}
+.co-mxc:hover{transform:scale(1.06)}
+.co-mxc.m-d{background:var(--c);border-color:transparent;color:#071018}
+.co-mxc.m-w{outline:2px dashed #60a5fa;outline-offset:-3px}
+.co-mxc.m-n{background:rgba(248,113,113,.28);border-color:#f87171}
+.co-mxc.m-r{background:rgba(251,146,60,.2);border-color:#fb923c}
+.co-mxc.m-p{border-color:#60a5fa}.co-mxc.m-z{opacity:.5}
+.co-mxc i{position:absolute;top:-6px;right:-4px;font-style:normal;font-size:12px}
 .co-gw{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;border-radius:16px;border:1px solid rgba(127,127,160,.26);background:rgba(12,13,30,.86);outline:none}
 .co-gt{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
 .co-gt th,.co-gt td{padding:0;border-bottom:1px solid rgba(127,127,160,.16);vertical-align:middle;text-align:left}
@@ -1676,9 +1732,10 @@ document.addEventListener('click', e => {
   else if (k === 'co-as') { CO.menu = false; CO.as = true; home(); scrollTop(); }
   else if (k === 'co-home') { CO.as = false; home(); scrollTop(); }
   else if (k === 'co-back') { CO.who = null; CO.mod = null; CO.cm = null; CO.ct = null; coDraw(); scrollTop(); }
-  else if (k === 'co-who') { CO.who = sid; CO.mod = null; CO.cm = null; CO.ct = null; coDraw(); scrollTop(); }
+  else if (k === 'co-who') { CO.via = null; CO.who = sid; CO.mod = null; CO.cm = null; CO.ct = null; coDraw(); scrollTop(); }
   else if (k === 'co-mod') { CO.mod = b.dataset.m; coDraw(); scrollTop(); }
   else if (k === 'co-tab') { CO.tab = b.dataset.v; sesS.set('vz_co_tab', CO.tab); coDraw(true); }
+  else if (k === 'co-mx') { CO.via = b.dataset.m; gGo(sid, b.dataset.m, b.dataset.t); }
   else if (k === 'co-gt' && gPT === 'mouse') gGo(sid, b.dataset.m, b.dataset.t);
   else if (k === 'co-gt' || k === 'co-gc') gPop(sid, b.dataset.m);
   else if (k === 'co-cm') { CO.cm = b.dataset.m; CO.ct = null; CO.who = null; CO.mod = null; CO.opEd = false; CO.sel.clear(); coDraw(); scrollTop(); }
