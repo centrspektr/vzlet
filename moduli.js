@@ -121,7 +121,7 @@ function pic(k) {
 /* ---------- стили ---------- */
 const css = document.createElement('style');
 css.textContent = `
-#t-kurs,#krRet,#krUndo{--ka:#00d4ff;--kb:#a78bfa;--krgb:0,212,255}
+#t-kurs,#krRet,#krUndo,#krGp{--ka:#00d4ff;--kb:#a78bfa;--krgb:0,212,255}
 .kr{max-width:840px;margin:0 auto;padding:4px 0 90px;display:grid;gap:14px}
 .kr-card{position:relative;border:1px solid rgba(127,127,160,.28);background:rgba(12,13,30,.86);border-radius:20px;padding:16px;overflow:hidden}
 .kr-card.top:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,var(--ka),var(--kb))}
@@ -309,7 +309,7 @@ function navUp() {
 }
 function navLabel(d) {
   try {
-    if (d.c) return d.ct ? K.lib[d.ct].t : d.cm ? mName(mOf(d.cm)) : d.who ? (CO.list.find(x => x.id === d.who) || {}).n || 'Ученик' : d.tab === 'mo' ? 'Модули' : 'Ученики';
+    if (d.c) return d.ct ? K.lib[d.ct].t : d.cm ? mName(mOf(d.cm)) : d.who ? (CO.list.find(x => x.id === d.who) || {}).n || 'Ученик' : d.tab === 'mo' ? 'Модули' : d.tab === 'st' ? 'Ученики' : 'Обзор';
     return d.t ? K.lib[d.t].t : d.m ? mName(mOf(d.m)) : 'Курс';
   } catch (e) { return ''; }
 }
@@ -940,7 +940,7 @@ function applyKc(kc) {
 }
 
 /* ---------- окно тренера ---------- */
-let CO = { st: 'idle', list: [], err: '', tok: '', demo: false, sel: new Set(), who: null, mod: null, as: false, f: null, menu: false, rt: false, opEd: false, at: 0, busy: false };
+let CO = { tab: sesS.get('vz_co_tab') || 'gr', st: 'idle', list: [], err: '', tok: '', demo: false, sel: new Set(), who: null, mod: null, as: false, f: null, menu: false, rt: false, opEd: false, at: 0, busy: false };
 function coTok() {
   const t = sesS.get('vz_spk_tok'); if (t) return t;
   try { const P = JSON.parse(sesS.get('spectr_sess') || 'null'); if (P && P.token) return P.token; } catch (e) {}
@@ -1232,12 +1232,81 @@ function coModsHtml(L) {
   return h;
 }
 
+/* ---------- таблица "ученики x модули": модуль - полоска из заданий, цвет - насколько верно ---------- */
+/* цвет результата: <50% красный, ~70% жёлтый, от 90% зелёный (плавно) */
+function gCol(p) {
+  const h = p <= 50 ? 0 : p < 70 ? (p - 50) / 20 * 40 : p < 90 ? 40 + (p - 70) / 20 * 95 : 135;
+  return `hsl(${Math.round(h)},${h > 100 ? 62 : 80}%,${h > 100 ? 44 : 52}%)`;
+}
+/* состояние одного задания у ученика: k - вид, c - цвет, t - подпись */
+function gSeg(s, id) {
+  const r = kRec(s, id), dn = kDone(s, id), wt = kWaitS(s, id), acc = kAcc(s, id), p = r && r.p != null ? r.p : null;
+  if (kStuck(s, id)) return { k: 'n', t: 'застрял(а) - нужно доп. задание' + (p != null ? ' · ' + p + '%' : '') };
+  if (wt) return { k: 'd s-w', c: p != null ? gCol(p) : '#60a5fa', t: 'ждёт проверки' + (p != null ? ' · ' + p + '%' : '') };
+  if (dn) return p != null ? { k: 'd', c: gCol(p), t: p + '%' } : { k: 'd', c: gCol(100), t: acc && !kGo(r) ? 'засчитано без выполнения' : acc ? 'принято' : 'сдано' };
+  if (((s.kc && s.kc.r) || {})[id]) return { k: 'r', t: 'возвращено на доработку' };
+  if (r && r.sk) return { k: 'k', t: 'пропущено' };
+  if (kGo(r)) return { k: 'p', t: 'в процессе' };
+  return { k: 'z', t: 'не начато' };
+}
+const gSegHtml = (s, m, id, k) => { const g = gSeg(s, id);
+  return `<i class="co-sg s-${g.k}"${g.c ? ` style="--c:${g.c}"` : ''} data-k="co-gt" data-s="${s.id}" data-m="${m.id}" data-t="${id}" title="${k + 1}. ${E(K.lib[id].t)} - ${E(g.t)}"></i>`; };
+/* строки - как в списке учеников: застряли, ждут проверки, остальные, не начавшие внизу */
+function gRows(L) {
+  const ST = L.map(s => [s, coStat(s)]), rank = x => !x[1].started ? 3 : x[1].stuck.length ? 0 : x[1].waits.length ? 1 : 2;
+  return ST.map((x, i) => [x, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map(a => a[0]);
+}
+function coGridHtml(L) {
+  const M = K.mods.filter(m => m.tasks), R = gRows(L);
+  const head = M.map(m => { const q = coModStat(L, m);
+    return `<th scope="col"><button class="co-gmh" data-k="co-cm" data-m="${m.id}" title="Модуль ${m.n}: ${E(m.t)}"><b>М${m.n} <span>›</span></b><span class="co-ght">${E(m.t)}</span><small>пройдено ${Math.round(q.prog * 100)}%${q.res != null ? ` · <span class="co-pc ${pcCls(q.res)}">верно ${q.res}%</span>` : ''}</small></button></th>`; }).join('');
+  const rows = R.map(([s, st]) => `<tr class="${st.started ? '' : 'ns'}"><th scope="row"><button class="co-gn" data-k="co-who" data-s="${s.id}"><b>${E(s.n)}</b><small>${E(s.c)}${st.stuck.length ? ' <span class="cn">⚠</span>' : ''}${st.waits.length ? ' <span class="cw">⏳</span>' : ''}</small></button></th>${M.map(m => {
+      const op = kOpenM(s, m), d = m.tasks.filter(id => kDone(s, id)).length, ps = m.tasks.map(id => (kRec(s, id) || {}).p).filter(v => v != null), av = ps.length ? Math.round(ps.reduce((a, b) => a + b, 0) / ps.length) : null;
+      return `<td><button class="co-gcl ${op ? '' : 'lock'}" data-k="co-gc" data-s="${s.id}" data-m="${m.id}" style="--n:${m.tasks.length}" aria-label="${E(s.n)}, модуль ${m.n}: ${d} из ${m.tasks.length} заданий${av != null ? ', верно ' + av + '%' : ''}${op ? '' : ', закрыт'}"><span class="co-gb">${m.tasks.map((id, k) => gSegHtml(s, m, id, k)).join('')}</span><small>${op ? '' : '🔒 '}${d}/${m.tasks.length}${av != null ? ` · <span class="co-pc ${pcCls(av)}">${av}%</span>` : ''}</small></button></td>`; }).join('')}</tr>`).join('');
+  const lg = (c, t) => `<span><i class="co-sg ${c}"${c === 's-d' ? ` style="--c:${gCol(100)}"` : ''}></i>${t}</span>`;
+  return `<div class="co-gw" tabindex="-1"><table class="co-gt"><thead><tr><th scope="col" class="co-g0">Ученик</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="co-gl"><span><i class="co-gsc"></i>верно: &lt;50% · 70% · 90%+</span>${lg('s-d', 'сдано')}${lg('s-d s-w', 'ждёт проверки')}${lg('s-p', 'в процессе')}${lg('s-n', 'застрял')}${lg('s-r', 'возвращено')}${lg('s-k', 'пропущено')}${lg('s-z', 'не начато')}<span>🔒 модуль закрыт</span></div>
+    <p class="mut co-gtip">Нажми на полоску - задания модуля с результатами (мышью можно сразу на клетку задания), на заголовок модуля - сводка по модулю, на имя - страница ученика.</p>${unready()}`;
+}
+/* окошко со списком заданий модуля у ученика (полоска слишком мелкая для пальца) */
+function gPop(sid, mid) {
+  const s = CO.list.find(z => z.id === sid), m = mOf(mid); if (!s || !m) return gPopClose();
+  let el = document.getElementById('krGp');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'krGp'; document.body.appendChild(el);
+    el.addEventListener('click', e => {
+      if (e.target === el) return gPopClose();
+      const b = e.target.closest('[data-x]'); if (!b) return;
+      const o = el._o; gPopClose(); if (b.dataset.x === 'go') gGo(o.sid, o.mid, b.dataset.t || null);
+    });
+    el.addEventListener('keydown', e => { if (e.key === 'Escape') gPopClose(); });
+  }
+  el._o = { sid, mid };
+  const d = m.tasks.filter(id => kDone(s, id)).length;
+  el.innerHTML = `<div class="kr-shb" role="dialog" aria-modal="true" aria-labelledby="krGpH" tabindex="-1"><b id="krGpH">${E(s.n)}, ${E(s.c)}</b><p>Модуль ${m.n}: ${E(m.t)} · ${d} из ${m.tasks.length}${kOpenM(s, m) ? '' : ' · 🔒 закрыт'}</p>
+    <div class="co-gpl">${m.tasks.map((id, k) => { const g = gSeg(s, id);
+      return `<button type="button" data-x="go" data-t="${id}"><i class="co-sg s-${g.k}"${g.c ? ` style="--c:${g.c}"` : ''}></i><span><b>${k + 1}. ${K.lib[id].e} ${E(K.lib[id].t)}</b><small>${E(g.t)}</small></span><em>›</em></button>`; }).join('')}</div>
+    <div class="kr-sha"><button type="button" class="kr-btn" data-x="no">Закрыть</button><button type="button" class="kr-btn pri" data-x="go">Все задания модуля ›</button></div></div>`;
+  el.className = 'on'; const dg = $('.kr-shb', el); if (dg) dg.focus({ preventScroll: true });
+}
+/* мышью - сразу в задание по клику на кусочек полоски; пальцем - через окошко со списком */
+let gPT = '';
+document.addEventListener('pointerdown', e => { gPT = e.pointerType || ''; }, true);
+/* предыдущий экран тренера - таблица? тогда кнопка назад ведёт в неё */
+function coFromGrid() {
+  const j = JSON.stringify(navCur()), i = NAV.h[NAV.i] && NAV.h[NAV.i].j === j ? NAV.i - 1 : NAV.i, d = i >= 0 && NAV.h[i] && NAV.h[i].d;
+  return !!(d && d.c && !d.who && !d.cm && (d.tab || 'gr') === 'gr');
+}
+function gPopClose() { const el = document.getElementById('krGp'); if (el) el.className = ''; }
+/* провалиться в задания модуля у ученика, нужное задание - по центру и подсвечено */
+function gGo(sid, mid, tid) { CO.who = sid; CO.mod = mid; CO.cm = null; CO.ct = null; CO.hl = tid; coDraw(); if (!tid) scrollTop(); }
+
 function coDraw(quiet) {
   if (!box || !isCoach() || CO.as) return;
   VIEW = { m: null, t: null, step: null, co: 1 };
   if (CO.who) return CO.mod ? coModView(quiet) : coStudView(quiet);
   if (CO.cm) return CO.ct ? coTaskView(quiet) : coModOver(quiet);
-  const tab = CO.tab || 'st';
+  const tab = CO.tab || 'gr';
   let h = coHead();
   if (CO.demo) {}
   else if (CO.st === 'load') h += '<div class="kr-note">⏳ Загружаю учеников...</div>';
@@ -1249,11 +1318,15 @@ function coDraw(quiet) {
   if ((CO.st === 'ok' || CO.demo) && L.length) {
     const ST = L.map(s => [s, coStat(s)]), waits = waitsOf(L);
     h += coSum(ST);
-    h += `<div class="co-tabs"><button data-k="co-tab" data-v="st" class="${tab === 'st' ? 'on' : ''}">Ученики<small>${L.length}</small></button><button data-k="co-tab" data-v="mo" class="${tab === 'mo' ? 'on' : ''}">Модули<small>${K.mods.filter(m => m.tasks).length}</small></button></div>`;
+    h += `<div class="co-tabs"><button data-k="co-tab" data-v="gr" class="${tab === 'gr' ? 'on' : ''}">📊 Обзор</button><button data-k="co-tab" data-v="st" class="${tab === 'st' ? 'on' : ''}">Ученики<small>${L.length}</small></button><button data-k="co-tab" data-v="mo" class="${tab === 'mo' ? 'on' : ''}">Модули<small>${K.mods.filter(m => m.tasks).length}</small></button></div>`;
     if (waits.length && (tab === 'st' || CO.f === 'w')) h += coWaitCard(waits);
-    h += tab === 'st' ? coListHtml(ST) + coRate(ST) : coModsHtml(L);
+    h += tab === 'st' ? coListHtml(ST) + coRate(ST) : tab === 'gr' ? coGridHtml(L) : coModsHtml(L);
   }
+  /* тихая перерисовка таблицы: прокрутка вбок остаётся на месте, открытое окошко обновляется */
+  const gw = box && $('.co-gw', box), gx = gw ? gw.scrollLeft : 0;
   mount(h, quiet);
+  const gw2 = $('.co-gw', box); if (gw2 && gx) gw2.scrollLeft = gx;
+  const gp = document.getElementById('krGp'); if (gp && gp.className === 'on' && gp._o) { if (tab === 'gr') gPop(gp._o.sid, gp._o.mid); else gPopClose(); }
 }
 function coStud() { return CO.list.find(s => s.id === CO.who); }
 function coStudView(quiet) {
@@ -1263,7 +1336,7 @@ function coStudView(quiet) {
   if (st.waits.length) ch.push(coChip('cw', '⏳ ждёт проверки: ' + st.waits.length));
   if (st.ret.length) ch.push(coChip('cr', '↩ возвращено: ' + st.ret.length));
   if (st.skipped.length) ch.push(coChip('', '⏭ пропущено: ' + st.skipped.length));
-  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-back">← Все ученики</button>${CO.demo ? '<span class="co-demo">👀 Пример - не сохраняется</span>' : ''}</div>
+  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-back">← ${CO.tab === 'gr' ? 'Обзор' : 'Все ученики'}</button>${CO.demo ? '<span class="co-demo">👀 Пример - не сохраняется</span>' : ''}</div>
     <div class="kr-card top"><h3>${E(s.n)}, ${E(s.c)}</h3><div class="co-ss"><span><b>${st.dn}</b> из ${st.tot} заданий${st.tot ? ' · ' + Math.round(st.p * 100) + '%' : ''}</span><span>⭐ ${st.pts}</span>${st.ago != null ? `<span class="co-seen ${st.ago >= 7 ? 'old' : ''}">${agoTxt(st.ago)}</span>` : '<span class="co-ns">ещё не заходил(а) в курс</span>'}</div>
     <div class="kr-bar thin"><i style="width:${st.p * 100}%"></i></div>${st.all ? '<p class="co-ok" style="margin-top:8px">✓ Все открытые модули пройдены - можно открыть следующий</p>' : ''}${ch.length ? `<div class="co-chs">${ch.join('')}</div>` : ''}</div>`;
   h += '<div class="kr-mods">' + K.mods.filter(m => m.tasks).map(m => {
@@ -1280,10 +1353,14 @@ function coStudView(quiet) {
 function coModView(quiet) {
   const s = coStud(), m = mOf(CO.mod); if (!s || !m) { CO.mod = null; return coDraw(); }
   const d = m.tasks.filter(id => kDone(s, id)).length;
-  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-who" data-s="${s.id}">← ${E(s.n)}</button>${CO.demo ? '<span class="co-demo">👀 Пример - не сохраняется</span>' : ''}</div>
+  let h = `<div class="kr-back">${coFromGrid() ? `<button class="kr-btn sm" data-k="nav-b">← Обзор</button><button class="kr-btn sm" data-k="co-who" data-s="${s.id}">👤 ${E(s.n)}</button>` : `<button class="kr-btn sm" data-k="co-who" data-s="${s.id}">← ${E(s.n)}</button>`}${CO.demo ? '<span class="co-demo">👀 Пример - не сохраняется</span>' : ''}</div>
     <div class="kr-card top"><div class="mut" style="font-weight:800;font-size:12px;letter-spacing:.08em">МОДУЛЬ ${m.n}</div><h3>${E(m.t)}</h3><p class="mut">${E(s.n)}, ${E(s.c)} · ${d} из ${m.tasks.length} заданий · ${lvChip(kLvl(s, m))}</p>${coLegend()}</div>`;
   h += '<div class="kr-road">' + m.tasks.map((id, k) => coTaskRow(s, id, k, true)).join('') + '</div>';
+  const hl = CO.hl; CO.hl = null;
   mount(h, quiet);
+  const row = hl && $(`.co-tr[data-tid="${hl}"]`, box);
+  if (row) { row.classList.add('co-hl'); const nav = document.getElementById('vtb'), off = nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0, r = row.getBoundingClientRect();
+    window.scrollTo({ top: Math.max(0, scrollY + r.top - off - Math.max(12, (innerHeight - off - r.height) / 3)), behavior: 'auto' }); }
 }
 function coTaskRow(s, id, k, mine) {
   const L = K.lib[id], r = kRec(s, id), go = kGo(r), dn = kDone(s, id), acc = kAcc(s, id), ret = ((s.kc && s.kc.r) || {})[id], wt = kWaitS(s, id), stk = kStuck(s, id);
@@ -1304,7 +1381,7 @@ function coTaskRow(s, id, k, mine) {
   if (wt) act = `<span class="co-wl3"><button class="kr-btn pri" data-k="co-acc" data-s="${s.id}" data-t="${id}">✓ Принять</button><button class="kr-btn" data-k="co-ret" data-s="${s.id}" data-t="${id}">↩ Вернуть</button></span>`;
   else if (acc && go) act = `<small class="co-okd">✓ принято ${E(acc)}</small>`;
   else if (!go && !dn) act = `<button class="kr-btn sm co-cr" data-k="co-cred" data-s="${s.id}" data-t="${id}">✓ Засчитать без выполнения</button>`;
-  return `<div class="kr-t co-tr ${dn ? 'ok' : ''}"><span class="d">${dn ? '✓' : k + 1}</span><span class="e">${mine ? L.e : ''}</span><span class="co-tb"><b>${mine ? E(L.t) : E(s.n) + ', ' + E(s.c)}</b><small class="co-inf">${inf.join(' · ')}</small>${go ? coDots(L, r) : ''}${tags.length ? `<span class="co-chs">${tags.join('')}</span>` : ''}${r && r.f ? `<small>✈ ${E(r.f)}</small>` : ''}${r && r.c ? `<small>💬 "${E(r.c)}"</small>` : ''}${ret && !wt && !dn ? `<small class="co-rt2">↩ возвращено ${E(ret[0])}${ret[1] ? ': ' + E(ret[1]) : ''}</small>` : ''}${act}</span></div>`;
+  return `<div class="kr-t co-tr ${dn ? 'ok' : ''}" data-tid="${id}"><span class="d">${dn ? '✓' : k + 1}</span><span class="e">${mine ? L.e : ''}</span><span class="co-tb"><b>${mine ? E(L.t) : E(s.n) + ', ' + E(s.c)}</b><small class="co-inf">${inf.join(' · ')}</small>${go ? coDots(L, r) : ''}${tags.length ? `<span class="co-chs">${tags.join('')}</span>` : ''}${r && r.f ? `<small>✈ ${E(r.f)}</small>` : ''}${r && r.c ? `<small>💬 "${E(r.c)}"</small>` : ''}${ret && !wt && !dn ? `<small class="co-rt2">↩ возвращено ${E(ret[0])}${ret[1] ? ': ' + E(ret[1]) : ''}</small>` : ''}${act}</span></div>`;
 }
 /* "чаще всего ошибаются": ключ вопроса -> текст из пулов заданий; созданные по формуле - понятная подпись */
 const GENL = { 'g.s': 'Наклейка АКБ: сколько банок (число S)', 'g.full': 'Наклейка АКБ: вольты полностью заряженной АКБ', 'g.land': 'Наклейка АКБ: при каких вольтах садиться', 'g.cap': 'Наклейка АКБ: перевести mAh в ампер-часы',
@@ -1327,7 +1404,7 @@ function coWeak(L, tasks) {
 function coModOver(quiet) {
   const m = mOf(CO.cm); if (!m || !m.tasks) { CO.cm = null; return coDraw(); }
   const L = CO.list, q = coModStat(L, m), all = L.length && L.every(x => CO.sel.has(x.id));
-  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-back">← Все модули</button>${CO.demo ? '<span class="co-demo">👀 Пример - не сохраняется</span>' : ''}</div>
+  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-back">← ${CO.tab === 'gr' ? 'Обзор' : 'Все модули'}</button>${CO.demo ? '<span class="co-demo">👀 Пример - не сохраняется</span>' : ''}</div>
     <div class="kr-card top"><div class="mut" style="font-weight:800;font-size:12px;letter-spacing:.08em">МОДУЛЬ ${m.n}</div><h3>${E(m.t)}</h3>${coMS(q)}<div class="st mut" style="margin-top:6px;font-size:13px">Пройден у ${q.dn} из ${L.length}${q.w ? ` · <span class="cw">ждут проверки: ${q.w}</span>` : ''}</div></div>
     <div class="kr-card co-opc"><button class="co-fold" data-k="co-oped" aria-expanded="${!!CO.opEd}"><span>🔓 Открыт у ${q.op} из ${L.length}</span><small>${CO.opEd ? 'готово ▴' : 'изменить ▾'}</small></button>
     ${PREVIEW_OPEN.includes(m.id) ? '<p class="mut" style="margin-top:6px;font-size:12.5px">В пробной версии этот модуль открыт всем.</p>' : ''}
@@ -1422,6 +1499,51 @@ body.kr-co #ahero,body.kr-co #pnBeta{display:none !important}
 .kr-shc button.on{border-color:#facc15;background:rgba(250,204,21,.15)}
 .kr-sha{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
 @media (prefers-reduced-motion:reduce){#krUndo,#krRet,#krRet .kr-shb{transition:none}#krUndo.on i{animation:none}}
+/* таблица ученики x модули */
+.co-gw{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;border-radius:16px;border:1px solid rgba(127,127,160,.26);background:rgba(12,13,30,.86);outline:none}
+.co-gt{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
+.co-gt th,.co-gt td{padding:0;border-bottom:1px solid rgba(127,127,160,.16);vertical-align:middle;text-align:left}
+.co-gt tbody tr:last-child>*{border-bottom:0}
+.co-gt th[scope=row],.co-gt .co-g0{position:sticky;left:0;z-index:2;background:rgb(15,16,34);border-right:1px solid rgba(127,127,160,.22);box-shadow:4px 0 8px -6px rgba(0,0,0,.8)}
+.co-g0{padding:8px 10px !important;font-size:12px;font-weight:800;opacity:.75;vertical-align:bottom !important}
+.co-gt tr.ns>*{opacity:.62}.co-gt tr.ns th[scope=row]{opacity:1}.co-gt tr.ns th[scope=row] .co-gn{opacity:.62}
+.co-gn{display:flex;flex-direction:column;justify-content:center;gap:1px;width:96px;min-height:52px;padding:6px 10px;border:0;background:none;color:inherit;font-family:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.co-gn b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.co-gn small{font-size:12px;opacity:.75}
+.co-gmh{display:flex;flex-direction:column;gap:2px;width:100%;min-height:64px;padding:8px 10px;border:0;background:none;color:inherit;font-family:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.co-gmh b{font-size:14px;color:var(--ka)}.co-gmh b span{opacity:.7}
+.co-ght{font-size:12px;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;opacity:.9}
+.co-gmh small{font-size:11.5px;font-weight:700;opacity:.8;white-space:nowrap}
+.co-gt td{border-left:1px solid rgba(127,127,160,.1)}
+.co-gcl{display:flex;flex-direction:column;justify-content:center;gap:4px;width:100%;min-width:calc(var(--n) * 12px + 18px);min-height:52px;padding:7px 9px;border:0;background:none;color:inherit;font-family:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.co-gcl:active{background:rgba(var(--krgb),.1)}.co-gcl.lock .co-gb{opacity:.4}
+.co-gcl small{font-size:11.5px;font-weight:700;opacity:.8;white-space:nowrap}
+.co-gb{display:flex;gap:2px;height:22px}
+.co-gb .co-sg{flex:1 1 0;min-width:10px;height:100%}
+.co-sg{position:relative;display:inline-block;box-sizing:border-box;width:14px;height:14px;border-radius:4px;border:1px solid rgba(160,160,190,.38);background:transparent;flex:none;font-style:normal}
+.co-sg.s-d{background:var(--c);border-color:var(--c)}
+.co-sg.s-w:after{content:"";position:absolute;right:1px;top:1px;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px #1e3a8a}
+.co-sg.s-p{border-color:rgba(var(--krgb),.7);background:repeating-linear-gradient(135deg,rgba(var(--krgb),.55) 0 3px,transparent 3px 6px)}
+.co-sg.s-n{background:#dc2626;border-color:#dc2626}
+.co-sg.s-n:after{content:"!";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:12px;line-height:1}
+.co-sg.s-r{border:2px solid #f87171}
+.co-sg.s-k{border:1.5px dashed rgba(200,200,220,.6)}
+.co-gl{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:10px;font-size:12px;opacity:.85}.co-gl span{display:inline-flex;align-items:center;gap:5px}
+.co-gl .co-sg{width:14px;height:12px}.co-gl .co-sg.s-n:after{font-size:10px}.co-gl .co-sg.s-w:after{width:5px;height:5px}
+.co-gsc{display:inline-block;width:42px;height:10px;border-radius:4px;background:linear-gradient(90deg,hsl(0,80%,52%) 0 25%,hsl(40,80%,52%) 50%,hsl(135,62%,44%) 80%)}
+.co-gtip{font-size:12.5px;margin-top:6px}
+.co-tr.co-hl{border-radius:14px;box-shadow:0 0 0 2px var(--ka);background:rgba(var(--krgb),.1)}
+#krGp{position:fixed;inset:0;z-index:9600;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,4,14,.6);opacity:0;pointer-events:none;transition:opacity .2s}
+#krGp.on{opacity:1;pointer-events:auto}
+#krGp .kr-shb{width:min(100%,520px);max-height:86vh;overflow-y:auto;box-sizing:border-box;padding:18px 16px calc(16px + env(safe-area-inset-bottom,0px));border-radius:22px 22px 0 0;background:rgb(16,18,40);border:1px solid rgba(127,127,160,.35);color:#e5e7eb;font:15px/1.45 system-ui,sans-serif;transform:translateY(30px);transition:transform .25s;outline:none}
+#krGp.on .kr-shb{transform:none}
+#krGp b#krGpH{font-size:17px}#krGp p{margin:2px 0 10px;opacity:.8;font-size:14px}
+.co-gpl{display:grid;gap:4px;margin-bottom:12px}
+.co-gpl button{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 10px;border-radius:12px;border:1px solid rgba(127,127,160,.22);background:rgba(127,127,160,.06);color:inherit;font-family:inherit;text-align:left;cursor:pointer}
+.co-gpl button .co-sg{width:18px;height:18px}
+.co-gpl span{flex:1;min-width:0;display:grid}.co-gpl span b{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.co-gpl small{font-size:12.5px;opacity:.8}
+.co-gpl em{font-style:normal;opacity:.6;font-weight:800}
+@media (min-width:700px){.co-gn{width:150px}.co-gb{height:24px}.co-gcl{padding:8px 12px}}
+@media (prefers-reduced-motion:reduce){#krGp,#krGp .kr-shb{transition:none}}
 /* окно тренера */
 .co-hd{padding:12px 14px}
 .co-hr{display:flex;align-items:center;gap:8px}.co-ht{flex:1;min-width:0}.co-ht h3{margin:0;font-size:18px}
@@ -1440,7 +1562,7 @@ body.kr-co #ahero,body.kr-co #pnBeta{display:none !important}
 .co-t.on{border-color:var(--ka);box-shadow:0 0 0 1px var(--ka) inset;background:rgba(var(--krgb),.12)}
 @media (max-width:560px){.co-sum{grid-template-columns:1fr 1fr}}
 .co-fl{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13.5px;font-weight:700}
-.co-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.co-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .co-tabs button{min-height:48px;border-radius:14px;border:1px solid rgba(127,127,160,.35);background:rgba(127,127,160,.08);color:inherit;font-family:inherit;font-weight:800;font-size:15px;cursor:pointer}
 .co-tabs button small{margin-left:6px;opacity:.7;font-weight:700}.co-tabs button.on{border-color:var(--ka);background:rgba(var(--krgb),.18);box-shadow:0 0 0 1px var(--ka) inset}
 .co-list{display:grid;gap:8px}
@@ -1517,7 +1639,7 @@ document.addEventListener('click', e => {
   if (k === 'co-load') { CO.demo = false; CO.menu = false; coLoad(); }
   else if (k === 'co-demo') { undoFlush(); CO.demo = !CO.demo; CO.menu = false; CO.who = null; CO.mod = null; CO.cm = null; CO.ct = null; CO.f = null; CO.sel.clear(); if (CO.demo) coDemo(); else { CO.list = []; coLoad(); return; } coDraw(); }
   else if (k === 'co-menu') { CO.menu = !CO.menu; coDraw(true); }
-  else if (k === 'co-f') { const v = b.dataset.v || null; CO.f = CO.f === v ? null : v; CO.tab = 'st'; coDraw(true); }
+  else if (k === 'co-f') { const v = b.dataset.v || null; CO.f = CO.f === v ? null : v; CO.tab = 'st'; sesS.set('vz_co_tab', 'st'); coDraw(true); }
   else if (k === 'co-rt') { CO.rt = !CO.rt; coDraw(true); }
   else if (k === 'co-oped') { CO.opEd = !CO.opEd; if (!CO.opEd) CO.sel.clear(); coDraw(true); }
   else if (k === 'co-as') { CO.menu = false; CO.as = true; home(); scrollTop(); }
@@ -1525,7 +1647,9 @@ document.addEventListener('click', e => {
   else if (k === 'co-back') { CO.who = null; CO.mod = null; CO.cm = null; CO.ct = null; coDraw(); scrollTop(); }
   else if (k === 'co-who') { CO.who = sid; CO.mod = null; CO.cm = null; CO.ct = null; coDraw(); scrollTop(); }
   else if (k === 'co-mod') { CO.mod = b.dataset.m; coDraw(); scrollTop(); }
-  else if (k === 'co-tab') { CO.tab = b.dataset.v; coDraw(true); }
+  else if (k === 'co-tab') { CO.tab = b.dataset.v; sesS.set('vz_co_tab', CO.tab); coDraw(true); }
+  else if (k === 'co-gt' && gPT === 'mouse') gGo(sid, b.dataset.m, b.dataset.t);
+  else if (k === 'co-gt' || k === 'co-gc') gPop(sid, b.dataset.m);
   else if (k === 'co-cm') { CO.cm = b.dataset.m; CO.ct = null; CO.who = null; CO.mod = null; CO.opEd = false; CO.sel.clear(); coDraw(); scrollTop(); }
   else if (k === 'co-ct') { CO.ct = b.dataset.t; coDraw(); scrollTop(); }
   else if (k === 'co-retry') { COQ.bad = false; coSv(); coPump(); }
