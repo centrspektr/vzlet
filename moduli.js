@@ -37,10 +37,23 @@ function taskPts(id) {
 }
 const allPts = () => Object.keys(K.lib).reduce((a, id) => a + taskPts(id), 0);
 
+/* уровень сложности модуля: по классу (5-6 -> 1, 7-8 -> 2, 9-11 -> 3), тренер может поменять.
+   В пробной версии переключатель уровня стоит прямо в модуле. */
+const LV = K.levels || [{ n: 1, t: 'Базовый', s: '5-6 класс', e: '🟢' }, { n: 2, t: 'Средний', s: '7-8 класс', e: '🟡' }, { n: 3, t: 'Продвинутый', s: '9-11 класс', e: '🔴' }];
+function clsLvl() {
+  try { const P = JSON.parse(localStorage.getItem('spk_vzlet') || 'null'), c = P && parseInt(P.cls, 10); if (c) return c <= 6 ? 1 : c <= 8 ? 2 : 3; } catch (e) {}
+  return 1;
+}
+S.lvl = S.lvl || {};
+const modOf = tid => K.mods.find(x => x.tasks && x.tasks.includes(tid));
+const lvlOf = mid => S.lvl[mid] || clsLvl();
+const lvInfo = n => LV[(n || 1) - 1];
+const lvChip = n => { const v = lvInfo(n); return `<span class="kr-lv l${v.n}">${v.e} ${E(v.t)}</span>`; };
+
 const baseP = window.SPK_PROGRESS;
 window.SPK_PROGRESS = function (c) { const r = Object.assign({}, baseP ? baseP(c) : { p: 0, b: 0, l: '' }); r.p = (r.p || 0) + allPts(); return r; };
 const baseR = window.SPK_RESET;
-window.SPK_RESET = function (c) { S = { t: {} }; try { localStorage.setItem(KEY, '{}'); } catch (e) {} if (baseR) baseR(c); if (box) home(); };
+window.SPK_RESET = function (c) { S = { t: {}, lvl: {} }; try { localStorage.setItem(KEY, '{}'); } catch (e) {} if (baseR) baseR(c); if (box) home(); };
 
 /* ---------- звук и вибро (как в тренировке) ---------- */
 let AX = null;
@@ -98,7 +111,7 @@ function pic(k) {
 const css = document.createElement('style');
 css.textContent = `
 #t-kurs{--ka:#00d4ff;--kb:#a78bfa;--krgb:0,212,255}
-.kr{max-width:840px;margin:0 auto;padding:4px 0 28px;display:grid;gap:14px}
+.kr{max-width:840px;margin:0 auto;padding:4px 0 90px;display:grid;gap:14px}
 .kr-card{position:relative;border:1px solid rgba(127,127,160,.28);background:rgba(12,13,30,.86);border-radius:20px;padding:16px;overflow:hidden}
 .kr-card.top:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,var(--ka),var(--kb))}
 .kr h3{margin:0 0 4px;font-size:20px}.kr p{margin:0;line-height:1.5}
@@ -116,7 +129,7 @@ css.textContent = `
 .kr-m:active{transform:scale(.98)}
 .kr-m.on{border-color:rgba(var(--krgb),.6);box-shadow:0 12px 30px -16px rgba(var(--krgb),.8)}
 .kr-m.lock{opacity:.62}
-.kr-m .n{font-size:11.5px;font-weight:800;letter-spacing:.08em;opacity:.7}
+.kr-m .nn{font-size:11.5px;font-weight:800;letter-spacing:.08em;opacity:.7}
 .kr-m .e{font-size:30px;line-height:1;float:right}
 .kr-m b{display:block;font-size:17px;margin:4px 0 2px}.kr-m small{display:block;font-size:13px;opacity:.75;line-height:1.4}
 .kr-m .st{margin-top:10px;font-size:12.5px;font-weight:700}
@@ -172,7 +185,7 @@ css.textContent = `
 .kr-q .qa{display:grid;gap:8px}
 .kr-q .qa button,.kr-opt{text-align:left;min-height:48px;padding:10px 14px;border-radius:13px;border:1px solid rgba(127,127,160,.35);background:rgba(127,127,160,.1);color:inherit;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:background .2s,border-color .2s,transform .15s;animation:krIn .4s both}
 .kr-q .qa button:active,.kr-opt:active{transform:scale(.98)}
-.y{background:rgba(34,197,94,.22) !important;border-color:#22c55e !important}.n{background:rgba(248,113,113,.2) !important;border-color:#f87171 !important}
+#t-kurs .y{background:rgba(34,197,94,.22) !important;border-color:#22c55e !important}#t-kurs .n{background:rgba(248,113,113,.2) !important;border-color:#f87171 !important}
 .kr-end{text-align:center;padding:8px 0}.kr-end .big{font-size:40px;font-weight:900;margin:6px 0;background:linear-gradient(135deg,var(--ka),var(--kb));-webkit-background-clip:text;background-clip:text;color:transparent}
 .kr-end .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
 .kr-x{border:1px solid rgba(250,204,21,.6);background:rgba(250,204,21,.09);border-radius:16px;padding:14px;margin-top:12px;text-align:left}
@@ -209,6 +222,22 @@ css.textContent = `
 .kg-story button{text-align:left;padding:12px 14px;border-radius:13px;border:1px solid rgba(127,127,160,.35);background:rgba(127,127,160,.1);color:inherit;font-family:inherit;font-weight:600;font-size:14.5px;line-height:1.4;cursor:pointer;transition:all .2s}
 .kg-story button.sel{border-color:#f87171;background:rgba(248,113,113,.15)}
 .kg-story small{display:block;margin-top:4px;font-weight:600;opacity:.85}
+.kr-lv{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:12px;font-weight:800;background:rgba(34,197,94,.14);color:#86efac}
+.kr-lv.l2{background:rgba(250,204,21,.14);color:#fde68a}.kr-lv.l3{background:rgba(248,113,113,.15);color:#fca5a5}
+.kr-lvs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.kr-lvs button{min-height:52px;padding:6px 4px;border-radius:13px;border:1px solid rgba(127,127,160,.35);background:rgba(127,127,160,.08);color:inherit;font-family:inherit;font-weight:800;font-size:13.5px;line-height:1.2;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.kr-lvs button small{display:block;font-weight:600;font-size:11.5px;opacity:.75;margin-top:2px}
+.kr-lvs button.on{border-color:var(--ka);background:rgba(var(--krgb),.18);box-shadow:0 0 0 1px var(--ka) inset}
+.kr-more{margin:10px auto 0;max-width:560px;text-align:left;padding:10px 12px;border-radius:12px;font-size:14.5px;line-height:1.5;border-left:3px solid #facc15;background:rgba(250,204,21,.08)}
+.kr-more.l3{border-left-color:#f87171;background:rgba(248,113,113,.08)}
+.kr-more b{display:block;font-size:12px;letter-spacing:.04em;opacity:.85;margin-bottom:2px}
+.kr-why{margin-top:12px;padding:12px 14px;border-radius:14px;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.45);font-size:14.5px;line-height:1.5;animation:krSw .35s both}
+.kr-why.ok{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.45)}
+.kr-why b{display:block;margin-bottom:4px}
+.kr-why .kr-btn{margin-top:10px;width:100%}
+.kr-err{margin-top:12px;text-align:left}.kr-err summary{cursor:pointer;font-weight:700;font-size:14px;padding:8px 0}
+.kr-err li{margin:0 0 8px;padding:8px 10px;border-radius:10px;background:rgba(127,127,160,.08);font-size:13.5px;line-height:1.45;list-style:none}
+.kr-err ul{margin:0;padding:0}
 .kr-hint{font-size:13px;padding:8px 10px;border-radius:10px;background:rgba(250,204,21,.1);margin-bottom:10px}
 @keyframes krIn{from{opacity:0;transform:translateY(12px)}}
 @keyframes krSw{from{opacity:0;transform:translateX(18px)}}
@@ -242,11 +271,11 @@ function home() {
   const live = K.mods.filter(m => m.tasks), tot = live.reduce((a, m) => a + m.tasks.length, 0), dn = live.reduce((a, m) => a + m.tasks.filter(taskDone).length, 0);
   let h = `<div class="kr-card top"><h3>🎓 Твой прогресс</h3><p class="mut">Внутри модуля шаги открываются сами. Следующий модуль открывает тренер, когда проверит задания.</p>
     <div class="kr-bar"><i data-w="${tot ? dn / tot * 100 : 0}"></i></div><div class="kr-row"><span>Пройдено заданий: ${dn} из ${tot}</span><span>⭐ ${allPts()} очков</span></div></div>`;
-  h += `<div class="kr-note">🧪 Пробная версия: сейчас наполнен модуль 3 "Аккумуляторы", он открыт для проверки. Остальные модули показывают план и наполняются по ходу.${isCoach() ? ' Вы тренер: окно тренера по модулям будет следующим шагом.' : ''}</div>`;
+  h += `<div class="kr-note">🧪 Пробная версия: сейчас наполнен модуль 3 "Аккумуляторы", он открыт для проверки. Остальные модули показывают план и наполняются по ходу. В модуле 3 уровня сложности (по классу).${isCoach() ? ' Вы тренер: окно тренера по модулям будет следующим шагом.' : ''}</div>`;
   h += '<div class="kr-mods">' + K.mods.map((m, i) => {
     const op = modOpen(m), p = modProg(m), full = p === 1;
     const st = !m.tasks ? '🛠 готовится' : full ? '✓ модуль пройден' + (S.t[m.tasks[m.tasks.length - 1]] ? '' : '') : op ? '▶ ' + Math.round(p * 100) + '% пройдено' : '🔒 откроет тренер';
-    return `<button class="kr-m ${op && !full ? 'on' : ''} ${!op ? 'lock' : ''}" data-k="mod" data-m="${m.id}" style="animation-delay:${i * 60}ms"><span class="e">${m.e}</span><span class="n">МОДУЛЬ ${m.n}</span><b>${E(m.t)}</b><small>${E(m.sub)}</small>
+    return `<button class="kr-m ${op && !full ? 'on' : ''} ${!op ? 'lock' : ''}" data-k="mod" data-m="${m.id}" style="animation-delay:${i * 60}ms"><span class="e">${m.e}</span><span class="nn">МОДУЛЬ ${m.n}</span><b>${E(m.t)}</b><small>${E(m.sub)}</small>
       ${m.tasks ? `<div class="kr-bar"><i data-w="${p * 100}"></i></div>` : ''}<div class="st">${st}</div></button>`;
   }).join('') + '</div>';
   mount(h); bars();
@@ -265,6 +294,9 @@ function modView(id) {
   const p = modProg(m);
   h += `<div class="kr-bar"><i data-w="${p * 100}"></i></div><div class="kr-row"><span>${m.tasks.filter(taskDone).length} из ${m.tasks.length} заданий</span><span>⭐ ${m.tasks.reduce((a, t) => a + taskPts(t), 0)} очков</span></div></div>`;
   if (!modOpen(m)) { h += '<div class="kr-wait">🔒 Этот модуль откроет тренер, когда проверит задания предыдущего.</div>'; return mount(h) || bars(); }
+  const lv = lvlOf(m.id);
+  h += `<div class="kr-card"><div class="kr-sec" style="margin:0">Уровень сложности</div><p class="mut" style="margin-top:4px">Задания те же, но глубже: больше подробностей, сложнее вопросы и расчёты. Уровень ставится по классу${S.lvl[m.id] ? '' : ' (сейчас: ' + E(lvInfo(lv).s) + ')'}, тренер может поменять. В пробной версии можно переключить самому.</p>
+    <div class="kr-lvs">${LV.map(v => `<button data-k="lvl" data-m="${m.id}" data-v="${v.n}" class="${v.n === lv ? 'on' : ''}">${v.e} ${E(v.t)}<small>${E(v.s)}</small></button>`).join('')}</div></div>`;
   if (p === 1) h += `<div class="kr-done">🎉 Модуль пройден! ${waitingCoach(m) ? 'Тренер проверит задания на занятии и откроет следующий модуль.' : 'Тренер откроет следующий модуль.'}</div>`;
   let curSet = false;
   h += '<div class="kr-road">' + m.tasks.map((tid, k) => {
@@ -286,7 +318,7 @@ function taskView(tid, step) {
   VIEW = { m: m.id, t: tid, step };
   const okN = L.steps.filter((st, i) => t.s[i] && t.s[i].ok).length;
   let h = `<div class="kr-back"><button class="kr-btn sm" data-k="mod" data-m="${m.id}">← Модуль ${m.n}</button><span class="mut">${okN} из ${L.steps.length} шагов</span></div>
-    <div class="kr-card top"><span style="float:right;font-size:30px">${L.e}</span><h3>${E(L.t)}</h3><p class="mut">${E(L.sub)}</p>
+    <div class="kr-card top"><span style="float:right;font-size:30px">${L.e}</span><h3>${E(L.t)}</h3><p class="mut">${E(L.sub)}</p><div style="margin-top:8px">${lvChip(lvlOf(m.id))}</div>
     <div class="kr-stp" style="margin-top:12px">${L.steps.map((st, i) => { const ok = t.s[i] && t.s[i].ok, can = i === 0 || (t.s[i - 1] && t.s[i - 1].ok) || ok || isCoach();
       return `<button data-k="step" data-i="${i}" class="${i === step ? 'on' : ''} ${ok ? 'ok' : ''}" ${can ? '' : 'disabled'}>${ok ? '✓ ' : ''}${i + 1}. ${E(stepName(st))}</button>`; }).join('')}
       <button data-k="step" data-i="-1" class="${step === -1 ? 'on' : ''}" ${t.done ? '' : 'disabled'}>📊 Итог</button></div></div>
@@ -328,8 +360,9 @@ function summary(tid, stg) {
     const extra = x.viaX ? ' · 🔁 доп.задание' : '';
     const cw = st.s === 'coach' && x.ok ? (x.acc ? ' · ✓ тренер принял' : ' · ⏳ ждёт тренера') : '';
     const fl = st.s === 'fly' && x.v ? ' · ' + E(x.v) : '';
-    return `<li><span>${i + 1}. ${E(stepName(st))}</span><span>${x.date ? E(x.date) + ' · ' : ''}${res}${extra}${cw}${fl}</span></li>`; }).join('');
-  stg.innerHTML = `<div class="kr-end"><div style="font-size:42px">${L.e}</div><b style="font-size:18px">${t.done ? 'Задание пройдено ' + E(t.done) : 'Задание в процессе'}</b><div class="big">⭐ ${taskPts(tid)}</div><div class="mut">из ${L.pts} возможных очков. Пересдай проверки, чтобы набрать больше.</div></div>
+    const lvT = x.lv ? ' · ' + lvInfo(x.lv).e : '';
+    return `<li><span>${i + 1}. ${E(stepName(st))}</span><span>${x.date ? E(x.date) + ' · ' : ''}${res}${lvT}${extra}${cw}${fl}</span></li>`; }).join('');
+  stg.innerHTML = `<div class="kr-end"><div style="font-size:42px">${L.e}</div><b style="font-size:18px">${t.done ? 'Задание пройдено ' + E(t.done) : 'Задание в процессе'}</b><div class="big">⭐ ${taskPts(tid)}</div><div class="mut">из ${L.pts} возможных очков. Пересдай проверки, чтобы набрать больше.</div><div class="mut" style="margin-top:6px">Уровень: ${lvChip(lvlOf(m.id))} (значок у шага - на каком уровне пройдено)</div></div>
     <ul class="kr-hist">${rows}</ul>${likeRow(tid)}
     <div class="kr-end"><div class="acts">${nx ? `<button class="kr-btn pri" data-k="task" data-t="${nx}">Следующее задание →</button>` : `<button class="kr-btn pri" data-k="mod" data-m="${m.id}">К модулю</button>`}</div></div>`;
 }
@@ -341,11 +374,15 @@ function runStep(tid, i, stg) {
 }
 
 /* ---------- материал карточками ---------- */
+function moreHtml(cd, lv) {
+  if (!cd.more || lv < 2) return '';
+  return [2, 3].filter(n => n <= lv && cd.more[n]).map(n => `<div class="kr-more l${n}"><b>${lvInfo(n).e} ${n === 2 ? 'Глубже' : 'Ещё глубже'}</b>${E(cd.more[n])}</div>`).join('');
+}
 function cardsStep(tid, i, st, stg) {
-  let c = 0; const N = st.cards.length;
+  let c = 0; const N = st.cards.length, lv = lvlOf(modOf(tid).id);
   function draw(dir) {
     const cd = st.cards[c];
-    stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><div class="kr-cards"><div class="kr-cd" style="${dir < 0 ? 'animation-name:krIn' : ''}">${pic(cd.pic)}<h4>${E(cd.h)}</h4><p>${E(cd.p)}</p></div></div>
+    stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><div class="kr-cards"><div class="kr-cd" style="${dir < 0 ? 'animation-name:krIn' : ''}">${pic(cd.pic)}<h4>${E(cd.h)}</h4><p>${E(cd.p)}</p>${moreHtml(cd, lv)}</div></div>
       <div class="kr-dots">${st.cards.map((x, k) => `<i class="${k === c ? 'on' : ''}"></i>`).join('')}</div>
       <div class="kr-nav"><button class="kr-btn" data-c="-1" ${c ? '' : 'disabled'}>← Назад</button>${c < N - 1 ? '<button class="kr-btn pri" data-c="1">Понятно, дальше →</button>' : '<button class="kr-btn pri" data-c="ok">✓ Всё понятно</button>'}</div>`;
     $$('[data-c]', stg).forEach(b => b.onclick = () => {
@@ -361,74 +398,98 @@ function cardsStep(tid, i, st, stg) {
 }
 
 /* ---------- проверка (вопросы) + доп.задание ---------- */
-function genLabel(hint) {
-  const S_ = pick([2, 3, 4, 4, 6]), mah = pick([450, 650, 850, 1300, 1500, 1800]), C = pick([45, 75, 100, 120]);
+/* вопрос = { l: уровень, q: вопрос, e: пояснение, a: [верный, неверные...] } */
+const ah = v => fx(v, 2).replace(/0$/, '');     // 0,45 · 1,5 · 1,3
+function genLabel(hint, lv) {
+  lv = lv || 1;
+  const S_ = pick(lv === 1 ? [2, 3, 4, 4] : [2, 3, 4, 4, 6]), mah = pick([450, 650, 850, 1300, 1500, 1800]), C = pick([45, 75, 100, 120]);
   const lbl = `${S_}S ${mah}mAh ${C}C`, A = mah / 1000;
-  const typ = pick(['s', 'full', 'cap', 'chg', 'bal', 'land']);
-  const num = (v, d) => fx(v, d);
+  const types = ['s', 'full', 'land', 'bal'].concat(lv >= 2 ? ['cap', 'chg', 'cap', 'chg'] : [], lv >= 3 ? ['wh', 'imax', 'wh', 'imax'] : []);
+  const typ = pick(types), n = (v, d) => fx(v, d == null ? 1 : d);
+  const Qo = (q, e, ...a) => ({ l: lv, q: `Наклейка "${lbl}". ${q}`, e, a });
   switch (typ) {
-    case 's': { const w = n => n + (n === 1 ? ' банка' : n < 5 ? ' банки' : ' банок'); return [`Наклейка "${lbl}". Сколько банок в АКБ?`, w(S_), w(S_ + 2), w(S_ === 1 ? 2 : 1)]; }
-    case 'full': return [`Наклейка "${lbl}". Сколько вольт у полностью заряженной АКБ?${hint ? ' (банка 4,2 В x ' + S_ + ')' : ''}`, num(S_ * 4.2) + ' В', num(S_ * 3.7) + ' В', num(S_ * 4.2 + 4.2) + ' В'];
-    case 'land': return [`Наклейка "${lbl}". При каких вольтах всей АКБ пора садиться?${hint ? ' (3,5 В x ' + S_ + ')' : ''}`, num(S_ * 3.5) + ' В', num(S_ * 4.2) + ' В', num(S_ * 3.5 - 3.5) + ' В'];
-    case 'cap': return [`Наклейка "${lbl}". Сколько это ампер-часов?${hint ? ' (раздели mAh на 1000)' : ''}`, num(A, 2).replace(/0$/, '') + ' А·ч', num(A * 10, 1) + ' А·ч', num(mah / 100, 0) + ' А·ч'];
-    case 'chg': return [`Наклейка "${lbl}". Каким током заряжать при 1C?${hint ? ' (ёмкость в амперах)' : ''}`, num(A, 2).replace(/0$/, '') + ' А', num(A * C / 10, 1) + ' А', num(C, 0) + ' А'];
-    default: return [`Наклейка "${lbl}". Сколько проводов у балансировочного разъёма?${hint ? ' (на 1 больше, чем банок)' : ''}`, String(S_ + 1), String(S_), String(S_ * 2)];
+    case 's': { const w = k => k + (k === 1 ? ' банка' : k < 5 ? ' банки' : ' банок'); return Qo('Сколько банок в АКБ?', `Число перед S - сколько банок стоит "этажами": ${S_}S = ${w(S_)}.`, w(S_), w(S_ + 2), w(S_ === 1 ? 2 : 1)); }
+    case 'full': return Qo(`Сколько вольт у полностью заряженной АКБ?${hint ? ' (банка 4,2 В x ' + S_ + ')' : ''}`, `Полная банка 4,2 В, банок ${S_}: ${S_} x 4,2 = ${n(S_ * 4.2)} В. ${n(S_ * 3.7)} В - это номинал, а не полный заряд.`, n(S_ * 4.2) + ' В', n(S_ * 3.7) + ' В', n(S_ * 4.2 + 4.2) + ' В');
+    case 'land': return Qo(`При каких вольтах всей АКБ пора садиться?${hint ? ' (3,5 В x ' + S_ + ')' : ''}`, `Садимся около 3,5 В на банку: ${S_} x 3,5 = ${n(S_ * 3.5)} В.`, n(S_ * 3.5) + ' В', n(S_ * 4.2) + ' В', n(S_ * 3.5 - 3.5) + ' В');
+    case 'cap': return Qo(`Сколько это ампер-часов?${hint ? ' (раздели mAh на 1000)' : ''}`, `"милли" = тысячная часть: ${mah} mAh : 1000 = ${ah(A)} А·ч.`, ah(A) + ' А·ч', n(A * 10) + ' А·ч', mah + ' А·ч');
+    case 'chg': return Qo(`Каким током заряжать при 1C?${hint ? ' (ёмкость в амперах)' : ''}`, `1C - ток, равный ёмкости: ${mah} mAh = ${ah(A)} А·ч, значит заряжаем током ${ah(A)} А. Число ${C}C - это токоотдача при разряде, не для зарядки.`, ah(A) + ' А', n(A * C / 10) + ' А', n(C, 0) + ' А');
+    case 'wh': { const wh = S_ * 3.7 * A; return Qo('Сколько энергии в АКБ, в ватт-часах?', `Энергия = номинал x ампер-часы: ${S_} x 3,7 = ${n(S_ * 3.7)} В, ${n(S_ * 3.7)} x ${ah(A)} = ${n(wh)} Вт·ч.`, n(wh) + ' Вт·ч', n(3.7 * A) + ' Вт·ч', n(S_ * A) + ' Вт·ч'); }
+    case 'imax': return Qo('Какой самый большой ток она может отдать (по наклейке)?', `Максимальный ток = C x ёмкость в амперах: ${C} x ${ah(A)} = ${n(C * A, 0)} А. На деле обычно меньше, это число производителя.`, n(C * A, 0) + ' А', n(C, 0) + ' А', n(C * A * 10, 0) + ' А');
+    default: return Qo(`Сколько проводов у балансировочного разъёма?${hint ? ' (на 1 больше, чем банок)' : ''}`, `Балансир идёт к каждому стыку банок: проводов на 1 больше, чем банок. ${S_}S - ${S_ + 1} провода(ов).`, String(S_ + 1), String(S_), String(S_ * 2));
   }
 }
-function genMix() {
+function genMix(lv) {
   const S_ = pick([1, 2, 3, 4, 6]);
   return pick([
-    () => [`В очках ${fx(S_ * 3.5)} В у АКБ ${S_}S на спокойном полёте. Что делаешь?`, 'Сажусь', 'Лечу ещё 5 кругов', 'Ставлю на зарядку в полёте'],
-    () => [`Сколько вольт у полной АКБ ${S_}S?`, fx(S_ * 4.2) + ' В', fx(S_ * 3.7) + ' В', fx(S_ * 3.5) + ' В'],
-    () => genLabel(false)
+    () => ({ l: 1, q: `В очках ${fx(S_ * 3.5)} В у АКБ ${S_}S, дрон летит спокойно, без полного газа. Что делаешь?`, e: `${fx(S_ * 3.5)} : ${S_} = 3,5 В на банку - пора садиться.`, a: ['Сажусь', 'Лечу ещё 5 кругов', 'Даю полный газ'] }),
+    () => ({ l: 1, q: `Сколько вольт у полной АКБ ${S_}S?`, e: `${S_} x 4,2 = ${fx(S_ * 4.2)} В. ${fx(S_ * 3.7)} В - номинал, ${fx(S_ * 3.5)} В - пора садиться.`, a: [fx(S_ * 4.2) + ' В', fx(S_ * 3.7) + ' В', fx(S_ * 3.5) + ' В'] }),
+    () => genLabel(false, lv)
   ])();
 }
-function buildQs(st, extra) {
+/* выбор вопросов по уровню: на 1 - только базовые; на 2 и 3 - больше половины своего уровня, остальные попроще */
+function byLevel(pool, n, lv) {
+  pool = pool.filter(q => (q.l || 1) <= lv);
+  if (lv === 1) return shuf(pool).slice(0, n);
+  const own = shuf(pool.filter(q => (q.l || 1) === lv)), low = shuf(pool.filter(q => (q.l || 1) < lv));
+  const k = Math.min(own.length, Math.ceil(n * 0.6)), r = own.slice(0, k).concat(low.slice(0, n - k));
+  if (r.length < n) r.push(...own.slice(k, k + n - r.length));
+  return shuf(r);
+}
+function buildQs(st, extra, lv) {
   const L = K.lib, n = st.n || 5;
-  if (st.gen === 'label') return Array.from({ length: n }, () => genLabel(extra));
+  if (st.gen === 'label') return Array.from({ length: n }, () => genLabel(extra, lv));
   if (st.from) {
     let pool = [];
     st.from.forEach(id => L[id].steps.forEach(s => { if (s.s === 'quiz' && s.pool) pool = pool.concat(extra ? (s.x || []) : s.pool); }));
-    const q = shuf(pool).slice(0, n - 2); q.push(genMix(), genMix()); return shuf(q);
+    const q = byLevel(pool, n - 2, lv); q.push(genMix(lv), genMix(lv)); return shuf(q);
   }
-  return shuf(extra ? st.x : st.pool).slice(0, extra ? Math.min(5, st.x.length) : n);
+  const src = extra ? st.x : st.pool;
+  return byLevel(src, extra ? Math.min(5, src.length) : n, lv);
 }
 function quizStep(tid, i, st, stg, forceX) {
-  const x = stepSt(tid, i), pass = st.pass || PASS;
+  const x = stepSt(tid, i), pass = st.pass || PASS, lv = lvlOf(modOf(tid).id);
   const needX = forceX || (x.needX && !x.ok);
-  const qs = buildQs(st, needX).map(q => ({ q: q[0], o: shuf(q.slice(1).map((a, k) => ({ a, ok: k === 0 }))) }));
-  let k = 0, ok = 0;
+  const qs = buildQs(st, needX, lv).map(q => ({ q: q.q, e: q.e, l: q.l || 1, right: q.a[0], o: shuf(q.a.map((a, k) => ({ a, ok: k === 0 }))) }));
+  let k = 0, ok = 0; const wrong = [];
   function draw() {
     const it = qs[k];
     stg.innerHTML = `<div class="kr-q">${needX ? '<div class="kr-hint">🔁 Доп.задание: те же темы, вопросы другими словами. Очки за него не начисляются, но без него дальше нельзя.</div>' : ''}
-      <div class="kr-sec">${E(needX ? 'Доп.задание' : st.h)}</div><div class="top"><span>Вопрос ${k + 1} из ${qs.length}</span><span>✓ ${ok}</span></div><div class="pr"><i style="width:${k / qs.length * 100}%"></i></div>
-      <div class="qq">${E(it.q)}</div><div class="qa">${it.o.map((o, j) => `<button data-j="${j}" style="animation-delay:${j * 50}ms">${E(o.a)}</button>`).join('')}</div></div>`;
+      <div class="kr-sec">${E(needX ? 'Доп.задание' : st.h)}</div><div class="top"><span>Вопрос ${k + 1} из ${qs.length}${it.l > 1 ? ' · ' + lvInfo(it.l).e : ''}</span><span>✓ ${ok}</span></div><div class="pr"><i style="width:${k / qs.length * 100}%"></i></div>
+      <div class="qq">${E(it.q)}</div><div class="qa">${it.o.map((o, j) => `<button data-j="${j}" style="animation-delay:${j * 50}ms">${E(o.a)}</button>`).join('')}</div><div class="kq-r"></div></div>`;
     $$('.qa button', stg).forEach(b => b.onclick = () => {
       const o = it.o[+b.dataset.j]; $$('.qa button', stg).forEach(z => { z.disabled = true; if (it.o[+z.dataset.j].ok) z.classList.add('y'); });
-      if (o.ok) { ok++; snd('ok'); buzz(15); } else { b.classList.add('n'); snd('bad'); buzz([40, 30, 40]); }
-      setTimeout(() => { k++; k < qs.length ? draw() : end(); }, o.ok ? 650 : 1400);
+      const nxt = () => { k++; k < qs.length ? draw() : end(); };
+      if (o.ok) { ok++; snd('ok'); buzz(15); setTimeout(nxt, 650); return; }
+      b.classList.add('n'); snd('bad'); buzz([40, 30, 40]); wrong.push(it);
+      /* ошибся: показываем пояснение и ждём "Дальше" */
+      const r = $('.kq-r', stg);
+      r.innerHTML = `<div class="kr-why"><b>✗ Правильно: ${E(it.right)}</b>${E(it.e || '')}<button class="kr-btn pri">${k < qs.length - 1 ? 'Понятно, дальше →' : 'Понятно, к итогу →'}</button></div>`;
+      $('button', r).onclick = nxt;
+      r.scrollIntoView({ behavior: RED ? 'auto' : 'smooth', block: 'center' });
     });
   }
+  const errList = () => wrong.length ? `<details class="kr-err"><summary>📝 Разбор ошибок (${wrong.length})</summary><ul>${wrong.map(w => `<li><b>${E(w.q)}</b><br>✓ ${E(w.right)}. ${E(w.e || '')}</li>`).join('')}</ul></details>` : '';
   function end() {
     const r = ok / qs.length, good = r >= pass;
+    const lvR = Math.max(x.lv || 0, lv);
     if (needX) {
       x.xatt = (x.xatt || 0) + 1;
-      if (good) { x.needX = false; stepOk(tid, i, { viaX: true }); }
+      if (good) { x.needX = false; stepOk(tid, i, { viaX: true, lv: lvR }); }
       else save();
       stg.innerHTML = `<div class="kr-end"><div style="font-size:40px">${good ? '💪' : '🧩'}</div><b>Доп.задание: ${ok} из ${qs.length}</b>
         <p class="mut" style="margin-top:6px">${good ? 'Отлично, тема освоена! Можно идти дальше. Основную проверку можно пересдать, чтобы получить больше очков.' : 'Пока не получилось. Перечитай материал и попробуй ещё раз - вопросы будут другие.'}</p>
-        <div class="acts">${good ? nextBtn(tid, i) : '<button class="kr-btn" data-k="reread">📖 Материал</button><button class="kr-btn pri" data-k="retryx" data-i="' + i + '">🔁 Ещё раз</button>'}</div></div>`;
+        ${errList()}<div class="acts">${good ? nextBtn(tid, i) : '<button class="kr-btn" data-k="reread">📖 Материал</button><button class="kr-btn pri" data-k="retryx" data-i="' + i + '">🔁 Ещё раз</button>'}</div></div>`;
       return;
     }
     x.att = (x.att || 0) + 1; x.last = today();
     if (x.best == null || r > x.best) { x.best = r; x.bdate = today(); }
-    let fresh = false;
-    if (good) fresh = stepOk(tid, i, {}); else { if (!x.ok) x.needX = true; save(); }
+    if (good) stepOk(tid, i, { lv: lvR }); else { if (!x.ok) x.needX = true; save(); }
     const pct = Math.round(r * 100);
     stg.innerHTML = `<div class="kr-end"><div style="font-size:40px">${good ? (r === 1 ? '🏆' : '✅') : '🤔'}</div><div class="big">${ok} из ${qs.length}</div>
       <p class="mut">${good ? (r === 1 ? 'Без единой ошибки!' : 'Тема освоена. Можно пересдать на 100%.') : 'Меньше ' + Math.round(pass * 100) + '% - тему нужно закрепить.'} Лучший результат: ${Math.round(x.best * 100)}%.</p>
+      ${errList()}
       ${!good && !x.ok ? `<div class="kr-x"><b>🔁 Обязательное доп.задание</b><p class="mut" style="margin-top:4px">Те же темы, вопросы с другой стороны. Без очков, но после него откроется следующий шаг.</p><div class="acts" style="justify-content:flex-start"><button class="kr-btn pri" data-k="retryx" data-i="${i}">Пройти доп.задание</button><button class="kr-btn" data-k="reread">📖 Сначала материал</button></div></div>` : ''}
-      <div class="acts">${good ? nextBtn(tid, i) : ''}<button class="kr-btn" data-k="retry" data-i="${i}">↻ Пересдать (${pct}%)</button></div>${good && fresh ? '' : ''}</div>`;
+      <div class="acts">${good ? nextBtn(tid, i) : ''}<button class="kr-btn" data-k="retry" data-i="${i}">↻ Пересдать (${pct}%)</button></div></div>`;
   }
   draw();
 }
@@ -462,29 +523,38 @@ function coachStep(tid, i, st, stg) {
   $('form', stg).onsubmit = e => { e.preventDefault(); stepOk(tid, i, { c: String(new FormData(e.target).get('c') || '').slice(0, 140) }); snd('ok'); coachStep(tid, i, st, stg); };
 }
 
-/* ---------- тренажёры ---------- */
+/* ---------- тренажёры (сложность растёт с уровнем модуля) ---------- */
 function gameStep(tid, i, st, stg, forceX) {
   const x = stepSt(tid, i), G = { build: gBuild, light: gLight, calc: gCalc, compare: gCompare, label: gLabel, story: gStory }[st.g];
-  const needX = forceX || (x.needX && !x.ok);
+  const needX = forceX || (x.needX && !x.ok), lv = lvlOf(modOf(tid).id);
   G(stg, st, needX, r => {   // r: доля верных (или 1 для тренажёров без оценки)
-    const pass = st.pass || PASS, good = r >= pass;
-    if (needX) { x.xatt = (x.xatt || 0) + 1; if (good) { x.needX = false; stepOk(tid, i, { viaX: true }); } else save(); }
+    const pass = st.pass || PASS, good = r >= pass, lvR = Math.max(x.lv || 0, lv);
+    if (needX) { x.xatt = (x.xatt || 0) + 1; if (good) { x.needX = false; stepOk(tid, i, { viaX: true, lv: lvR }); } else save(); }
     else { x.att = (x.att || 0) + 1; x.last = today(); if (st.g !== 'build' && st.g !== 'label') { if (x.best == null || r > x.best) x.best = r; }
-      if (good) stepOk(tid, i, {}); else { if (!x.ok) x.needX = true; save(); } }
+      if (good) stepOk(tid, i, { lv: lvR }); else { if (!x.ok) x.needX = true; save(); } }
     const msg = good ? (needX ? 'Доп.задание пройдено, тема освоена!' : 'Отлично, тренажёр пройден!') : (needX ? 'Пока не вышло - попробуй ещё раз, числа будут другие.' : 'Нужно закрепить: пройди тренажёр ещё раз с подсказками (доп.задание, без очков).');
     stg.insertAdjacentHTML('beforeend', `<div class="kr-end" style="margin-top:12px"><b>${msg}</b><div class="acts">${good ? nextBtn(tid, i) : `<button class="kr-btn pri" data-k="${needX || !x.ok ? 'gamex' : 'game'}" data-i="${i}">🔁 ${!x.ok ? 'Доп.задание с подсказками' : 'Ещё раз'}</button>`}${good && st.g !== 'build' && st.g !== 'label' ? `<button class="kr-btn" data-k="game" data-i="${i}">↻ Ещё раз</button>` : ''}</div></div>`);
-    $('.kr-end', stg).scrollIntoView({ behavior: RED ? 'auto' : 'smooth', block: 'nearest' });
-  });
+    $('.kr-end:last-child', stg).scrollIntoView({ behavior: RED ? 'auto' : 'smooth', block: 'nearest' });
+  }, lv);
+}
+/* общий блок "ошибся - пояснение - Дальше" для тренажёров */
+function whyBox(el, good, txt, last, go) {
+  el.innerHTML = `<div class="kr-why ${good ? 'ok' : ''}"><b>${good ? '✓ Верно!' : '✗ Не совсем.'}</b>${E(txt)}<button class="kr-btn pri">${last ? 'Итог' : 'Дальше →'}</button></div>`;
+  $('button', el).onclick = go;
+  if (!good) el.scrollIntoView({ behavior: RED ? 'auto' : 'smooth', block: 'center' });
 }
 
-/* собери АКБ из банок: цели по очереди */
-function gBuild(stg, st, hint, done) {
-  const goals = [['Собери АКБ 1S, как у Mobula 7', 1, 'ser'], ['Собери 4S - как у гоночного 5-дюймового дрона', 4, 'ser'], ['Собери 6S - самую мощную', 6, 'ser'], ['Поставь 2 банки рядом: бак в 2 раза больше (2P)', 2, 'par']];
+/* собери АКБ из банок: цели по очереди. Уровень 2-3: цель задана вольтами или ёмкостью - сначала посчитай */
+function gBuild(stg, st, hint, done, lv) {
+  const G1 = [['Собери АКБ 1S, как у Mobula 7', 1, 'ser'], ['Собери 4S - как у гоночного 5-дюймового дрона', 4, 'ser'], ['Собери 6S - самую мощную', 6, 'ser'], ['Поставь 2 банки рядом: бак в 2 раза больше (2P)', 2, 'par']];
+  const G2 = [['Собери АКБ, у которой полная зарядка 12,6 В', 3, 'ser', '12,6 : 4,2 = 3 банки этажами (3S)'], ['Собери 4S - как у гоночного 5-дюймового дрона', 4, 'ser'], ['Номинал (обычное напряжение) 22,2 В - сколько банок?', 6, 'ser', '22,2 : 3,7 = 6 банок (6S)'], ['Нужен бак 900 mAh из банок по 450 mAh', 2, 'par', '900 : 450 = 2 банки рядом (2P)']];
+  const G3 = [['Пора садиться при 7 В. Собери такую АКБ', 2, 'ser', '7 : 3,5 = 2 банки (2S)'], ['Полная зарядка 16,8 В', 4, 'ser', '16,8 : 4,2 = 4 банки (4S)'], ['Номинал 22,2 В', 6, 'ser', '22,2 : 3,7 = 6 банок (6S)'], ['Бак 1350 mAh из банок по 450 mAh', 3, 'par', '1350 : 450 = 3 банки рядом (3P)']];
+  const goals = lv >= 3 ? G3 : lv === 2 ? G2 : G1;
   let g = 0, n = 1, mode = 'ser';
   function draw() {
-    const [txt, need, nm] = goals[g], ser = mode === 'ser';
+    const [txt, , , tip] = goals[g], ser = mode === 'ser';
     const v = ser ? n * 3.7 : 3.7, vf = ser ? n * 4.2 : 4.2, cap = ser ? 450 : 450 * n;
-    stg.innerHTML = `<div class="kr-sec">${E(st.h)} · цель ${g + 1} из ${goals.length}</div><div class="kg-goal">🎯 ${E(txt)}</div>
+    stg.innerHTML = `<div class="kr-sec">${E(st.h)} · цель ${g + 1} из ${goals.length}</div><div class="kg-goal">🎯 ${E(txt)}</div>${hint && tip ? `<div class="kr-hint">Подсказка: ${E(tip)}</div>` : ''}
       <div class="kg-stack ${ser ? 'ser' : 'par'}">${Array.from({ length: n }, (_, k) => `<div class="kg-cell" style="animation-delay:${k * 40}ms">3,7</div>`).join('')}</div>
       <div class="kg-read"><div><b>${ser ? n + 'S' : n + 'P'}</b><small>запись</small></div><div><b>${fx(v)} В</b><small>обычное (полная ${fx(vf)})</small></div><div><b>${cap}</b><small>mAh, бак</small></div></div>
       <div class="kg-ctl" style="margin-top:12px"><button class="kr-btn" data-b="-">− банка</button><button class="kr-btn" data-b="+">+ банка</button><button class="kr-btn" data-b="m">${ser ? '⇄ Поставить рядом' : '⇅ Поставить этажами'}</button></div>`;
@@ -494,91 +564,121 @@ function gBuild(stg, st, hint, done) {
     });
   }
   function check() {
-    const [, need, nm] = goals[g];
+    const [, need, nm, tip] = goals[g];
     if (n === need && mode === nm) {
       snd('ok'); buzz(20);
-      setTimeout(() => { g++; if (g < goals.length) { n = 1; mode = 'ser'; draw(); toastK('✓ Готово! Следующая цель'); } else { stg.querySelector('.kg-ctl').innerHTML = '<div class="kr-done">✓ Все 4 цели выполнены. Запомни: этажами - вольты растут, рядом - растёт бак.</div>'; done(1); } }, 700);
+      setTimeout(() => { g++; if (g < goals.length) { n = 1; mode = 'ser'; draw(); toastK('✓ Готово!' + (tip ? ' ' + tip : ' Следующая цель')); } else { stg.querySelector('.kg-ctl').innerHTML = '<div class="kr-done">✓ Все 4 цели выполнены. Запомни: этажами - вольты растут, рядом - растёт бак.</div>'; done(1); } }, 700);
     }
   }
   draw();
 }
 
-/* светофор: лететь или садиться */
-function gLight(stg, st, hint, done) {
-  const Z = [['Полностью заряжена', [4.2, 4.18, 4.16]], ['Можно летать', [3.95, 3.9, 3.85, 3.8, 3.75, 3.7, 3.65]], ['Пора садиться', [3.55, 3.5, 3.45]], ['Опасно мало', [3.25, 3.2, 3.1, 3.0, 2.9]]];
-  const rounds = shuf(Z.flatMap((z, zi) => shuf(z[1]).slice(0, 2).map(v => [v, zi]))).slice(0, 8);
+/* светофор: лететь или садиться (напряжение одной банки без газа). Уровень 3: попадаются банки LiHV */
+function gLight(stg, st, hint, done, lv) {
+  const Z = [['Полностью заряжена', [4.2, 4.18, 4.16], 'от 4,15 до 4,2 В - полный бак обычной LiPo'], ['Можно летать', [3.95, 3.9, 3.85, 3.8, 3.75, 3.7, 3.65], 'от 3,65 до 4,0 В - в баке ещё есть энергия, летаем'],
+    ['Пора садиться', [3.55, 3.5, 3.45], 'около 3,5 В - сигнал на посадку'], ['Опасно мало', [3.25, 3.2, 3.1, 3.0, 2.9], 'ниже 3,3 В - переразряд, АКБ портится. Сказать тренеру']];
+  let rounds = Z.flatMap((z, zi) => shuf(z[1]).slice(0, 2).map(v => ({ v, zi, t: 'LiPo' })));
+  if (lv >= 2) rounds = rounds.concat([{ v: pick([3.6, 3.62]), zi: 1, t: 'LiPo', e: '3,6 В - ещё можно, но скоро садиться. Без газа вольты чуть выше, чем на газу' }]);
+  if (lv >= 3) rounds = rounds.concat([{ v: pick([4.35, 4.33, 4.3]), zi: 0, t: 'LiHV', e: 'У LiHV полная банка 4,35 В, так что 4,3 В - это почти полная' }, { v: 4.35, zi: 3, t: 'LiPo', e: 'Обычная LiPo выше 4,2 В - перезаряд, это опасно. Скорее всего заряжали в режиме LiHV. Сказать тренеру', opt3: 'Опасно: перезаряд или мало' }]);
+  rounds = shuf(rounds).slice(0, lv >= 3 ? 10 : lv === 2 ? 9 : 8);
   let k = 0, ok = 0;
-  const pos = v => Math.max(0, Math.min(100, (v - 2.9) / (4.25 - 2.9) * 100));
+  const pos = v => Math.max(0, Math.min(100, (v - 2.9) / (4.4 - 2.9) * 100));
   function draw() {
-    const [v, zi] = rounds[k];
-    stg.innerHTML = `<div class="kr-sec">${E(st.h)} · ${k + 1} из ${rounds.length}</div>${hint ? '<div class="kr-hint">Подсказка: 4,2 полная · 3,5 пора садиться · ниже 3,3 опасно</div>' : ''}
-      <div class="kg-volt">${fx(v, 2)} В</div><div class="kg-gauge"><i style="left:${pos(4.25)}%"></i></div><p class="mut" style="text-align:center;margin-bottom:10px">одна банка на спокойном полёте</p>
-      <div class="kg-opts">${Z.map((z, j) => `<button class="kr-opt" data-j="${j}">${['🟢', '🔵', '🟡', '🔴'][j]} ${E(z[0])}</button>`).join('')}</div>`;
-    requestAnimationFrame(() => requestAnimationFrame(() => { const i = $('.kg-gauge i', stg); if (i) i.style.left = pos(v) + '%'; }));
+    const R = rounds[k];
+    stg.innerHTML = `<div class="kr-sec">${E(st.h)} · ${k + 1} из ${rounds.length}</div>${hint ? '<div class="kr-hint">Подсказка: 4,2 полная · 3,5 пора садиться · ниже 3,3 опасно' + (lv >= 3 ? ' · LiHV полная 4,35' : '') + '</div>' : ''}
+      <div class="kg-volt">${fx(R.v, 2)} В</div><div class="kg-gauge"><i style="left:${pos(4.4)}%"></i></div><p class="mut" style="text-align:center;margin-bottom:10px">одна банка ${R.t === 'LiHV' ? '<b>LiHV</b>' : lv >= 3 ? 'обычная LiPo' : ''}, без газа (дрон стоит или висит)</p>
+      <div class="kg-opts">${Z.map((z, j) => `<button class="kr-opt" data-j="${j}">${['🟢', '🔵', '🟡', '🔴'][j]} ${E(j === 3 && lv >= 3 ? 'Опасно: перезаряд или мало' : z[0])}</button>`).join('')}</div><div class="kq-r"></div>`;
+    requestAnimationFrame(() => requestAnimationFrame(() => { const i = $('.kg-gauge i', stg); if (i) i.style.left = pos(R.v) + '%'; }));
     $$('.kr-opt', stg).forEach(b => b.onclick = () => {
-      const j = +b.dataset.j; $$('.kr-opt', stg).forEach(z => { z.disabled = true; if (+z.dataset.j === zi) z.classList.add('y'); });
-      if (j === zi) { ok++; snd('ok'); } else { b.classList.add('n'); snd('bad'); buzz(40); }
-      setTimeout(() => { k++; if (k < rounds.length) draw(); else { stg.innerHTML = `<div class="kr-end"><div class="big">${ok} из ${rounds.length}</div></div>`; done(ok / rounds.length); } }, j === zi ? 700 : 1500);
+      const j = +b.dataset.j, good = j === R.zi; $$('.kr-opt', stg).forEach(z => { z.disabled = true; if (+z.dataset.j === R.zi) z.classList.add('y'); });
+      const nxt = () => { k++; if (k < rounds.length) draw(); else { stg.innerHTML = `<div class="kr-end"><div class="big">${ok} из ${rounds.length}</div></div>`; done(ok / rounds.length); } };
+      if (good) { ok++; snd('ok'); setTimeout(nxt, 700); return; }
+      b.classList.add('n'); snd('bad'); buzz(40);
+      whyBox($('.kq-r', stg), false, fx(R.v, 2) + ' В: ' + (R.e || Z[R.zi][2]) + '.', k === rounds.length - 1, nxt);
     });
   }
   draw();
 }
 
-/* посчитай вольты */
-function gCalc(stg, st, hint, done) {
-  const N = st.n || 6, items = Array.from({ length: N }, () => {
-    const s = pick([1, 2, 3, 4, 6]), t = pick(['full', 'land', 'nom', 'per']);
-    if (t === 'full') return [`Сколько вольт у полностью заряженной АКБ ${s}S?`, s * 4.2, `${s} x 4,2 = ${fx(s * 4.2)} В`];
-    if (t === 'land') return [`При каком напряжении всей АКБ ${s}S пора садиться?`, s * 3.5, `${s} x 3,5 = ${fx(s * 3.5)} В`];
-    if (t === 'nom') return [`Какое "обычное" напряжение (номинал) у АКБ ${s}S?`, s * 3.7, `${s} x 3,7 = ${fx(s * 3.7)} В`];
+/* посчитай: уровень 1 - вольты; 2 - плюс ёмкость и ток зарядки; 3 - плюс энергия, макс. ток, время полёта */
+function gCalc(stg, st, hint, done, lv) {
+  const N = st.n || 6;
+  const T1 = ['full', 'land', 'nom', 'per'], T2 = T1.concat(['ah', 'chg', 'left']), T3 = T2.concat(['wh', 'imax', 'time', 'wh', 'imax']);
+  const types = lv >= 3 ? T3 : lv === 2 ? T2 : T1, SS = lv === 1 ? [1, 2, 3, 4] : [1, 2, 3, 4, 6];
+  const mk = () => {
+    const s = pick(SS), t = pick(types), mah = pick([450, 650, 850, 1300, 1500]), A = mah / 1000, C = pick([75, 100, 120]);
+    if (t === 'full') return [`Сколько вольт у полностью заряженной АКБ ${s}S?`, s * 4.2, `${s} x 4,2 = ${fx(s * 4.2)} В`, 'В'];
+    if (t === 'land') return [`При каком напряжении всей АКБ ${s}S пора садиться?`, s * 3.5, `${s} x 3,5 = ${fx(s * 3.5)} В`, 'В'];
+    if (t === 'nom') return [`Какое "обычное" напряжение (номинал) у АКБ ${s}S?`, s * 3.7, `${s} x 3,7 = ${fx(s * 3.7)} В`, 'В'];
+    if (t === 'ah') return [`АКБ ${mah} mAh. Сколько это ампер-часов?`, A, `${mah} : 1000 = ${ah(A)} А·ч`, 'А·ч'];
+    if (t === 'chg') return [`АКБ ${s}S ${mah} mAh. Каким током заряжать при 1C?`, A, `1C = ёмкость в амперах: ${mah} : 1000 = ${ah(A)} А`, 'А'];
+    if (t === 'left') { const s2 = pick([2, 3, 4, 6]), per = pick([3.9, 3.8, 3.7]); return [`АКБ ${s2}S, в очках ${fx(per * s2)} В. Сколько вольт осталось до посадки (3,5 В на банку)?`, (per - 3.5) * s2, `Посадка при ${s2} x 3,5 = ${fx(s2 * 3.5)} В. ${fx(per * s2)} - ${fx(s2 * 3.5)} = ${fx((per - 3.5) * s2)} В`, 'В']; }
+    if (t === 'wh') return [`Сколько энергии в АКБ ${s}S ${mah} mAh, в ватт-часах?`, s * 3.7 * A, `Номинал ${s} x 3,7 = ${fx(s * 3.7)} В, ёмкость ${ah(A)} А·ч. ${fx(s * 3.7)} x ${ah(A)} = ${fx(s * 3.7 * A)} Вт·ч`, 'Вт·ч'];
+    if (t === 'imax') return [`АКБ ${mah} mAh ${C}C. Какой самый большой ток по наклейке?`, C * A, `${C} x ${ah(A)} = ${fx(C * A, 0)} А`, 'А'];
+    if (t === 'time') { const I = pick([10, 12, 15, 20]), m2 = pick([1000, 1300, 1500]), A2 = m2 / 1000, mins = A2 * 0.8 / I * 60;
+      return [`АКБ ${m2} mAh. Дрон тратит в среднем ${I} А. Используем 80% ёмкости, чтобы беречь АКБ. Сколько минут полёта?`, mins, `80% от ${ah(A2)} А·ч = ${fx(A2 * 0.8, 2)} А·ч. ${fx(A2 * 0.8, 2)} : ${I} А = ${fx(A2 * 0.8 / I, 3)} ч. x 60 = ${fx(mins, 1)} мин`, 'мин']; }
     const per = pick([4.2, 3.9, 3.8, 3.7, 3.5]), s2 = pick([2, 3, 4, 6]);
-    return [`В очках ${fx(per * s2)} В у АКБ ${s2}S. Сколько на одну банку?`, per, `${fx(per * s2)} : ${s2} = ${fx(per)} В`];
-  });
+    return [`В очках ${fx(per * s2)} В у АКБ ${s2}S. Сколько на одну банку?`, per, `${fx(per * s2)} : ${s2} = ${fx(per)} В`, 'В'];
+  };
+  const items = Array.from({ length: N }, mk);
   let k = 0, ok = 0;
+  const HINT = ['Подсказка: вся АКБ = банка x S. Полная 4,2 · номинал 3,7 · садиться 3,5', ' · А·ч = mAh : 1000 · 1C = ёмкость в амперах', ' · Вт·ч = номинал x А·ч · макс. ток = C x А·ч'];
   function draw() {
     const it = items[k];
-    stg.innerHTML = `<div class="kr-sec">${E(st.h)} · ${k + 1} из ${N}</div>${hint ? '<div class="kr-hint">Подсказка: вся АКБ = банка x S. Полная 4,2 · номинал 3,7 · садиться 3,5</div>' : ''}
+    stg.innerHTML = `<div class="kr-sec">${E(st.h)} · ${k + 1} из ${N}</div>${hint ? '<div class="kr-hint">' + E(HINT.slice(0, lv).join('')) + '</div>' : ''}
       <div class="qq" style="font-size:17px;font-weight:700;margin-bottom:12px">${E(it[0])}</div>
-      <form class="kr-in"><label>Ответ, вольт<input name="a" inputmode="decimal" autocomplete="off" placeholder="например 14,8" required></label><button class="kr-btn pri">Проверить</button></form><div id="kcR"></div>`;
+      <form class="kr-in"><label>Ответ, ${E(it[3])}<input name="a" inputmode="decimal" autocomplete="off" placeholder="число" required></label><button class="kr-btn pri">Проверить</button></form><div id="kcR"></div>`;
     const inp = $('input', stg); setTimeout(() => { try { inp.focus({ preventScroll: true }); } catch (e) {} }, 100);
     $('form', stg).onsubmit = e => {
       e.preventDefault(); const a = parseFloat(String(inp.value).replace(',', '.')); if (isNaN(a)) return;
-      const good = Math.abs(a - it[1]) < 0.06; if (good) { ok++; snd('ok'); } else { snd('bad'); buzz(40); }
+      const good = Math.abs(a - it[1]) <= Math.max(0.06, Math.abs(it[1]) * 0.03); if (good) { ok++; snd('ok'); } else { snd('bad'); buzz(40); }
       $('form button', stg).disabled = true; inp.disabled = true;
-      $('#kcR', stg).innerHTML = `<div class="kg-exp ${good ? 'y' : 'n'}">${good ? '✓ Верно!' : '✗ Не совсем.'} ${E(it[2])}</div><div class="kr-end"><div class="acts"><button class="kr-btn pri" id="kcN">${k < N - 1 ? 'Следующий →' : 'Итог'}</button></div></div>`;
-      $('#kcN', stg).onclick = () => { k++; if (k < N) draw(); else { stg.innerHTML = `<div class="kr-end"><div class="big">${ok} из ${N}</div></div>`; done(ok / N); } };
+      whyBox($('#kcR', stg), good, (good ? '' : 'Твой ответ ' + fx(a, 2).replace(/,?0+$/, '') + '. ') + it[2] + '.', k === N - 1, () => { k++; if (k < N) draw(); else { stg.innerHTML = `<div class="kr-end"><div class="big">${ok} из ${N}</div></div>`; done(ok / N); } });
     };
   }
   draw();
 }
 
-/* сравни две АКБ */
-function gCompare(stg, st, hint, done) {
-  const N = st.n || 5, R = [];
+/* сравни две АКБ. Уровень 2: макс. ток (C x ёмкость). Уровень 3: энергия в Вт·ч */
+function gCompare(stg, st, hint, done, lv) {
+  const N = st.n || 5, R = [], types = ['long', 'pow', 'c'].concat(lv >= 2 ? ['imax', 'imax'] : [], lv >= 3 ? ['wh', 'wh'] : []);
+  const card = p => ({ s: p[0], m: p[1], c: p[2] });
   for (let i = 0; i < N; i++) {
-    const t = pick(['long', 'pow', 'c']); let a, b, q, why;
-    if (t === 'long') { const s = pick([1, 4, 6]), m1 = pick([450, 650, 850, 1300]), m2 = m1 + pick([200, 400, 500]); a = [s, m1, 100]; b = [s, m2, 100]; q = 'Какая АКБ даст дольше полёт на том же дроне?'; why = 'Больше mAh - больше бак, дольше полёт (но АКБ тяжелее).'; R.push([q, shuf([[a, 0], [b, 1]]), why]); continue; }
-    if (t === 'pow') { const m = pick([850, 1300, 1500]); a = [4, m, 100]; b = [6, m, 100]; q = 'Какая АКБ мощнее (моторы крутятся быстрее)?'; why = 'Больше банок (S) - выше напряжение, мощнее.'; R.push([q, shuf([[a, 0], [b, 1]]), why]); continue; }
-    const m = pick([850, 1300, 1500]), s = pick([4, 6]); a = [s, m, pick([25, 45])]; b = [s, m, pick([100, 120])]; q = 'Какая АКБ лучше выдержит полный газ и не "задохнётся"?'; why = 'Больше C - шире "шланг", больше ток сразу.'; R.push([q, shuf([[a, 0], [b, 1]]), why]);
+    const t = types[i < 3 && lv === 1 ? i : Math.floor(Math.random() * types.length)];
+    if (t === 'long') { const s = pick([1, 4, 6]), m1 = pick([450, 650, 850, 1300]), m2 = m1 + pick([200, 400, 500]); R.push(['Какая АКБ даст дольше полёт на том же дроне?', shuf([[card([s, m1, 100]), 0], [card([s, m2, 100]), 1]]), `Больше mAh - больше бак, дольше полёт (но АКБ тяжелее). ${m2} больше, чем ${m1}.`]); continue; }
+    if (t === 'pow') { const m = pick([850, 1300, 1500]); R.push(['Какая АКБ мощнее (моторы крутятся быстрее)?', shuf([[card([4, m, 100]), 0], [card([6, m, 100]), 1]]), 'Больше банок (S) - выше напряжение, моторы крутятся быстрее. 6S: 22,2 В, 4S: 14,8 В.']); continue; }
+    if (t === 'imax') {
+      const P = pick([[[1300, 100], [1500, 75]], [[850, 120], [1300, 75]], [[1500, 45], [1000, 100]], [[650, 100], [1300, 45]]]), s = pick([4, 6]);
+      const a = card([s, P[0][0], P[0][1]]), b = card([s, P[1][0], P[1][1]]), ia = a.c * a.m / 1000, ib = b.c * b.m / 1000, w = ia > ib ? 0 : 1;
+      R.push(['Какая АКБ может отдать больше тока сразу? Посчитай: C x ёмкость в амперах', shuf([[a, w === 0 ? 1 : 0], [b, w === 1 ? 1 : 0]]), `${a.c} x ${ah(a.m / 1000)} = ${fx(ia, 0)} А, ${b.c} x ${ah(b.m / 1000)} = ${fx(ib, 0)} А. Одно большое число C ещё не значит больше тока.`]); continue;
+    }
+    if (t === 'wh') {
+      const P = pick([[[4, 1500], [6, 1100]], [[4, 1300], [6, 850]], [[6, 650], [4, 1100]], [[3, 1500], [4, 1000]]]);
+      const a = card([P[0][0], P[0][1], 100]), b = card([P[1][0], P[1][1], 100]), wa = a.s * 3.7 * a.m / 1000, wb = b.s * 3.7 * b.m / 1000, w = wa > wb ? 0 : 1;
+      R.push(['В какой АКБ больше энергии? Посчитай ватт-часы: номинал x А·ч', shuf([[a, w === 0 ? 1 : 0], [b, w === 1 ? 1 : 0]]), `${a.s}S ${a.m}: ${fx(a.s * 3.7)} x ${ah(a.m / 1000)} = ${fx(wa)} Вт·ч. ${b.s}S ${b.m}: ${fx(b.s * 3.7)} x ${ah(b.m / 1000)} = ${fx(wb)} Вт·ч.`]); continue;
+    }
+    const m = pick([850, 1300, 1500]), s = pick([4, 6]);
+    R.push(['Какая АКБ лучше выдержит полный газ и не "задохнётся"?', shuf([[card([s, m, pick([25, 45])]), 0], [card([s, m, pick([100, 120])]), 1]]), 'Больше C - шире "шланг", АКБ отдаёт больше тока сразу и меньше проседает.']);
   }
   let k = 0, ok = 0;
   function draw() {
     const [q, pair, why] = R[k];
-    stg.innerHTML = `<div class="kr-sec">${E(st.h)} · ${k + 1} из ${N}</div>${hint ? '<div class="kr-hint">Подсказка: mAh - бак, S - сила, C - шланг</div>' : ''}<div class="qq" style="font-size:16.5px;font-weight:700;margin-bottom:12px">${E(q)}</div>
-      <div class="kg-cmp">${pair.map((p, j) => `<button class="kg-akb" data-j="${j}" style="animation-delay:${j * 80}ms"><span style="font-size:30px">🔋</span><b>${p[0][0]}S</b><small>${p[0][1]} mAh</small><small>${p[0][2]}C</small></button>`).join('')}</div><div id="kcR"></div>`;
+    stg.innerHTML = `<div class="kr-sec">${E(st.h)} · ${k + 1} из ${N}</div>${hint ? '<div class="kr-hint">Подсказка: mAh - бак, S - сила, C - шланг' + (lv >= 2 ? ' · ток = C x А·ч' : '') + (lv >= 3 ? ' · Вт·ч = S x 3,7 x А·ч' : '') + '</div>' : ''}<div class="qq" style="font-size:16.5px;font-weight:700;margin-bottom:12px">${E(q)}</div>
+      <div class="kg-cmp">${pair.map((p, j) => `<button class="kg-akb" data-j="${j}" style="animation-delay:${j * 80}ms"><span style="font-size:30px">🔋</span><b>${p[0].s}S</b><small>${p[0].m} mAh</small><small>${p[0].c}C</small></button>`).join('')}</div><div id="kcR"></div>`;
     $$('.kg-akb', stg).forEach(b => b.onclick = () => {
       const j = +b.dataset.j, good = pair[j][1] === 1; $$('.kg-akb', stg).forEach(z => { z.disabled = true; if (pair[+z.dataset.j][1] === 1) z.classList.add('y'); });
       if (good) { ok++; snd('ok'); } else { b.classList.add('n'); snd('bad'); buzz(40); }
-      $('#kcR', stg).innerHTML = `<div class="kg-exp">${good ? '✓' : '✗'} ${E(why)}</div><div class="kr-end"><div class="acts"><button class="kr-btn pri" id="kcN">${k < N - 1 ? 'Следующий →' : 'Итог'}</button></div></div>`;
-      $('#kcN', stg).onclick = () => { k++; if (k < N) draw(); else { stg.innerHTML = `<div class="kr-end"><div class="big">${ok} из ${N}</div></div>`; done(ok / N); } };
+      whyBox($('#kcR', stg), good, why, k === N - 1, () => { k++; if (k < N) draw(); else { stg.innerHTML = `<div class="kr-end"><div class="big">${ok} из ${N}</div></div>`; done(ok / N); } });
     });
   }
   draw();
 }
 
-/* наклейка по частям */
-function gLabel(stg, st, hint, done) {
-  const P = [['4S', '4 банки "этажами". Полная 4 x 4,2 = 16,8 В, садиться при 4 x 3,5 = 14 В.'], ['1500mAh', 'Ёмкость - размер бака: 1500 mAh = 1,5 А·ч. Заряжаем током 1,5 А (1C).'], ['120C', 'Токоотдача - ширина "шланга": сколько энергии АКБ может отдать сразу на полном газу.'], ['14.8V', 'Номинал всей АКБ: 4 x 3,7 = 14,8 В. Это "обычное" напряжение, не полный заряд.'], ['LiPo', 'Тип банок: литий-полимер. Полная банка 4,2 В. Если написано LiHV - до 4,35 В.']];
+/* наклейка по частям. Уровень 2: + разъём. Уровень 3: + ватт-часы */
+function gLabel(stg, st, hint, done, lv) {
+  const P = [['4S', '4 банки "этажами". Полная 4 x 4,2 = 16,8 В, садиться при 4 x 3,5 = 14 В.'], ['1500mAh', 'Ёмкость - размер бака: 1500 mAh = 1,5 А·ч. Заряжаем током 1,5 А (1C).'], ['120C', 'Токоотдача - ширина "шланга": сколько энергии АКБ может отдать сразу на полном газу.' + (lv >= 2 ? ' Максимум по наклейке: 120 x 1,5 = 180 А.' : '')], ['14.8V', 'Номинал всей АКБ: 4 x 3,7 = 14,8 В. Это "обычное" напряжение, не полный заряд.'], ['LiPo', 'Тип банок: литий-полимер. Полная банка 4,2 В. Если написано LiHV - до 4,35 В.']];
+  if (lv >= 2) P.push(['XT60', 'Разъём силовых проводов. У 5-дюймовых дронов обычно XT60, у маленьких - XT30 или PH2.0. Разъём АКБ и дрона должен совпадать.']);
+  if (lv >= 3) P.push(['22.2Wh', 'Энергия: 14,8 В x 1,5 А·ч = 22,2 Вт·ч. По ней сравнивают АКБ с разным числом банок; в самолёт берут АКБ до 100 Вт·ч.']);
   const seen = new Set();
   stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><div class="kg-lbl">${P.map((p, j) => `<button data-j="${j}">${p[0]}</button>`).join('')}</div><div class="kg-exp" id="kgE">👆 Нажимай на части наклейки по очереди. Открыто 0 из ${P.length}.</div>`;
   $$('.kg-lbl button', stg).forEach(b => b.onclick = () => {
@@ -589,10 +689,13 @@ function gLabel(stg, st, hint, done) {
   });
 }
 
-/* найди ошибки в истории */
-function gStory(stg, st, hint, done) {
-  const L = shuf(K.story).slice(0, hint ? 5 : 7), sel = new Set();
-  stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><p class="mut" style="margin-bottom:10px">Нажми на предложения, где Петя ошибся, потом "Проверить".${hint ? ' Подсказка: ошибки про тепло, присмотр и вздутие.' : ''}</p>
+/* найди ошибки в истории: на уровне выше больше предложений */
+function gStory(stg, st, hint, done, lv) {
+  const n = Math.min(K.story.length, [6, 7, 9][(lv || 1) - 1] - (hint ? 1 : 0));
+  /* в каждой истории хотя бы 2 ошибки и 2 верных шага */
+  let L; do { L = shuf(K.story).slice(0, n); } while (L.filter(s => s[1]).length < 2 || L.filter(s => !s[1]).length < 2);
+  const sel = new Set();
+  stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><p class="mut" style="margin-bottom:10px">Нажми на предложения, где Петя ошибся, потом "Проверить".${hint ? ' Подсказка: ошибки про тепло, присмотр, вздутие и режим зарядки.' : ''}</p>
     <div class="kg-story">${L.map((s, j) => `<button data-j="${j}">${E(s[0])}</button>`).join('')}</div><div class="kr-end"><div class="acts"><button class="kr-btn pri" id="kgC">Проверить</button></div></div>`;
   $$('.kg-story button', stg).forEach(b => b.onclick = () => { const j = +b.dataset.j; sel.has(j) ? sel.delete(j) : sel.add(j); b.classList.toggle('sel'); snd('tap'); });
   $('#kgC', stg).onclick = function () {
@@ -616,6 +719,7 @@ document.addEventListener('click', e => {
   else if (k === 'game' || k === 'gamex') { const L = K.lib[VIEW.t]; gameStep(VIEW.t, +b.dataset.i, L.steps[+b.dataset.i], $('#krStage', box), k === 'gamex'); }
   else if (k === 'refly') { const x = stepSt(VIEW.t, +b.dataset.i); x.ok = false; flyStep(VIEW.t, +b.dataset.i, K.lib[VIEW.t].steps[+b.dataset.i], $('#krStage', box)); }
   else if (k === 'reread') { const L = K.lib[VIEW.t], c = L.steps.findIndex(s => s.s === 'cards'); taskView(VIEW.t, c < 0 ? 0 : c); }
+  else if (k === 'lvl') { S.lvl[b.dataset.m] = +b.dataset.v; save(); snd('tap'); modView(b.dataset.m); toastK('Уровень: ' + lvInfo(+b.dataset.v).t); }
   else if (k === 'like') { const t = T(b.dataset.t), v = +b.dataset.v; t.like = t.like === v ? 0 : v; save(); $$('.kr-like button', box).forEach(z => z.classList.toggle('on', +z.dataset.v === t.like)); snd('tap'); if (t.like) toastK(v > 0 ? 'Спасибо! 👍 Тренер увидит' : 'Спасибо! Тренер поправит задание'); }
 });
 
@@ -628,4 +732,5 @@ function init() {
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 window.VZ_KURS_STATE = () => S;
+window.VZ_KURS_GEN = { genLabel, genMix, buildQs };
 })();
