@@ -10,7 +10,7 @@ const $ = (s, r) => (r || document).querySelector(s), $$ = (s, r) => [...(r || d
 const E = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const RED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const KEY = 'vz_kurs', PASS = 0.7;
-const PREVIEW_OPEN = ['m1', 'm2', 'm3'];   // пробная версия: модуль 3 открыт для проверки, пока нет окна тренера
+const PREVIEW_OPEN = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'];   // пробная версия: все модули открыты для проверки
 const isCoach = () => typeof MODE !== 'undefined' && MODE === 'coach';
 const shuf = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -358,7 +358,7 @@ function home() {
   let h = go ? `<button class="kr-btn pri kr-cont" data-k="task" data-t="${go.tid}"><span>${go.st ? '▶ Продолжить' : '▶ Начать'}: Модуль ${go.m.n} · "${E(K.lib[go.tid].t)}"</span><small>шаг ${go.st + 1} из ${K.lib[go.tid].steps.length}</small></button>` : '';
   h += `<div class="kr-card top">${bugBtn()}<h3>🎓 Твой прогресс</h3><p class="mut">Внутри модуля шаги открываются сами. Следующий модуль открывает тренер, когда проверит задания.</p>
     <div class="kr-bar"><i data-w="${tot ? dn / tot * 100 : 0}"></i></div><div class="kr-row"><span>Пройдено заданий: ${dn} из ${tot}</span><span>⭐ ${allPts()} очков</span></div></div>`;
-  h += `<div class="kr-note">🧪 Пробная версия: наполнены модули 1-3, они открыты для проверки. Остальные модули показывают план и наполняются по ходу. В каждом модуле 3 уровня сложности (по классу).</div>${isCoach() ? '<div class="kr-back"><button class="kr-btn sm pri" data-k="co-home">👥 К ученикам (окно тренера)</button><span class="mut">Вы тренер: здесь курс глазами ученика, всё открыто.</span></div>' : ''}`;
+  h += `<div class="kr-note">🧪 Пробная версия: наполнены все 6 модулей, они открыты для проверки. В каждом модуле 3 уровня сложности (по классу).</div>${isCoach() ? '<div class="kr-back"><button class="kr-btn sm pri" data-k="co-home">👥 К ученикам (окно тренера)</button><span class="mut">Вы тренер: здесь курс глазами ученика, всё открыто.</span></div>' : ''}`;
   h += '<div class="kr-mods">' + K.mods.map((m, i) => {
     const op = modOpen(m), p = modProg(m), full = p === 1;
     const st = !m.tasks ? '🛠 готовится' : full ? '✓ модуль пройден' + (S.t[m.tasks[m.tasks.length - 1]] ? '' : '') : op ? '▶ ' + Math.round(p * 100) + '% пройдено' : '🔒 откроет тренер';
