@@ -21,11 +21,11 @@ const today = () => new Date().toLocaleDateString('ru-RU', { day: '2-digit', mon
 let S = { t: {} };
 try { S = Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
 S.t = S.t || {};
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} if (window.SPK && SPK.sync) try { SPK.sync(); } catch (e) {} };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} if (window.SPK && SPK.sync) try { SPK.sync(); } catch (e) {} if (typeof kSync === 'function') kSync(); };
 const T = id => (S.t[id] = S.t[id] || { s: {} });
 const stepSt = (id, i) => { const t = T(id); return (t.s[i] = t.s[i] || {}); };
 const taskDone = id => !!(S.t[id] && S.t[id].done);
-function taskOpen(m, k) { return isCoach() || k === 0 || taskDone(m.tasks[k - 1]); }
+function taskOpen(m, k) { const p = S.t[m.tasks[k - 1]]; return isCoach() || k === 0 || taskDone(m.tasks[k - 1]) || !!(p && p.was); }
 function modOpen(m) { return !!m.tasks && (isCoach() || PREVIEW_OPEN.includes(m.id) || (S.open || []).includes(m.id)); }
 function modProg(m) { if (!m.tasks) return 0; return m.tasks.filter(taskDone).length / m.tasks.length; }
 /* очки задания = pts x средний лучший результат проверок задания (доп.задания очков не дают) */
@@ -91,6 +91,8 @@ function pic(k) {
     case 'stack': return V([0, 1, 2, 3].map(i => cellSvg(20 + i * 50, 30, 40, 70, .8, '', i * 120)).join('') + [0, 1, 2].map(i => `<path d="M${60 + i * 50} 65h10" class="kp-w"/>`).join('') + '<text x="120" y="20" class="kp-h">4S = 4 x 3,7 = 14,8 В</text>');
     case 'par': return V([0, 1].map(i => cellSvg(70 + i * 56, 34, 44, 70, .8, '3,7', i * 150)).join('') + '<path d="M92 26h56M92 26v8M148 26v8" class="kp-w"/><text x="120" y="118" class="kp-s2">рядом: 3,7 В, бак в 2 раза больше</text>');
     case 'scale': return V('<rect x="20" y="52" width="200" height="16" rx="8" class="kp-g"/>' + [['3,3', 40, 'kp-red'], ['3,5', 90, 'kp-yel'], ['3,8', 140, 'kp-blu'], ['4,2', 200, 'kp-grn']].map(a => `<circle cx="${a[1]}" cy="60" r="9" class="${a[2]}"/><text x="${a[1]}" y="96" class="kp-s2">${a[0]}</text>`).join('') + '<text x="120" y="30" class="kp-h">вольты одной банки</text>');
+    case 'sp': return V('<g>' + [0, 1, 2].map(i => `<rect x="34" y="${78 - i * 28}" width="44" height="24" rx="5" class="kp-cs"/>`).join('') + '<path d="M56 18v-6" class="kp-w"/></g><text x="56" y="116" class="kp-s2">столбик: вольты</text>' +
+      [0, 1, 2].map(i => `<rect x="${134 + i * 28}" y="50" width="22" height="52" rx="5" class="kp-cs"/>`).join('') + '<path d="M134 42h78" class="kp-w"/><text x="173" y="116" class="kp-s2">ряд: бак</text>');
     case 'hv': return V(cellSvg(60, 22, 50, 86, .9, '4,2') + cellSvg(130, 22, 50, 86, 1, '4,35') + '<text x="85" y="118" class="kp-s2">LiPo</text><text x="155" y="118" class="kp-s2">LiHV</text>');
     case 'mob': return V('<g class="kfly"><rect x="92" y="54" width="56" height="18" rx="6" class="kp-d"/>' + [[72, 50], [168, 50], [72, 80], [168, 80]].map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="16" class="kp-ring"/><ellipse cx="${p[0]}" cy="${p[1]}" rx="14" ry="3" class="kp-prop"/>`).join('') + '<rect x="110" y="40" width="20" height="12" rx="3" class="kp-blu"/></g><text x="120" y="116" class="kp-s2">Mobula 7: 75 мм, 1S</text>');
     case 'sim': return V('<rect x="40" y="20" width="160" height="84" rx="10" class="kp-g"/><path d="M60 88 Q100 30 140 60 T190 40" class="kp-path"/><circle r="5" class="kp-yel kdot"><animateMotion dur="3s" repeatCount="indefinite" path="M60 88 Q100 30 140 60 T190 40"/></circle>');
@@ -167,6 +169,7 @@ css.textContent = `
 .kp-l{stroke:#cbd5ff;stroke-width:2}.kp-w{stroke:#facc15;stroke-width:4;stroke-linecap:round}
 .kp-r0{fill:none;stroke:#00d4ff;stroke-width:5;opacity:.8}.kp-r1{fill:none;stroke:#a78bfa;stroke-width:5;opacity:.8}
 .kroll{transform-box:fill-box;transform-origin:center;animation:krSpin 14s linear infinite}
+.kp-cs{fill:rgba(34,197,94,.75);stroke:rgba(200,210,255,.6);stroke-width:2}
 .kp-g{fill:rgba(127,127,160,.14);stroke:rgba(200,210,255,.35);stroke-width:2}
 .kp-red{fill:#f87171}.kp-yel{fill:#facc15}.kp-blu{fill:#38bdf8}.kp-grn{fill:#22c55e}
 .kp-d{fill:#334155;stroke:#94a3b8}.kp-ring{fill:none;stroke:#94a3b8;stroke-width:3}.kp-prop{fill:rgba(0,212,255,.45);transform-box:fill-box;transform-origin:center;animation:krSpin .35s linear infinite}
@@ -267,11 +270,12 @@ function scrollTop() {
 }
 
 function home() {
+  if (isCoach() && !CO.as) { if (CO.st === 'idle') coLoad(); else coDraw(); return; }
   VIEW = { m: null, t: null, step: null };
   const live = K.mods.filter(m => m.tasks), tot = live.reduce((a, m) => a + m.tasks.length, 0), dn = live.reduce((a, m) => a + m.tasks.filter(taskDone).length, 0);
   let h = `<div class="kr-card top"><h3>🎓 Твой прогресс</h3><p class="mut">Внутри модуля шаги открываются сами. Следующий модуль открывает тренер, когда проверит задания.</p>
     <div class="kr-bar"><i data-w="${tot ? dn / tot * 100 : 0}"></i></div><div class="kr-row"><span>Пройдено заданий: ${dn} из ${tot}</span><span>⭐ ${allPts()} очков</span></div></div>`;
-  h += `<div class="kr-note">🧪 Пробная версия: сейчас наполнен модуль 3 "Аккумуляторы", он открыт для проверки. Остальные модули показывают план и наполняются по ходу. В модуле 3 уровня сложности (по классу).${isCoach() ? ' Вы тренер: окно тренера по модулям будет следующим шагом.' : ''}</div>`;
+  h += `<div class="kr-note">🧪 Пробная версия: сейчас наполнен модуль 3 "Аккумуляторы", он открыт для проверки. Остальные модули показывают план и наполняются по ходу. В модуле 3 уровня сложности (по классу).</div>${isCoach() ? '<div class="kr-back"><button class="kr-btn sm pri" data-k="co-home">👥 К ученикам (окно тренера)</button><span class="mut">Вы тренер: здесь курс глазами ученика, всё открыто.</span></div>' : ''}`;
   h += '<div class="kr-mods">' + K.mods.map((m, i) => {
     const op = modOpen(m), p = modProg(m), full = p === 1;
     const st = !m.tasks ? '🛠 готовится' : full ? '✓ модуль пройден' + (S.t[m.tasks[m.tasks.length - 1]] ? '' : '') : op ? '▶ ' + Math.round(p * 100) + '% пройдено' : '🔒 откроет тренер';
@@ -374,6 +378,8 @@ function runStep(tid, i, stg) {
 }
 
 /* ---------- материал карточками ---------- */
+/* текст по уровню: строка или {1: 'суть', 2: 'подробнее', 3: '...'} - берём самый подробный, что не выше уровня */
+function lvText(v, lv) { if (!v || typeof v !== 'object') return v || ''; for (let n = lv; n >= 1; n--) if (v[n]) return v[n]; return v[1] || ''; }
 function moreHtml(cd, lv) {
   if (!cd.more || lv < 2) return '';
   return [2, 3].filter(n => n <= lv && cd.more[n]).map(n => `<div class="kr-more l${n}"><b>${lvInfo(n).e} ${n === 2 ? 'Глубже' : 'Ещё глубже'}</b>${E(cd.more[n])}</div>`).join('');
@@ -382,7 +388,7 @@ function cardsStep(tid, i, st, stg) {
   let c = 0; const N = st.cards.length, lv = lvlOf(modOf(tid).id);
   function draw(dir) {
     const cd = st.cards[c];
-    stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><div class="kr-cards"><div class="kr-cd" style="${dir < 0 ? 'animation-name:krIn' : ''}">${pic(cd.pic)}<h4>${E(cd.h)}</h4><p>${E(cd.p)}</p>${moreHtml(cd, lv)}</div></div>
+    stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><div class="kr-cards"><div class="kr-cd" style="${dir < 0 ? 'animation-name:krIn' : ''}">${pic(cd.pic)}<h4>${E(cd.h)}</h4><p>${E(lvText(cd.p, lv))}</p>${moreHtml(cd, lv)}</div></div>
       <div class="kr-dots">${st.cards.map((x, k) => `<i class="${k === c ? 'on' : ''}"></i>`).join('')}</div>
       <div class="kr-nav"><button class="kr-btn" data-c="-1" ${c ? '' : 'disabled'}>← Назад</button>${c < N - 1 ? '<button class="kr-btn pri" data-c="1">Понятно, дальше →</button>' : '<button class="kr-btn pri" data-c="ok">✓ Всё понятно</button>'}</div>`;
     $$('[data-c]', stg).forEach(b => b.onclick = () => {
@@ -519,7 +525,7 @@ function coachStep(tid, i, st, stg) {
       <div class="kr-end"><div class="acts">${nextBtn(tid, i)}</div></div>`;
     return;
   }
-  stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><p style="font-size:15px;margin-bottom:12px">✋ ${E(st.p)}</p><form class="kr-in"><label>Комментарий для тренера (по желанию)<textarea name="c" rows="2" maxlength="140" placeholder="коротко: что сделал"></textarea></label><button class="kr-btn pri">✓ Сделал, на проверку</button></form>`;
+  stg.innerHTML = `${x.ret ? `<div class="kr-wait" style="margin-bottom:12px">↩ Тренер вернул задание ${E(x.ret)}${x.retWhy ? ': ' + E(x.retWhy) : ''}. Доделай и отправь ещё раз.</div>` : ''}<div class="kr-sec">${E(st.h)}</div><p style="font-size:15px;margin-bottom:12px">✋ ${E(st.p)}</p><form class="kr-in"><label>Комментарий для тренера (по желанию)<textarea name="c" rows="2" maxlength="140" placeholder="коротко: что сделал"></textarea></label><button class="kr-btn pri">✓ Сделал, на проверку</button></form>`;
   $('form', stg).onsubmit = e => { e.preventDefault(); stepOk(tid, i, { c: String(new FormData(e.target).get('c') || '').slice(0, 140) }); snd('ok'); coachStep(tid, i, st, stg); };
 }
 
@@ -556,6 +562,7 @@ function gBuild(stg, st, hint, done, lv) {
     const v = ser ? n * 3.7 : 3.7, vf = ser ? n * 4.2 : 4.2, cap = ser ? 450 : 450 * n;
     stg.innerHTML = `<div class="kr-sec">${E(st.h)} · цель ${g + 1} из ${goals.length}</div><div class="kg-goal">🎯 ${E(txt)}</div>${hint && tip ? `<div class="kr-hint">Подсказка: ${E(tip)}</div>` : ''}
       <div class="kg-stack ${ser ? 'ser' : 'par'}">${Array.from({ length: n }, (_, k) => `<div class="kg-cell" style="animation-delay:${k * 40}ms">3,7</div>`).join('')}</div>
+      <p class="mut" style="text-align:center;margin:0 0 10px">${ser ? '⇅ Столбик = "этажами" (последовательно): плюс одной банки к минусу следующей. Вольты складываются, бак как у одной банки.' : '⇄ Ряд = "рядом" (параллельно): все плюсы вместе, все минусы вместе. Вольты как у одной банки, бак складывается.'}</p>
       <div class="kg-read"><div><b>${ser ? n + 'S' : n + 'P'}</b><small>запись</small></div><div><b>${fx(v)} В</b><small>обычное (полная ${fx(vf)})</small></div><div><b>${cap}</b><small>mAh, бак</small></div></div>
       <div class="kg-ctl" style="margin-top:12px"><button class="kr-btn" data-b="-">− банка</button><button class="kr-btn" data-b="+">+ банка</button><button class="kr-btn" data-b="m">${ser ? '⇄ Поставить рядом' : '⇅ Поставить этажами'}</button></div>`;
     $$('[data-b]', stg).forEach(b => b.onclick = () => {
@@ -705,6 +712,231 @@ function gStory(stg, st, hint, done, lv) {
   };
 }
 
+/* ---------- связь с общим сервером СПЕКТРа ----------
+   Ученик (вошёл по коду в "🏆 Рейтинг"): прогресс курса уходит на сервер (op ksync), в ответ приходят решения тренера:
+   открытые модули, принятые и возвращённые задания, уровень по модулям.
+   Тренер (вход по PIN): видит всех учеников по модулям (slist), открывает модули, принимает задания (sset act kurs). */
+const SPK_API = 'https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec';
+const spkCall = q => fetch(SPK_API, { method: 'POST', body: JSON.stringify(q) }).then(r => r.json());
+const sesS = { get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} } };
+function meK() { try { const P = JSON.parse(localStorage.getItem('spk_vzlet') || 'null'); return P && P.code && P.status === 'принят' ? P : null; } catch (e) { return null; } }
+
+/* краткая сводка для тренера: по заданию - шаги (o пройден, x через доп.задание, n нужно доп.задание, w ждёт тренера, - нет), % и т.д. */
+function kSummary() {
+  const t = {};
+  Object.keys(S.t).forEach(id => {
+    const L = K.lib[id], z = S.t[id]; if (!L || !z) return;
+    let att = 0, lv = 0, best = [], c = '', f = '';
+    const s = L.steps.map((st, i) => { const x = z.s[i] || {}; att += (x.att || 0) + (x.xatt || 0); lv = Math.max(lv, x.lv || 0); if (x.best != null) best.push(x.best); if (x.c) c = x.c; if (x.v) f = x.v;
+      return x.ok ? (st.s === 'coach' && !x.acc ? 'w' : x.viaX ? 'x' : 'o') : x.needX ? 'n' : '-'; }).join('');
+    if (s.replace(/-/g, '') === '' && !z.like) return;
+    t[id] = { s, p: best.length ? Math.round(best.reduce((a, b) => a + b, 0) / best.length * 100) : null, a: att, d: z.done || z.was || '', l: lv || lvlOf((modOf(id) || {}).id), k: z.like || 0, c: String(c).slice(0, 140), f: String(f).slice(0, 60) };
+  });
+  return { v: 1, t, pts: allPts(), lv: S.lvl };
+}
+let kT = 0, kBusy = false;
+function kSync(soon) {
+  const P = meK(); if (!P || isCoach()) return;
+  clearTimeout(kT);
+  kT = setTimeout(() => {
+    if (kBusy) return kSync(true); kBusy = true;
+    spkCall({ op: 'ksync', code: P.code, club: 'vzlet', e: P.e || 0, k: kSummary() }).then(j => {
+      kBusy = false;
+      if (j && j.retry) return kSync(true);
+      if (j && j.ok && j.kc && !j.reset) applyKc(j.kc);
+    }).catch(() => { kBusy = false; });
+  }, soon ? 9000 : 1500);
+}
+/* решения тренера с сервера */
+function applyKc(kc) {
+  let ch = false;
+  const o = Array.isArray(kc.o) ? kc.o : [];
+  if (JSON.stringify(o) !== JSON.stringify(S.open || [])) { S.open = o; ch = true; }
+  Object.keys(kc.a || {}).forEach(id => { const L = K.lib[id], z = S.t[id]; if (!L || !z) return;
+    L.steps.forEach((st, i) => { const x = z.s[i]; if (st.s === 'coach' && x && x.ok && !x.acc) { x.acc = kc.a[id]; ch = true; } }); });
+  Object.keys(kc.r || {}).forEach(id => { const L = K.lib[id], z = S.t[id], r = kc.r[id] || []; if (!L || !z) return;
+    L.steps.forEach((st, i) => { const x = z.s[i]; if (st.s === 'coach' && x && x.ok && x.ret !== r[0]) { x.ok = false; x.acc = false; x.ret = r[0]; x.retWhy = r[1] || ''; if (z.done) { z.was = z.done; z.done = ''; } ch = true; } }); });
+  if (kc.v && kc.at && kc.at !== S.kcat) { Object.assign(S.lvl, kc.v); S.kcat = kc.at; ch = true; }
+  if (!ch) return;
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  if (box && VIEW.t == null) { VIEW.m ? modView(VIEW.m) : home(); }
+}
+
+/* ---------- окно тренера ---------- */
+let CO = { st: 'idle', list: [], err: '', tok: '', demo: false, sel: new Set(), who: null, mod: null, as: false };
+function coTok() {
+  const t = sesS.get('vz_spk_tok'); if (t) return t;
+  try { const P = JSON.parse(sesS.get('spectr_sess') || 'null'); if (P && P.token) return P.token; } catch (e) {}
+  return '';
+}
+async function coLoad(pin) {
+  CO.st = 'load'; coDraw();
+  try {
+    let tok = pin ? '' : coTok();
+    if (!tok && !pin && sesS.get('vz_kurs_try') !== '1') {
+      sesS.set('vz_kurs_try', '1');
+      try { pin = typeof ss_ !== 'undefined' && typeof PIN_KEY !== 'undefined' ? ss_.get(PIN_KEY) : ''; } catch (e) { pin = ''; }
+    }
+    if (!tok && pin) { const j = await spkCall({ op: 'login', pin }); if (!j.ok) { CO.st = 'pin'; CO.err = j.error || 'PIN не подошёл'; return coDraw(); } tok = j.token; sesS.set('vz_spk_tok', tok); }
+    if (!tok) { CO.st = 'pin'; CO.err = ''; return coDraw(); }
+    const j = await spkCall({ op: 'slist', token: tok });
+    if (!j.ok) { sesS.set('vz_spk_tok', ''); CO.st = 'pin'; CO.err = j.error || ''; return coDraw(); }
+    CO.tok = tok; coParse(j); CO.st = 'ok';
+  } catch (e) { CO.st = 'err'; CO.err = 'Нет связи с сервером'; }
+  coDraw();
+}
+function coParse(j) {
+  CO.server = (j.list || []).some(x => 'kurs' in x);
+  CO.list = (j.list || []).filter(x => x.club === 'vzlet' && x.st === 'принят' && !x.hid).map(x => ({ id: x.id, n: x.first, c: x.cls, k: x.kurs || {}, kc: x.kc || {}, upd: x.upd }))
+    .sort((a, b) => (parseInt(a.c) || 99) - (parseInt(b.c) || 99) || a.n.localeCompare(b.n, 'ru'));
+}
+async function coAct(id, q) {
+  if (CO.demo) { coDemoAct(id, q); toastK('Пример: на сервер не отправлено'); return coDraw(); }
+  const ids = Array.isArray(id) ? id : [id];
+  try {
+    const j = await spkCall(Object.assign({ op: 'sset', act: 'kurs', ids, token: CO.tok }, q));
+    if (!j.ok) { toastK('Не получилось: ' + (j.error || 'ошибка')); if (j.auth) { CO.st = 'pin'; CO.tok = ''; sesS.set('vz_spk_tok', ''); } return coDraw(); }
+    coParse(j); toastK('✓ Сохранено. Ученик увидит при следующем входе');
+  } catch (e) { toastK('Нет связи с сервером'); }
+  coDraw();
+}
+/* пример для показа, пока нет настоящих данных */
+function coDemo() {
+  const tasks = K.mods.find(m => m.id === 'm3').tasks, mk = (n, c, upto, extra) => {
+    const t = {};
+    tasks.slice(0, upto).forEach((id, k) => { const L = K.lib[id];
+      const s = L.steps.map((st, i) => k < upto - 1 ? (st.s === 'coach' ? (k % 2 ? 'o' : 'w') : (extra && i === L.steps.length - 1 && st.s === 'quiz' ? 'x' : 'o')) : (i === 0 ? 'o' : '-')).join('');
+      t[id] = { s, p: L.steps.some(x => x.s === 'quiz' || x.s === 'game') ? 60 + (k * 7 + n.length * 5) % 41 : null, a: 1 + (k + n.length) % 3, d: k < upto - 1 ? (10 + k) + '.10' : '', l: c <= 6 ? 1 : c <= 8 ? 2 : 3, k: k % 3 === 0 ? 1 : k % 5 === 4 ? -1 : 0,
+        c: L.steps.some(x => x.s === 'coach') ? 'Сделал на занятии' : '', f: L.fly ? (L.steps.some(x => x.live) ? '3,52 В при посадке' : 'Квадросим, Ангар: ' + (38 + k) + ',4 с') : '' }; });
+    return { v: 1, t };
+  };
+  CO.list = [['Артём', '6А', 3, 0], ['Маша', '7Б', 7, 1], ['Илья', '9А', 11, 0], ['Соня', '8В', 5, 1], ['Даня', '5Б', 1, 0]].map((a, i) =>
+    ({ id: 'demo' + i, n: a[0], c: a[1], k: mk(a[0], parseInt(a[1]), a[2], a[3]), kc: { o: ['m3'], v: {} }, upd: '19.10.2026 1' + i + ':05' }));
+}
+function coDemoAct(id, q) {
+  (Array.isArray(id) ? id : [id]).forEach(x => { const s = CO.list.find(z => z.id === x); if (!s) return; const kc = s.kc; kc.o = kc.o || []; kc.a = kc.a || {}; kc.r = kc.r || {}; kc.v = kc.v || {};
+    const k = q.mod || q.task;
+    if (q.k === 'open' && kc.o.indexOf(k) < 0) kc.o.push(k); if (q.k === 'close') kc.o = kc.o.filter(z => z !== k);
+    if (q.k === 'acc') { kc.a[k] = today(); delete kc.r[k]; const r = s.k.t[k]; if (r) r.s = r.s.replace(/w/g, 'o'); }
+    if (q.k === 'ret') { kc.r[k] = [today(), q.why]; delete kc.a[k]; const r = s.k.t[k]; if (r) r.s = r.s.replace(/w/g, '-'); }
+    if (q.k === 'lvl') kc.v[k] = q.v; });
+}
+/* расчёты по записи ученика */
+const kRec = (s, id) => (s.k && s.k.t && s.k.t[id]) || null;
+const kPts = (id, r) => { const L = K.lib[id]; return L && r && r.d && !/[-n]/.test(r.s) ? Math.round(L.pts * (r.p == null ? 1 : r.p / 100)) : 0; };
+const kWait = r => !!r && r.s.indexOf('w') >= 0;
+const kOpenM = (s, m) => PREVIEW_OPEN.includes(m.id) || ((s.kc && s.kc.o) || []).includes(m.id);
+const kLvl = (s, m) => (s.kc && s.kc.v && s.kc.v[m.id]) || (s.k && s.k.lv && s.k.lv[m.id]) || (parseInt(s.c) <= 6 ? 1 : parseInt(s.c) <= 8 ? 2 : 3);
+function kModProg(s, m) { if (!m.tasks) return null; const d = m.tasks.filter(id => { const r = kRec(s, id); return r && r.d && !/[-n]/.test(r.s); }).length; return d / m.tasks.length; }
+const kAllPts = s => Object.keys(K.lib).reduce((a, id) => a + kPts(id, kRec(s, id)), 0);
+function kCur(s) { for (const m of K.mods) { if (!m.tasks || !kOpenM(s, m)) continue; if (kModProg(s, m) < 1) return m; } return null; }
+const stepIco = ch => ({ o: '✅', x: '🔁', n: '⚠️', w: '⏳', '-': '▫️' }[ch] || '▫️');
+
+function coDraw() {
+  if (!box || !isCoach() || CO.as) return;
+  VIEW = { m: null, t: null, step: null, co: 1 };
+  if (CO.who) return CO.mod ? coModView() : coStudView();
+  let h = `<div class="kr-card top"><h3>👥 Ученики по курсу</h3><p class="mut">Кто на каком модуле, кто ждёт проверки, рейтинг по курсу. Нажми на ученика, чтобы провалиться в модули и задания.</p>
+    <div class="kr-back" style="margin-top:10px"><button class="kr-btn sm" data-k="co-load">↻ Обновить</button><button class="kr-btn sm" data-k="co-demo">${CO.demo ? '✕ Убрать пример' : '👀 Пример'}</button><button class="kr-btn sm" data-k="co-as">🎓 Курс глазами ученика</button></div></div>`;
+  if (CO.demo) h += '<div class="kr-note">👀 Это пример с выдуманными учениками, чтобы посмотреть, как выглядит окно. Кнопки работают, но ничего не сохраняется.</div>';
+  else if (CO.st === 'load') h += '<div class="kr-note">⏳ Загружаю учеников...</div>';
+  else if (CO.st === 'pin') h += `<div class="kr-card"><b>Вход для тренера</b><p class="mut" style="margin:4px 0 10px">Нужен PIN портала СПЕКТР (тот же, что для заявок).${CO.err ? ' ' + E(CO.err) : ''}</p><form class="kr-in" id="coPin"><label>PIN<input name="pin" type="password" inputmode="numeric" autocomplete="off"></label><button class="kr-btn pri">Войти</button></form></div>`;
+  else if (CO.st === 'err') h += `<div class="kr-wait">⚠ ${E(CO.err)}. <button class="kr-btn sm" data-k="co-load">Ещё раз</button></div>`;
+  if (CO.st === 'ok' && !CO.demo && !CO.server) h += '<div class="kr-wait">🛠 Сервер ещё не обновлён: список учеников есть, а их прогресс по курсу появится после установки нового файла сервера. Пока можно посмотреть 👀 Пример.</div>';
+  const L = CO.list;
+  if ((CO.st === 'ok' || CO.demo) && !L.length) h += '<div class="kr-note">Пока нет принятых учеников Взлёта.</div>';
+  if ((CO.st === 'ok' || CO.demo) && L.length) {
+    const live = K.mods;
+    /* ждут проверки */
+    const waits = []; L.forEach(s => Object.keys((s.k && s.k.t) || {}).forEach(id => { const r = s.k.t[id]; if (kWait(r) && !(s.kc.a || {})[id]) waits.push([s, id, r]); }));
+    if (waits.length) h += `<div class="kr-card"><div class="kr-sec">⏳ Ждут проверки (${waits.length})</div><div class="co-w">${waits.map(([s, id, r]) => `<div class="co-wi"><span><b>${E(s.n)}, ${E(s.c)}</b> - ${K.lib[id].e} ${E(K.lib[id].t)}${r.c ? `<br><small class="mut">"${E(r.c)}"</small>` : ''}</span><span class="co-wb"><button class="kr-btn sm pri" data-k="co-acc" data-s="${s.id}" data-t="${id}">✓ Принять</button><button class="kr-btn sm" data-k="co-ret" data-s="${s.id}" data-t="${id}">↩</button></span></div>`).join('')}</div></div>`;
+    /* таблица ученики x модули */
+    h += `<div class="kr-card"><div class="kr-sec">Кто где</div><div class="co-tbl"><div class="co-r co-h"><span>Ученик</span>${live.map(m => `<i title="${E(m.t)}">${m.e}<small>${m.n}</small></i>`).join('')}<b>⭐</b></div>` +
+      L.map(s => `<button class="co-r" data-k="co-who" data-s="${s.id}"><span><b>${E(s.n)}</b> <small>${E(s.c)}</small></span>${live.map(m => { const op = kOpenM(s, m), p = kModProg(s, m), w = m.tasks && m.tasks.some(id => kWait(kRec(s, id)) && !(s.kc.a || {})[id]);
+        return `<i class="${!m.tasks ? 'na' : !op ? 'lk' : p === 1 ? 'dn' : p > 0 ? 'go' : 'op'}">${!m.tasks ? '·' : !op ? '🔒' : Math.round(p * 100) + '%'}${w ? '<em></em>' : ''}</i>`; }).join('')}<b>${kAllPts(s)}</b></button>`).join('') +
+      '</div><p class="mut" style="margin-top:8px;font-size:12.5px">% - сколько заданий модуля пройдено · 🔒 модуль закрыт · жёлтая точка - ждёт проверки</p></div>';
+    /* рейтинг */
+    const rate = L.slice().sort((a, b) => kAllPts(b) - kAllPts(a)).slice(0, 10);
+    h += `<div class="kr-card"><div class="kr-sec">🏆 Рейтинг по курсу</div><ol class="co-rt">${rate.map(s => { const m = kCur(s); return `<li><span>${E(s.n)}, ${E(s.c)}</span><small class="mut">${m ? m.e + ' модуль ' + m.n : ''}</small><b>⭐ ${kAllPts(s)}</b></li>`; }).join('')}</ol></div>`;
+    /* открыть модуль нескольким */
+    h += `<div class="kr-card"><div class="kr-sec">🔓 Открыть модуль нескольким</div><div class="co-ch">${L.map(s => `<button data-k="co-sel" data-s="${s.id}" class="${CO.sel.has(s.id) ? 'on' : ''}">${E(s.n)} ${E(s.c)}</button>`).join('')}</div>
+      <div class="kr-back" style="margin-top:10px"><select id="coMod" class="co-sl">${K.mods.map(m => `<option value="${m.id}">${m.e} Модуль ${m.n}. ${E(m.t)}</option>`).join('')}</select><button class="kr-btn sm pri" data-k="co-bulk" ${CO.sel.size ? '' : 'disabled'}>Открыть выбранным (${CO.sel.size})</button></div></div>`;
+    /* лайки по заданиям */
+    const lk = {}; L.forEach(s => Object.keys((s.k && s.k.t) || {}).forEach(id => { const v = s.k.t[id].k; if (!v) return; lk[id] = lk[id] || [0, 0]; lk[id][v > 0 ? 0 : 1]++; }));
+    const ids = Object.keys(lk);
+    if (ids.length) h += `<div class="kr-card"><div class="kr-sec">👍 / 👎 тестировщиков</div><ul class="kr-hist">${ids.map(id => `<li><span>${K.lib[id].e} ${E(K.lib[id].t)}</span><span>👍 ${lk[id][0]} · 👎 ${lk[id][1]}</span></li>`).join('')}</ul><p class="mut" style="margin-top:8px;font-size:12.5px">Много 👎 - задание стоит поправить или заменить.</p></div>`;
+  }
+  mount(h);
+}
+function coStud() { return CO.list.find(s => s.id === CO.who); }
+function coStudView() {
+  const s = coStud(); if (!s) { CO.who = null; return coDraw(); }
+  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-back">← Все ученики</button>${CO.demo ? '<span class="mut">👀 пример</span>' : ''}</div>
+    <div class="kr-card top"><h3>${E(s.n)}, ${E(s.c)}</h3><p class="mut">⭐ ${kAllPts(s)} очков за курс${s.upd ? ' · обновлено ' + E(s.upd) : ''}</p></div>`;
+  h += '<div class="kr-mods">' + K.mods.map(m => {
+    const op = kOpenM(s, m), p = kModProg(s, m), lv = kLvl(s, m), w = m.tasks && m.tasks.filter(id => kWait(kRec(s, id)) && !(s.kc.a || {})[id]).length;
+    return `<div class="kr-m ${op ? 'on' : 'lock'}" style="cursor:default"><span class="e">${m.e}</span><span class="nn">МОДУЛЬ ${m.n}</span><b>${E(m.t)}</b>
+      ${m.tasks ? `<div class="kr-bar"><i data-w="${(p || 0) * 100}"></i></div><div class="st">${op ? Math.round(p * 100) + '% заданий' : '🔒 закрыт'}${w ? ` · <span style="color:#facc15">⏳ ждёт проверки: ${w}</span>` : ''}</div>` : '<div class="st">🛠 задания готовятся</div>'}
+      ${m.tasks ? `<div class="kr-lvs" style="margin-top:8px">${LV.map(v => `<button data-k="co-lvl" data-m="${m.id}" data-v="${v.n}" class="${v.n === lv ? 'on' : ''}" style="min-height:40px">${v.e}<small>${E(v.t)}</small></button>`).join('')}</div>` : ''}
+      <div class="kr-back" style="margin-top:8px">${PREVIEW_OPEN.includes(m.id) ? '<span class="mut" style="font-size:12.5px">открыт для пробы всем</span>' : op ? `<button class="kr-btn sm" data-k="co-close" data-m="${m.id}">🔒 Закрыть</button>` : `<button class="kr-btn sm pri" data-k="co-open" data-m="${m.id}">🔓 Открыть модуль</button>`}${m.tasks ? `<button class="kr-btn sm" data-k="co-mod" data-m="${m.id}">Задания ▸</button>` : ''}</div></div>`;
+  }).join('') + '</div>';
+  mount(h); bars();
+}
+function coModView() {
+  const s = coStud(), m = K.mods.find(x => x.id === CO.mod); if (!s || !m) { CO.mod = null; return coDraw(); }
+  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-who" data-s="${s.id}">← ${E(s.n)}</button><span class="mut">${m.e} Модуль ${m.n}. ${E(m.t)} · ${lvChip(kLvl(s, m))}</span></div>`;
+  h += '<div class="kr-road">' + m.tasks.map((id, k) => {
+    const L = K.lib[id], r = kRec(s, id), dn = r && r.d && !/[-n]/.test(r.s), acc = (s.kc.a || {})[id], ret = (s.kc.r || {})[id];
+    const steps = L.steps.map((st, i) => `<span class="co-st">${stepIco(r ? r.s[i] : '-')} ${E(stepName(st))}</span>`).join('');
+    const info = r ? [r.p != null ? 'результат ' + r.p + '%' : '', r.a ? 'попыток ' + r.a : '', r.d ? '✓ ' + E(r.d) : '', r.l ? lvInfo(r.l).e : '', r.s.indexOf('x') >= 0 ? '🔁 было доп.задание' : '', r.s.indexOf('n') >= 0 ? '⚠️ нужно доп.задание' : '', r.k ? (r.k > 0 ? '👍' : '👎') : ''].filter(Boolean).join(' · ') : 'ещё не начинал';
+    const cw = L.steps.some(x => x.s === 'coach');
+    return `<div class="kr-t ${dn ? 'ok' : ''}" style="cursor:default;flex-wrap:wrap;animation-delay:${k * 40}ms"><span class="d">${dn ? '✓' : k + 1}</span><span class="e">${L.e}</span><span style="min-width:0;flex:1"><b>${E(L.t)}</b><small>${info}</small>
+      <span class="co-sts">${steps}</span>${r && r.f ? `<small>✈ ${E(r.f)}</small>` : ''}${r && r.c ? `<small>💬 "${E(r.c)}"</small>` : ''}${acc ? `<small style="color:#86efac">✓ принято ${E(acc)}</small>` : ''}${ret ? `<small style="color:#fca5a5">↩ возвращено ${E(ret[0])}${ret[1] ? ': ' + E(ret[1]) : ''}</small>` : ''}
+      ${cw ? `<span class="kr-back" style="margin-top:6px">${kWait(r) && !acc ? '<small class="wait" style="margin-right:6px">⏳ ждёт проверки</small>' : ''}<button class="kr-btn sm ${kWait(r) && !acc ? 'pri' : ''}" data-k="co-acc" data-s="${s.id}" data-t="${id}">✓ Принять</button><button class="kr-btn sm" data-k="co-ret" data-s="${s.id}" data-t="${id}">↩ Вернуть</button></span>` : ''}</span></div>`;
+  }).join('') + '</div>';
+  mount(h);
+}
+css.textContent += `
+.co-tbl{display:grid;gap:4px;overflow-x:auto}
+.co-r{display:grid;grid-template-columns:minmax(96px,1.6fr) repeat(${K.mods.length},minmax(34px,1fr)) 42px;gap:4px;align-items:center;width:100%;min-width:380px;padding:6px;border-radius:12px;border:1px solid rgba(127,127,160,.2);background:rgba(127,127,160,.06);color:inherit;font-family:inherit;text-align:left;cursor:pointer}
+.co-r.co-h{background:none;border:none;cursor:default;font-size:12px;font-weight:800;opacity:.8}
+.co-r span{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.co-r small{opacity:.7;font-size:11.5px}
+.co-r i{position:relative;font-style:normal;text-align:center;font-size:12px;font-weight:800;padding:6px 0;border-radius:8px;background:rgba(127,127,160,.1)}
+.co-r.co-h i{background:none;padding:0;font-size:16px}.co-r.co-h i small{display:block;font-size:10.5px}
+.co-r i.dn{background:rgba(34,197,94,.25);color:#86efac}.co-r i.go{background:rgba(var(--krgb),.18)}.co-r i.lk{opacity:.5}.co-r i.na{background:none;opacity:.4}
+.co-r i em{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#facc15;box-shadow:0 0 6px #facc15}
+.co-r b{text-align:right;font-size:13px}
+.co-w{display:grid;gap:8px}.co-wi{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:12px;background:rgba(250,204,21,.08);font-size:14px}
+.co-wb{display:flex;gap:6px;flex:none}
+.co-rt{margin:0;padding-left:22px;display:grid;gap:6px}.co-rt li{font-size:14px}.co-rt li span{font-weight:700}.co-rt li small{margin-left:6px}.co-rt li b{float:right}
+.co-ch{display:flex;flex-wrap:wrap;gap:6px}.co-ch button{min-height:36px;padding:0 12px;border-radius:99px;border:1px solid rgba(127,127,160,.35);background:rgba(127,127,160,.08);color:inherit;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer}
+.co-ch button.on{background:rgba(var(--krgb),.22);border-color:var(--ka)}
+.co-sl{font:inherit;font-size:14px;color:inherit;background:rgba(0,0,0,.3);border:1px solid rgba(127,127,160,.4);border-radius:11px;padding:8px 10px;max-width:100%}
+.co-sts{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px}.co-st{font-size:12.5px;opacity:.9}
+`;
+document.addEventListener('click', e => {
+  if (!box || !box.contains(e.target)) return;
+  const b = e.target.closest('[data-k^="co-"]'); if (!b) return;
+  const k = b.dataset.k, sid = b.dataset.s;
+  if (k === 'co-load') { CO.demo = false; coLoad(); }
+  else if (k === 'co-demo') { CO.demo = !CO.demo; CO.who = null; CO.mod = null; CO.sel.clear(); if (CO.demo) coDemo(); else { CO.list = []; coLoad(); return; } coDraw(); }
+  else if (k === 'co-as') { CO.as = true; home(); scrollTop(); }
+  else if (k === 'co-home') { CO.as = false; home(); scrollTop(); }
+  else if (k === 'co-back') { CO.who = null; CO.mod = null; coDraw(); }
+  else if (k === 'co-who') { CO.who = sid; CO.mod = null; coDraw(); scrollTop(); }
+  else if (k === 'co-mod') { CO.mod = b.dataset.m; coDraw(); scrollTop(); }
+  else if (k === 'co-open' || k === 'co-close') coAct(CO.who, { k: k === 'co-open' ? 'open' : 'close', mod: b.dataset.m });
+  else if (k === 'co-lvl') coAct(CO.who, { k: 'lvl', mod: b.dataset.m, v: +b.dataset.v });
+  else if (k === 'co-acc') coAct(sid, { k: 'acc', task: b.dataset.t });
+  else if (k === 'co-ret') { const why = prompt('Что доделать? (ученик увидит эту подсказку)', ''); if (why === null) return; coAct(sid, { k: 'ret', task: b.dataset.t, why: why.slice(0, 140) }); }
+  else if (k === 'co-sel') { CO.sel.has(sid) ? CO.sel.delete(sid) : CO.sel.add(sid); b.classList.toggle('on'); const go = $('[data-k="co-bulk"]', box); if (go) { go.disabled = !CO.sel.size; go.textContent = 'Открыть выбранным (' + CO.sel.size + ')'; } }
+  else if (k === 'co-bulk') { const m = $('#coMod', box).value; coAct([...CO.sel], { k: 'open', mod: m }); CO.sel.clear(); }
+});
+document.addEventListener('submit', e => {
+  if (!box || e.target.id !== 'coPin') return; e.preventDefault();
+  const pin = String(new FormData(e.target).get('pin') || '').trim(); if (pin) coLoad(pin);
+});
+
 /* ---------- клики ---------- */
 document.addEventListener('click', e => {
   if (!box || !box.contains(e.target)) return;
@@ -726,7 +958,7 @@ document.addEventListener('click', e => {
 /* ---------- старт ---------- */
 function init() {
   box = document.getElementById('t-kurs'); if (!box) return;
-  home();
+  home(); kSync();
   const nav = document.getElementById('vt');
   if (nav) nav.addEventListener('click', e => { const b = e.target.closest('button[data-t="kurs"]'); if (b && VIEW.t == null && VIEW.m == null) home(); });
 }
