@@ -56,7 +56,7 @@ const STI = ['🔒', '📖', '📝', '✅'], STN = ['закрыто', 'тест 
 
 /* Результаты тестов учеников (балл, дата, попытки) - с общего сервера СПЕКТРа, только для педагога.
    Вход: токен портала из этой вкладки; если его нет - один раз пробуем PIN тренера, иначе просим PIN портала. */
-const SPK_API = 'https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec';
+const SPK_API = 'https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b';
 const spkCall = q => fetch(SPK_API, { method: 'POST', body: JSON.stringify(q) }).then(r => r.json());
 function spkTok() {
   const t = ses.get('vz_spk_tok'); if (t) return t;

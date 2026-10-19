@@ -890,7 +890,7 @@ function simTag(t){ const m=simOf(t); return `<span class="tag ${m==='Реал'?
 /* пилоты: лист "Пилоты" + ученики, принятые по заявке в рейтинг клуба ("Имя (класс)") + все, у кого есть заезды */
 let SPK_PIL=[];
 function loadSpkPilots(){
-  fetch('https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec',{method:'POST',body:JSON.stringify({op:'srate',club:'vzlet'})})
+  fetch('https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b',{method:'POST',body:JSON.stringify({op:'srate',club:'vzlet'})})
     .then(r=>r.json()).then(j=>{ if(!j||!j.ok) return; SPK_PIL=(j.top||[]).map(x=>({'Пилот':`${x.n} (${x.c})`,'Класс':x.c,_spk:1})); if(data) renderAll(); }).catch(()=>{});
 }
 function allPilots(){
@@ -1419,7 +1419,7 @@ function openHelper(){
 applyMode();
 initRole();
 /* анонимный счётчик посещений */
-(function(page){ try{ const API='https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec', k='irtysh_hit_'+page;
+(function(page){ try{ const API='https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b', k='irtysh_hit_'+page;
   if(sessionStorage.getItem(k)!==null) return; const d=new Date().toDateString(), fresh=!localStorage.getItem('irtysh_new_'+page), today=localStorage.getItem('irtysh_day_'+page)!==d;
   fetch(API,{method:'POST', body:JSON.stringify({op:'hit', page, fresh, today})}).then(r=>r.json()).then(j=>{ if(!j.ok) return; localStorage.setItem('irtysh_new_'+page,'1'); localStorage.setItem('irtysh_day_'+page,d); sessionStorage.setItem(k,String(j.total||'')); }).catch(()=>{}); }catch(e){} })('vzlet');
 loadData(); loadSpkPilots();
