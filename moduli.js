@@ -1166,6 +1166,7 @@ const unready = () => { const u = K.mods.filter(m => !m.tasks); return u.length 
 function coHead() {
   return `<div class="kr-card top co-hd"><div class="co-hr"><div class="co-ht"><h3>👥 Ученики курса</h3>${CO.demo ? '<span class="co-demo">👀 Пример - не сохраняется</span>' : `<span class="co-upd">${E(CO.busy ? 'обновляю...' : updAgo())}</span>`}</div>
     <div class="co-hb"><button class="kr-btn co-ib" data-k="co-load" aria-label="Обновить" title="Обновить">↻</button><button class="kr-btn co-ib" data-k="co-menu" aria-expanded="${!!CO.menu}" aria-label="Ещё" title="Ещё">⋯</button>${bugBtn()}</div></div>
+    <div class="co-tp" data-spk-panel data-club="vzlet" data-coach data-pin-key="vzlet_pin" data-accent="#00d4ff"></div>
     ${CO.menu ? `<div class="co-menu"><button class="kr-btn" data-k="co-demo">${CO.demo ? '✕ Убрать пример' : '👀 Пример с выдуманными учениками'}</button><button class="kr-btn" data-k="co-as">🎓 Курс глазами ученика</button><p class="mut">Нажми на ученика или модуль, чтобы зайти внутрь. Цифры сводки - фильтры списка.</p></div>` : ''}</div>`;
 }
 function coSum(ST) {
@@ -1425,6 +1426,7 @@ body.kr-co #ahero,body.kr-co #pnBeta{display:none !important}
 .co-hd{padding:12px 14px}
 .co-hr{display:flex;align-items:center;gap:8px}.co-ht{flex:1;min-width:0}.co-ht h3{margin:0;font-size:18px}
 .co-upd{display:block;font-size:12.5px;opacity:.7;margin-top:2px}
+.co-tp{display:flex;margin-top:10px}.co-tp[hidden]{display:none}
 .co-hb{display:flex;gap:6px;flex:none}.co-hb .kr-bug{margin:0}
 .co-ib{width:44px;min-width:44px;padding:0;font-size:19px}
 .co-menu{display:grid;gap:8px;margin-top:10px}.co-menu .kr-btn{justify-content:flex-start}.co-menu p{font-size:12.5px}

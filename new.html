@@ -509,6 +509,7 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
     <span class="status" id="status"><i></i><span>загрузка…</span></span>
     <button class="btn coach-only" onclick="loadData(true)">↻ Обновить</button>
     <a class="btn coach-only" id="editBtn" target="_blank" href="#" title="Открыть Google Таблицу">▦ Таблица</a>
+    <span class="coach-only" data-spk-panel data-club="vzlet" data-coach data-pin-key="vzlet_pin" data-btn="btn" data-accent="#00d4ff"></span>
     <button class="btn" id="lockBtn" onclick="lockClick()" style="display:none">✎ Войти</button>
     <button class="btn" data-fx-skin title="Сменить живой фон" aria-label="Сменить фон">🎨</button>
     <button class="btn primary" onclick="openModal()">📖 Справка</button>
@@ -1994,5 +1995,6 @@ if(typeof data==='object'&&data){if(DEMO)renderAll();else{renderPult();applyHide
 <script src="/put.js" data-site="vzlet" defer></script>
 <script src="zadaniya-vzlet.js" defer></script>
 <script src="moduli.js" defer></script>
+<script src="../trener-panel.js" defer></script>
 </body>
 </html>
