@@ -10,7 +10,7 @@ const $ = (s, r) => (r || document).querySelector(s), $$ = (s, r) => [...(r || d
 const E = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const RED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const KEY = 'vz_kurs', PASS = 0.7;
-const PREVIEW_OPEN = ['m3'];   // пробная версия: модуль 3 открыт для проверки, пока нет окна тренера
+const PREVIEW_OPEN = ['m1', 'm2', 'm3'];   // пробная версия: модуль 3 открыт для проверки, пока нет окна тренера
 const isCoach = () => typeof MODE !== 'undefined' && MODE === 'coach';
 const shuf = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -51,7 +51,9 @@ const lvInfo = n => LV[(n || 1) - 1];
 const lvChip = n => { const v = lvInfo(n); return `<span class="kr-lv l${v.n}">${v.e} ${E(v.t)}</span>`; };
 
 const baseP = window.SPK_PROGRESS;
-window.SPK_PROGRESS = function (c) { const r = Object.assign({}, baseP ? baseP(c) : { p: 0, b: 0, l: '' }); r.p = (r.p || 0) + allPts(); return r; };
+/* KURS_RATE: пока курс на тесте, его очки не идут в общий рейтинг Взлёта (видны только во вкладке Курс). При запуске курса - true */
+const KURS_RATE = false;
+window.SPK_PROGRESS = function (c) { const r = Object.assign({}, baseP ? baseP(c) : { p: 0, b: 0, l: '' }); if (KURS_RATE) r.p = (r.p || 0) + allPts(); return r; };
 const baseR = window.SPK_RESET;
 window.SPK_RESET = function (c) { S = { t: {}, lvl: {} }; try { localStorage.setItem(KEY, '{}'); } catch (e) {} if (baseR) baseR(c); if (box) home(); };
 
@@ -84,6 +86,8 @@ function cellSvg(x, y, w, h, lvl, txt, d) {
     `<rect x="${x + 5}" y="${y + h - 5 - fh}" width="${w - 10}" height="${fh}" rx="4" class="kc-f"/>` + (txt ? `<text x="${x + w / 2}" y="${y + h / 2 + 5}" class="kc-x">${txt}</text>` : '') + '</g>';
 }
 function pic(k) {
+  if (k && k.indexOf('e:') === 0) return `<div class="kpic-e" aria-hidden="true">${E(k.slice(2))}</div>`;
+  if (k && k.indexOf('chain:') === 0) return `<div class="kchain" aria-hidden="true">${k.slice(6).split('>').map((t, i) => (i ? '<i>→</i>' : '') + `<span style="animation-delay:${i * 140}ms">${E(t)}</span>`).join('')}</div>`;
   const V = (b, w) => `<svg viewBox="0 0 ${w || 240} 120" class="kpic" aria-hidden="true">${b}</svg>`;
   switch (k) {
     case 'tank': return V(cellSvg(88, 18, 64, 92, .78, '3,7 В') + '<path d="M160 60h14" class="kp-l"/><text x="178" y="56" class="kp-s">бак</text><text x="178" y="74" class="kp-s">энергии</text>');
@@ -105,6 +109,8 @@ function pic(k) {
     case 'temp': return V('<text x="70" y="78" class="kp-big">☀️</text><text x="170" y="78" class="kp-big">❄️</text><path d="M95 30l50 64M145 30l-50 64" class="kp-x"/>');
     case 'swell': return V('<path d="M70 40 Q120 10 170 40 L170 90 Q120 118 70 90 Z" class="kp-sw"/><text x="120" y="72" class="kp-h">не летаем</text>');
     case 'hot': return V(cellSvg(96, 26, 48, 80, .4, '', 0) + '<path d="M80 30q6-10 0-20M120 18q6-10 0-20M160 30q6-10 0-20" class="kp-heat"/>');
+    case 'quad': return V('<path d="M78 30L162 90M162 30L78 90" class="kp-l" style="stroke-width:6"/><rect x="104" y="46" width="32" height="28" rx="6" class="kp-d"/><rect x="113" y="40" width="14" height="8" rx="2" class="kp-yel"/>' +
+      [[78, 30, 1], [162, 30, 0], [78, 90, 0], [162, 90, 1]].map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="22" class="kp-ring"/><g class="${p[2] ? 'kspin' : 'kspin r'}" style="transform-origin:${p[0]}px ${p[1]}px"><path d="M${p[0] - 16} ${p[1]}h32" class="kp-w" style="stroke-width:4"/></g><text x="${p[0]}" y="${p[1] + 34 > 118 ? p[1] - 26 : p[1] + 36}" class="kp-s2">${p[2] ? '↺ против' : '↻ по часовой'}</text>`).join('') + '<text x="120" y="14" class="kp-s2">▲ вперёд</text>');
     default: return '';
   }
 }
@@ -333,7 +339,7 @@ function home() {
   const live = K.mods.filter(m => m.tasks), tot = live.reduce((a, m) => a + m.tasks.length, 0), dn = live.reduce((a, m) => a + m.tasks.filter(taskDone).length, 0);
   let h = `<div class="kr-card top"><h3>🎓 Твой прогресс</h3><p class="mut">Внутри модуля шаги открываются сами. Следующий модуль открывает тренер, когда проверит задания.</p>
     <div class="kr-bar"><i data-w="${tot ? dn / tot * 100 : 0}"></i></div><div class="kr-row"><span>Пройдено заданий: ${dn} из ${tot}</span><span>⭐ ${allPts()} очков</span></div></div>`;
-  h += `<div class="kr-note">🧪 Пробная версия: сейчас наполнен модуль 3 "Аккумуляторы", он открыт для проверки. Остальные модули показывают план и наполняются по ходу. В модуле 3 уровня сложности (по классу).</div>${isCoach() ? '<div class="kr-back"><button class="kr-btn sm pri" data-k="co-home">👥 К ученикам (окно тренера)</button><span class="mut">Вы тренер: здесь курс глазами ученика, всё открыто.</span></div>' : ''}`;
+  h += `<div class="kr-note">🧪 Пробная версия: наполнены модули 1-3, они открыты для проверки. Остальные модули показывают план и наполняются по ходу. В каждом модуле 3 уровня сложности (по классу).</div>${isCoach() ? '<div class="kr-back"><button class="kr-btn sm pri" data-k="co-home">👥 К ученикам (окно тренера)</button><span class="mut">Вы тренер: здесь курс глазами ученика, всё открыто.</span></div>' : ''}`;
   h += '<div class="kr-mods">' + K.mods.map((m, i) => {
     const op = modOpen(m), p = modProg(m), full = p === 1;
     const st = !m.tasks ? '🛠 готовится' : full ? '✓ модуль пройден' + (S.t[m.tasks[m.tasks.length - 1]] ? '' : '') : op ? '▶ ' + Math.round(p * 100) + '% пройдено' : '🔒 откроет тренер';
@@ -506,6 +512,7 @@ function buildQs(st, extra, lv) {
   if (st.from) {
     let pool = [];
     st.from.forEach(id => L[id].steps.forEach(s => { if (s.s === 'quiz' && s.pool) pool = pool.concat(extra ? (s.x || []) : s.pool); }));
+    if (st.gen2 !== 'mix') return byLevel(pool, n, lv);
     const q = byLevel(pool, n - 2, lv); q.push(genMix(lv), genMix(lv)); return shuf(q);
   }
   const src = extra ? st.x : st.pool;
@@ -590,7 +597,7 @@ function coachStep(tid, i, st, stg) {
 
 /* ---------- тренажёры (сложность растёт с уровнем модуля) ---------- */
 function gameStep(tid, i, st, stg, forceX) {
-  const x = stepSt(tid, i), G = { build: gBuild, light: gLight, calc: gCalc, compare: gCompare, label: gLabel, story: gStory }[st.g];
+  const x = stepSt(tid, i), G = { build: gBuild, light: gLight, calc: gCalc, compare: gCompare, label: gLabel, story: gStory, sort: gSort, order: gOrder, match: gMatch }[st.g];
   const needX = forceX || (x.needX && !x.ok), lv = lvlOf(modOf(tid).id);
   G(stg, st, needX, r => {   // r: доля верных (или 1 для тренажёров без оценки)
     const pass = st.pass || PASS, good = r >= pass, lvR = Math.max(x.lv || 0, lv);
@@ -607,6 +614,65 @@ function whyBox(el, good, txt, last, go) {
   el.innerHTML = `<div class="kr-why ${good ? 'ok' : ''}"><b>${good ? '✓ Верно!' : '✗ Не совсем.'}</b>${E(txt)}<button class="kr-btn pri">${last ? 'Итог' : 'Дальше →'}</button></div>`;
   $('button', el).onclick = go;
   if (!good) el.scrollIntoView({ behavior: RED ? 'auto' : 'smooth', block: 'center' });
+}
+
+/* ---------- общие тренажёры для любых модулей: все данные лежат в задании ---------- */
+const byLv = (arr, lv) => arr.filter(x => (x[0] || 1) <= lv);
+/* sort: карточка с ситуацией - выбери группу. st.cats [[значок, название]], st.items [[уровень, текст, номер группы, пояснение]] */
+function gSort(stg, st, hint, done, lv) {
+  const items = shuf(byLv(st.items, lv)).slice(0, [6, 8, 10][lv - 1] - (hint ? 1 : 0));
+  let k = 0, ok = 0;
+  function draw() {
+    const it = items[k];
+    stg.innerHTML = `<div class="kr-sec">${E(st.h)} · ${k + 1} из ${items.length}</div>${hint && st.tip ? `<div class="kr-hint">Подсказка: ${E(st.tip)}</div>` : ''}
+      <div class="kg-item">${E(it[1])}</div><div class="kg-opts">${st.cats.map((c, j) => `<button class="kr-opt" data-j="${j}">${c[0]} ${E(c[1])}</button>`).join('')}</div><div class="kq-r"></div>`;
+    $$('.kr-opt', stg).forEach(b => b.onclick = () => {
+      const j = +b.dataset.j, good = j === it[2];
+      $$('.kr-opt', stg).forEach(z => { z.disabled = true; if (+z.dataset.j === it[2]) z.classList.add('y'); });
+      if (good) { ok++; snd('ok'); } else { b.classList.add('n'); snd('bad'); buzz(40); }
+      whyBox($('.kq-r', stg), good, it[3] || '', k === items.length - 1, () => { k++; if (k < items.length) draw(); else { stg.innerHTML = `<div class="kr-end"><div class="big">${ok} из ${items.length}</div></div>`; done(ok / items.length); } });
+    });
+  }
+  draw();
+}
+/* order: нажимай по порядку. st.sets [{l, q, items: [в правильном порядке], why}] */
+function gOrder(stg, st, hint, done, lv) {
+  const sets = st.sets.filter(s => (s.l || 1) <= lv).slice(0, [3, 4, 5][lv - 1]);
+  let k = 0, sc = 0;
+  function draw() {
+    const S = sets[k], pool = shuf(S.items.map((t, i) => ({ t, i })));
+    let pos = 0, miss = 0;
+    stg.innerHTML = `<div class="kr-sec">${E(st.h)} · ${k + 1} из ${sets.length}</div><div class="kg-goal">🎯 ${E(S.q)}</div>${hint ? `<div class="kr-hint">Подсказка: первым идёт "${E(S.items[0])}"</div>` : ''}
+      <p class="mut" style="margin:4px 0 8px">Нажимай по порядку: что первое, что второе и дальше.</p>
+      <ol class="kg-ord">${S.items.map(() => '<li></li>').join('')}</ol><div class="kg-pool">${pool.map(p => `<button class="kr-opt" data-i="${p.i}">${E(p.t)}</button>`).join('')}</div><div class="kq-r"></div>`;
+    $$('.kg-pool button', stg).forEach(b => b.onclick = () => {
+      const i = +b.dataset.i;
+      if (i !== pos) { miss++; snd('bad'); buzz(30); b.classList.add('n'); setTimeout(() => b.classList.remove('n'), 450); return; }
+      const li = $$('.kg-ord li', stg)[pos]; li.textContent = S.items[i]; li.classList.add('on'); b.disabled = true; b.classList.add('gone'); snd('tap'); pos++;
+      if (pos < S.items.length) return;
+      sc += Math.max(0, 1 - miss / S.items.length); snd(miss ? 'ok' : 'win');
+      whyBox($('.kq-r', stg), !miss, (miss ? 'Ошибок: ' + miss + '. ' : 'Без ошибок! ') + (S.why || ''), k === sets.length - 1, () => {
+        k++; if (k < sets.length) return draw();
+        stg.innerHTML = `<div class="kr-end"><div class="big">${Math.round(sc / sets.length * 100)}%</div><div class="mut">порядок без ошибок</div></div>`; done(sc / sets.length);
+      });
+    });
+  }
+  draw();
+}
+/* match: найди пару. st.pairs [[уровень, слово, что это]] */
+function gMatch(stg, st, hint, done, lv) {
+  const P = shuf(byLv(st.pairs, lv)).slice(0, [4, 6, 8][lv - 1] - (hint ? 1 : 0)), R = shuf(P.map((p, i) => i));
+  let sel = null, ok = 0, miss = 0;
+  stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><p class="mut" style="margin-bottom:10px">Нажми слово слева, потом его пару справа.</p>
+    <div class="kg-mt"><div>${P.map((p, i) => `<button class="kr-opt" data-a="${i}">${E(p[1])}</button>`).join('')}</div><div>${R.map(i => `<button class="kr-opt" data-b="${i}">${E(P[i][2])}</button>`).join('')}</div></div>`;
+  $$('[data-a]', stg).forEach(b => b.onclick = () => { $$('[data-a]', stg).forEach(z => z.classList.remove('sel')); sel = +b.dataset.a; b.classList.add('sel'); snd('tap'); });
+  $$('[data-b]', stg).forEach(b => b.onclick = () => {
+    if (sel == null) { toastK('Сначала нажми слово слева'); return; }
+    const a = $(`[data-a="${sel}"]`, stg);
+    if (+b.dataset.b !== sel) { miss++; snd('bad'); buzz(30); b.classList.add('n'); setTimeout(() => b.classList.remove('n'), 450); return; }
+    a.disabled = b.disabled = true; a.classList.remove('sel'); a.classList.add('y'); b.classList.add('y'); ok++; sel = null; snd('ok');
+    if (ok === P.length) { stg.insertAdjacentHTML('beforeend', `<div class="kr-end"><div class="big">${miss ? 'Ошибок: ' + miss : 'Без ошибок!'}</div></div>`); done(P.length / (P.length + miss)); }
+  });
 }
 
 /* собери АКБ из банок: цели по очереди. Уровень 2-3: цель задана вольтами или ёмкостью - сначала посчитай */
@@ -757,16 +823,16 @@ function gLabel(stg, st, hint, done, lv) {
 
 /* найди ошибки в истории: на уровне выше больше предложений */
 function gStory(stg, st, hint, done, lv) {
-  const n = Math.min(K.story.length, [6, 7, 9][(lv || 1) - 1] - (hint ? 1 : 0));
+  const SRC = st.story || K.story, n = Math.min(SRC.length, [6, 7, 9][(lv || 1) - 1] - (hint ? 1 : 0));
   /* в каждой истории хотя бы 2 ошибки и 2 верных шага */
-  let L; do { L = shuf(K.story).slice(0, n); } while (L.filter(s => s[1]).length < 2 || L.filter(s => !s[1]).length < 2);
+  let L; do { L = shuf(SRC).slice(0, n); } while (L.filter(s => s[1]).length < 2 || L.filter(s => !s[1]).length < 2);
   const sel = new Set();
-  stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><p class="mut" style="margin-bottom:10px">Нажми на предложения, где Петя ошибся, потом "Проверить".${hint ? ' Подсказка: ошибки про тепло, присмотр, вздутие и режим зарядки.' : ''}</p>
+  stg.innerHTML = `<div class="kr-sec">${E(st.h)}</div><p class="mut" style="margin-bottom:10px">Нажми на предложения, где ${E(st.who || 'Петя')} ${st.she ? 'ошиблась' : 'ошибся'}, потом "Проверить".${hint ? ' Подсказка: ' + E(st.tip || 'ошибки про тепло, присмотр, вздутие и режим зарядки.') : ''}</p>
     <div class="kg-story">${L.map((s, j) => `<button data-j="${j}">${E(s[0])}</button>`).join('')}</div><div class="kr-end"><div class="acts"><button class="kr-btn pri" id="kgC">Проверить</button></div></div>`;
   $$('.kg-story button', stg).forEach(b => b.onclick = () => { const j = +b.dataset.j; sel.has(j) ? sel.delete(j) : sel.add(j); b.classList.toggle('sel'); snd('tap'); });
   $('#kgC', stg).onclick = function () {
     let ok = 0; this.parentNode.parentNode.remove();
-    $$('.kg-story button', stg).forEach(b => { const j = +b.dataset.j, err = L[j][1] === 1, good = err === sel.has(j); if (good) ok++; b.disabled = true; b.classList.remove('sel'); b.classList.add(good ? 'y' : 'n'); b.insertAdjacentHTML('beforeend', `<small>${err ? '❌ ошибка: ' : '✓ верно: '}${E(L[j][2])}</small>`); });
+    $$('.kg-story button', stg).forEach(b => { const j = +b.dataset.j, err = L[j][1] === 1, good = err === sel.has(j); if (good) ok++; b.disabled = true; b.classList.remove('sel'); b.classList.add(good ? 'y' : 'n'); b.insertAdjacentHTML('beforeend', `<small>${err ? '❌ ошибка: ' : /^верно/i.test(L[j][2]) ? '✓ ' : '✓ верно: '}${E(L[j][2])}</small>`); });
     stg.insertAdjacentHTML('beforeend', `<div class="kr-end"><div class="big">${ok} из ${L.length}</div></div>`); snd(ok === L.length ? 'win' : 'ok'); done(ok / L.length);
   };
 }
@@ -1005,6 +1071,18 @@ function coTaskView(quiet) {
   mount(h, quiet);
 }
 css.textContent += `
+.kpic-e{font-size:60px;line-height:1.15;text-align:center;margin:4px 0 8px;animation:krPop .6s both}
+.kchain{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;margin:6px 0 12px}
+.kchain span{padding:8px 11px;border-radius:12px;background:rgba(var(--krgb),.14);border:1px solid rgba(var(--krgb),.45);font-weight:800;font-size:13.5px;animation:krIn .5s both}
+.kchain i{font-style:normal;opacity:.75;font-weight:800}
+.kspin{animation:krSpin .5s linear infinite}.kspin.r{animation-direction:reverse}
+.kg-item{padding:18px 14px;border-radius:16px;background:rgba(var(--krgb),.1);border:1px solid rgba(var(--krgb),.4);font-size:17px;font-weight:700;text-align:center;line-height:1.4;margin:8px 0 12px;animation:krIn .4s both}
+.kg-ord{margin:0 0 10px;padding-left:24px;display:grid;gap:6px}
+.kg-ord li{min-height:42px;padding:10px 12px;border-radius:12px;border:1px dashed rgba(127,127,160,.45);font-weight:700;font-size:14.5px;line-height:1.3}
+.kg-ord li.on{border-style:solid;border-color:#22c55e;background:rgba(34,197,94,.12);animation:krPop .35s both}
+.kg-pool{display:grid;gap:8px}.kg-pool .gone{display:none}
+.kg-mt{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kg-mt>div{display:grid;gap:8px;align-content:start}
+.kg-mt .kr-opt{font-size:13.5px;min-height:54px;line-height:1.3;padding:8px 10px}.kg-mt .kr-opt.sel{border-color:var(--ka);background:rgba(var(--krgb),.22)}
 #t-kurs.kq .kr-m,#t-kurs.kq .kr-t,#t-kurs.kq .kr-card{animation:none !important}
 .kr-gnav{position:sticky;bottom:68px;z-index:40;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-top:16px;padding:8px;border-radius:18px;background:rgb(12,13,30);border:1px solid rgba(var(--krgb),.35);box-shadow:0 10px 30px -10px rgba(0,0,0,.7)}
 .kr-gnav .kr-btn{min-height:48px;padding:0 14px;font-size:15px}
