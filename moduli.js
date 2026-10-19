@@ -25,7 +25,7 @@ const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch
 const T = id => (S.t[id] = S.t[id] || { s: {} });
 const stepSt = (id, i) => { const t = T(id); return (t.s[i] = t.s[i] || {}); };
 const taskDone = id => !!(S.t[id] && S.t[id].done);
-function taskOpen(m, k) { const p = S.t[m.tasks[k - 1]]; return isCoach() || k === 0 || taskDone(m.tasks[k - 1]) || !!(p && p.was); }
+function taskOpen(m, k) { const p = S.t[m.tasks[k - 1]]; return isCoach() || k === 0 || taskDone(m.tasks[k - 1]) || !!(p && (p.was || p.skip)); }
 function modOpen(m) { return !!m.tasks && (isCoach() || PREVIEW_OPEN.includes(m.id) || (S.open || []).includes(m.id)); }
 function modProg(m) { if (!m.tasks) return 0; return m.tasks.filter(taskDone).length / m.tasks.length; }
 /* очки задания = pts x средний лучший результат проверок задания (доп.задания очков не дают) */
@@ -68,7 +68,7 @@ function snd(kind) {
   } catch (e) {}
 }
 const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
-function toastK(m) { const t = $('#toast'); if (!t) return; t.textContent = m; t.className = 'show ok'; clearTimeout(t._k); t._k = setTimeout(() => t.className = '', 2600); }
+function toastK(m) { const t = $('#toast'); if (!t) return; t.textContent = m; t.className = 'show ok'; clearTimeout(t._k); t._k = setTimeout(() => t.className = '', 4200); }
 function confetti() {
   if (RED) return; const C = ['#00d4ff', '#3fb950', '#facc15', '#a78bfa', '#fff'];
   for (let i = 0; i < 50; i++) { const d = document.createElement('i'), a = Math.random() * 6.28, v = 100 + Math.random() * 260;
@@ -260,9 +260,67 @@ document.head.appendChild(css);
 
 /* ---------- экраны ---------- */
 let box = null, VIEW = { m: null, t: null, step: null };
-function mount(html) {
-  box.innerHTML = '<div class="kr">' + html + '</div>';
-  if (window.tabFx && !RED) window.tabFx(box, 0, false);
+function mount(html, quiet) {
+  box.classList.toggle('kq', !!quiet);
+  navRec();
+  box.innerHTML = '<div class="kr">' + html + navHtml() + '</div>';
+  if (!quiet && window.tabFx && !RED) window.tabFx(box, 0, false);
+}
+/* ---------- назад / вперёд: история экранов и "дальше по порядку" ---------- */
+const NAV = { h: [], i: -1, off: false };
+function navCur() {
+  if (isCoach() && !CO.as) return { c: 1, tab: CO.tab, who: CO.who, mod: CO.mod, cm: CO.cm, ct: CO.ct };
+  return { m: VIEW.m, t: VIEW.t, s: VIEW.step };
+}
+function navRec() {
+  if (NAV.off) return;
+  const d = navCur(), j = JSON.stringify(d);
+  if (NAV.h[NAV.i] && NAV.h[NAV.i].j === j) return;
+  NAV.h = NAV.h.slice(0, NAV.i + 1); NAV.h.push({ d, j }); if (NAV.h.length > 40) NAV.h.shift(); NAV.i = NAV.h.length - 1;
+}
+function navShow(d) {
+  NAV.off = true;
+  try {
+    if (d.c) { CO.as = false; CO.tab = d.tab; CO.who = d.who; CO.mod = d.mod; CO.cm = d.cm; CO.ct = d.ct; coDraw(); }
+    else { if (isCoach()) CO.as = true; if (d.t) taskView(d.t, d.s); else if (d.m) modView(d.m); else home(); }
+  } finally { NAV.off = false; }
+}
+function navUp() {
+  if (isCoach() && !CO.as) { if (CO.ct) CO.ct = null; else if (CO.mod) CO.mod = null; else if (CO.cm) CO.cm = null; else if (CO.who) CO.who = null; else return false; coDraw(); return true; }
+  if (VIEW.t) { modView(VIEW.m); return true; } if (VIEW.m) { home(); return true; } return false;
+}
+function navLabel(d) {
+  try {
+    if (d.c) return d.ct ? K.lib[d.ct].t : d.cm ? mName(mOf(d.cm)) : d.who ? (CO.list.find(x => x.id === d.who) || {}).n || 'Ученик' : d.tab === 'mo' ? 'Модули' : 'Ученики';
+    return d.t ? K.lib[d.t].t : d.m ? mName(mOf(d.m)) : 'Курс';
+  } catch (e) { return ''; }
+}
+function navNext() {
+  if (NAV.i < NAV.h.length - 1) return { r: 1, label: navLabel(NAV.h[NAV.i + 1].d) };
+  if (isCoach() && !CO.as) return null;
+  if (VIEW.t) {
+    const L = K.lib[VIEW.t], t = T(VIEW.t), n = L.steps.length, st = VIEW.step, ok = i => !!(t.s[i] && t.s[i].ok);
+    if (st >= 0 && st < n - 1 && ok(st)) return { t: VIEW.t, s: st + 1, label: stepName(L.steps[st + 1]) };
+    if (st >= 0 && st === n - 1 && ok(st)) return { t: VIEW.t, s: -1, label: 'Итог задания' };
+    if (st === -1) { const m = modOf(VIEW.t), k = m.tasks.indexOf(VIEW.t), nx = m.tasks[k + 1]; return nx && taskOpen(m, k + 1) ? { t: nx, label: 'Следующее задание' } : { m: m.id, label: 'К модулю' }; }
+    return null;
+  }
+  if (VIEW.m) { const m = mOf(VIEW.m), k = m && m.tasks ? m.tasks.findIndex((id, i) => !taskDone(id) && !(S.t[id] && S.t[id].skip) && taskOpen(m, i)) : -1; return k >= 0 ? { t: m.tasks[k], label: K.lib[m.tasks[k]].t } : null; }
+  const m = K.mods.find(x => x.tasks && modOpen(x) && modProg(x) < 1); return m ? { m: m.id, label: mName(m) } : null;
+}
+function navHtml() {
+  const back = NAV.i > 0 || (isCoach() && !CO.as ? !!(CO.who || CO.cm) : !!(VIEW.t || VIEW.m)), nx = navNext();
+  const sv = isCoach() && !CO.as ? coSvHtml() : '';
+  return `<div class="kr-gnav"><button class="kr-btn" data-k="nav-b" ${back ? '' : 'disabled'} aria-label="Назад">‹ Назад</button><div class="kr-gnc"><b>${E(navLabel(navCur()))}</b><span id="krSv">${sv || (nx ? 'Дальше: ' + E(nx.label) : '')}</span></div><button class="kr-btn pri" data-k="nav-f" ${nx ? '' : 'disabled'} aria-label="Вперёд">Вперёд ›</button></div>`;
+}
+function navBack() {
+  if (NAV.i > 0) { NAV.i--; navShow(NAV.h[NAV.i].d); } else if (!navUp()) return;
+  scrollTop();
+}
+function navFwd() {
+  const n = navNext(); if (!n) return;
+  if (n.r) { NAV.i++; navShow(NAV.h[NAV.i].d); } else if (n.t) taskView(n.t, n.s); else if (n.m) modView(n.m);
+  scrollTop();
 }
 function scrollTop() {
   const nav = document.getElementById('vtb'), off = (nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0) + 10, r = box.getBoundingClientRect();
@@ -296,7 +354,7 @@ function modView(id) {
     return mount(h);
   }
   const p = modProg(m);
-  h += `<div class="kr-bar"><i data-w="${p * 100}"></i></div><div class="kr-row"><span>${m.tasks.filter(taskDone).length} из ${m.tasks.length} заданий</span><span>⭐ ${m.tasks.reduce((a, t) => a + taskPts(t), 0)} очков</span></div></div>`;
+  h += `<div class="kr-bar"><i data-w="${p * 100}"></i></div><div class="kr-row"><span>${m.tasks.filter(taskDone).length} из ${m.tasks.length} заданий${m.tasks.some(x => S.t[x] && S.t[x].skip && !taskDone(x)) ? ' · пропущено: ' + m.tasks.filter(x => S.t[x] && S.t[x].skip && !taskDone(x)).length : ''}</span><span>⭐ ${m.tasks.reduce((a, t) => a + taskPts(t), 0)} очков</span></div></div>`;
   if (!modOpen(m)) { h += '<div class="kr-wait">🔒 Этот модуль откроет тренер, когда проверит задания предыдущего.</div>'; return mount(h) || bars(); }
   const lv = lvlOf(m.id);
   h += `<div class="kr-card"><div class="kr-sec" style="margin:0">Уровень сложности</div><p class="mut" style="margin-top:4px">Задания те же, но глубже: больше подробностей, сложнее вопросы и расчёты. Уровень ставится по классу${S.lvl[m.id] ? '' : ' (сейчас: ' + E(lvInfo(lv).s) + ')'}, тренер может поменять. В пробной версии можно переключить самому.</p>
@@ -304,12 +362,12 @@ function modView(id) {
   if (p === 1) h += `<div class="kr-done">🎉 Модуль пройден! ${waitingCoach(m) ? 'Тренер проверит задания на занятии и откроет следующий модуль.' : 'Тренер откроет следующий модуль.'}</div>`;
   let curSet = false;
   h += '<div class="kr-road">' + m.tasks.map((tid, k) => {
-    const L = K.lib[tid], t = S.t[tid], done = taskDone(tid), op = taskOpen(m, k), cur = op && !done && !curSet; if (cur) curSet = true;
+    const L = K.lib[tid], t = S.t[tid], done = taskDone(tid), op = taskOpen(m, k), sk = !!(t && t.skip && !done), cur = op && !done && !sk && !curSet; if (cur) curSet = true;
     const dots = L.steps.map((st, i) => { const x = t && t.s[i]; return `<i class="${x && x.ok ? (x.viaX ? 'x' : 'ok') : ''}"></i>`; }).join('');
     const wait = t && coachWait(tid);
     const r = done ? `<span>✓ ${E(t.done)}<br>⭐ ${taskPts(tid)}</span>` : !op ? '🔒' : '';
     return `<button class="kr-t ${done ? 'ok' : ''} ${cur ? 'cur' : ''} ${!op ? 'lock' : ''}" data-k="task" data-t="${tid}" ${op ? '' : 'disabled'} style="animation-delay:${k * 45}ms">
-      <span class="d">${done ? '✓' : k + 1}</span><span class="e">${L.e}</span><span style="min-width:0"><b>${E(L.t)}</b><small>${E(L.sub)}</small>${wait ? '<small class="wait">⏳ ждёт проверки тренера</small>' : ''}<span class="kr-steps">${dots}</span></span><span class="r">${r}</span></button>`;
+      <span class="d">${done ? '✓' : k + 1}</span><span class="e">${L.e}</span><span style="min-width:0"><b>${E(L.t)}</b><small>${E(L.sub)}</small>${wait ? '<small class="wait">⏳ ждёт проверки тренера</small>' : ''}${sk ? '<small class="wait">⏭ пропущено, можно вернуться</small>' : ''}<span class="kr-steps">${dots}</span></span><span class="r">${r}</span></button>`;
   }).join('') + '</div>';
   mount(h); bars();
 }
@@ -321,7 +379,8 @@ function taskView(tid, step) {
   if (step == null) { step = L.steps.findIndex((st, i) => !(t.s[i] && t.s[i].ok)); if (step < 0) step = t.done ? -1 : 0; }
   VIEW = { m: m.id, t: tid, step };
   const okN = L.steps.filter((st, i) => t.s[i] && t.s[i].ok).length;
-  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="mod" data-m="${m.id}">← Модуль ${m.n}</button><span class="mut">${okN} из ${L.steps.length} шагов</span></div>
+  const nxT = m.tasks[m.tasks.indexOf(tid) + 1];
+  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="mod" data-m="${m.id}">← Модуль ${m.n}</button><span class="mut">${okN} из ${L.steps.length} шагов</span>${t.done ? '' : t.skip ? '<span class="mut" style="margin-left:auto">⏭ пропущено</span>' : `<button class="kr-btn sm" style="margin-left:auto" data-k="skip" data-t="${tid}">⏭ Пропустить задание</button>`}</div>
     <div class="kr-card top"><span style="float:right;font-size:30px">${L.e}</span><h3>${E(L.t)}</h3><p class="mut">${E(L.sub)}</p><div style="margin-top:8px">${lvChip(lvlOf(m.id))}</div>
     <div class="kr-stp" style="margin-top:12px">${L.steps.map((st, i) => { const ok = t.s[i] && t.s[i].ok, can = i === 0 || (t.s[i - 1] && t.s[i - 1].ok) || ok || isCoach();
       return `<button data-k="step" data-i="${i}" class="${i === step ? 'on' : ''} ${ok ? 'ok' : ''}" ${can ? '' : 'disabled'}>${ok ? '✓ ' : ''}${i + 1}. ${E(stepName(st))}</button>`; }).join('')}
@@ -342,7 +401,7 @@ function stepOk(tid, i, res) {
   const t = T(tid);
   const all = L.steps.every((st, k) => t.s[k] && t.s[k].ok);
   let fresh = false;
-  if (all && !t.done) { t.done = today(); fresh = true; }
+  if (all && !t.done) { t.done = today(); t.skip = ''; fresh = true; }
   save();
   if (fresh) { snd('win'); buzz([30, 40, 60]); confetti(); toastK('Задание пройдено! +' + taskPts(tid) + ' очков'); }
   return fresh;
@@ -729,8 +788,8 @@ function kSummary() {
     let att = 0, lv = 0, best = [], c = '', f = '';
     const s = L.steps.map((st, i) => { const x = z.s[i] || {}; att += (x.att || 0) + (x.xatt || 0); lv = Math.max(lv, x.lv || 0); if (x.best != null) best.push(x.best); if (x.c) c = x.c; if (x.v) f = x.v;
       return x.ok ? (st.s === 'coach' && !x.acc ? 'w' : x.viaX ? 'x' : 'o') : x.needX ? 'n' : '-'; }).join('');
-    if (s.replace(/-/g, '') === '' && !z.like) return;
-    t[id] = { s, p: best.length ? Math.round(best.reduce((a, b) => a + b, 0) / best.length * 100) : null, a: att, d: z.done || z.was || '', l: lv || lvlOf((modOf(id) || {}).id), k: z.like || 0, c: String(c).slice(0, 140), f: String(f).slice(0, 60) };
+    if (s.replace(/-/g, '') === '' && !z.like && !z.skip) return;
+    t[id] = { s, p: best.length ? Math.round(best.reduce((a, b) => a + b, 0) / best.length * 100) : null, a: att, d: z.done || z.was || '', l: lv || lvlOf((modOf(id) || {}).id), k: z.like || 0, sk: z.skip && !z.done ? 1 : 0, c: String(c).slice(0, 140), f: String(f).slice(0, 60) };
   });
   return { v: 1, t, pts: allPts(), lv: S.lvl };
 }
@@ -781,7 +840,7 @@ async function coLoad(pin) {
     if (!tok) { CO.st = 'pin'; CO.err = ''; return coDraw(); }
     const j = await spkCall({ op: 'slist', token: tok });
     if (!j.ok) { sesS.set('vz_spk_tok', ''); CO.st = 'pin'; CO.err = j.error || ''; return coDraw(); }
-    CO.tok = tok; coParse(j); CO.st = 'ok';
+    CO.tok = tok; coParse(j); CO.st = 'ok'; if (COQ.q.length) { COQ.bad = false; coPump(); }
   } catch (e) { CO.st = 'err'; CO.err = 'Нет связи с сервером'; }
   coDraw();
 }
@@ -790,15 +849,32 @@ function coParse(j) {
   CO.list = (j.list || []).filter(x => x.club === 'vzlet' && x.st === 'принят' && !x.hid).map(x => ({ id: x.id, n: x.first, c: x.cls, k: x.kurs || {}, kc: x.kc || {}, upd: x.upd }))
     .sort((a, b) => (parseInt(a.c) || 99) - (parseInt(b.c) || 99) || a.n.localeCompare(b.n, 'ru'));
 }
-async function coAct(id, q) {
-  if (CO.demo) { coDemoAct(id, q); toastK('Пример: на сервер не отправлено'); return coDraw(); }
-  const ids = Array.isArray(id) ? id : [id];
+const mName = m => 'Модуль ' + m.n + '. ' + m.t;
+const mOf = id => K.mods.find(x => x.id === id);
+/* ---------- очередь записи на сервер: нажатие видно сразу, на сервер уходит по порядку ---------- */
+const COQ = { q: [], busy: false, bad: false, ok: false };
+const coSvHtml = () => COQ.bad ? '<button class="kr-btn sm" data-k="co-retry">⚠ Не сохранилось. Повторить</button>' : (COQ.busy || COQ.q.length) ? '<i class="kr-spin"></i>Сохраняю...' : COQ.ok ? '✓ Сохранено на сервере' : '';
+function coSv() { const el = box && $('#krSv', box); if (el && isCoach()) el.innerHTML = coSvHtml(); }
+async function coPump() {
+  if (COQ.busy || COQ.bad) return;
+  const op = COQ.q[0]; if (!op) { COQ.ok = true; return coSv(); }
+  COQ.busy = true; COQ.ok = false; coSv();
   try {
-    const j = await spkCall(Object.assign({ op: 'sset', act: 'kurs', ids, token: CO.tok }, q));
-    if (!j.ok) { toastK('Не получилось: ' + (j.error || 'ошибка')); if (j.auth) { CO.st = 'pin'; CO.tok = ''; sesS.set('vz_spk_tok', ''); } return coDraw(); }
-    coParse(j); toastK('✓ Сохранено. Ученик увидит при следующем входе');
-  } catch (e) { toastK('Нет связи с сервером'); }
-  coDraw();
+    const j = await spkCall(Object.assign({ op: 'sset', act: 'kurs', ids: op.ids, token: CO.tok }, op.q));
+    if (!j.ok) { COQ.bad = true; toastK('Не получилось: ' + (j.error || 'ошибка')); if (j.auth) { CO.st = 'pin'; CO.tok = ''; sesS.set('vz_spk_tok', ''); COQ.busy = false; coDraw(true); return; } }
+    else COQ.q.shift();
+  } catch (e) { COQ.bad = true; toastK('Нет связи с сервером'); }
+  COQ.busy = false; coSv(); if (!COQ.bad) coPump();
+}
+function coAct(id, q) {
+  const ids = Array.isArray(id) ? id : [id];
+  coApply(ids, q);
+  if (CO.demo) toastK('Пример: на сервер не отправлено');
+  else {
+    if (q.k === 'lvl') COQ.q = COQ.q.filter((o, i) => !(o.q.k === 'lvl' && o.q.mod === q.mod && o.ids.join() === ids.join() && !(i === 0 && COQ.busy)));
+    COQ.q.push({ ids, q }); COQ.ok = false; coPump();
+  }
+  coDraw(true);
 }
 /* пример для показа, пока нет настоящих данных */
 function coDemo() {
@@ -813,7 +889,7 @@ function coDemo() {
   CO.list = [['Артём', '6А', 3, 0], ['Маша', '7Б', 7, 1], ['Илья', '9А', 11, 0], ['Соня', '8В', 5, 1], ['Даня', '5Б', 1, 0]].map((a, i) =>
     ({ id: 'demo' + i, n: a[0], c: a[1], k: mk(a[0], parseInt(a[1]), a[2], a[3]), kc: { o: ['m3'], v: {} }, upd: '19.10.2026 1' + i + ':05' }));
 }
-function coDemoAct(id, q) {
+function coApply(id, q) {
   (Array.isArray(id) ? id : [id]).forEach(x => { const s = CO.list.find(z => z.id === x); if (!s) return; const kc = s.kc; kc.o = kc.o || []; kc.a = kc.a || {}; kc.r = kc.r || {}; kc.v = kc.v || {};
     const k = q.mod || q.task;
     if (q.k === 'open' && kc.o.indexOf(k) < 0) kc.o.push(k); if (q.k === 'close') kc.o = kc.o.filter(z => z !== k);
@@ -832,11 +908,18 @@ const kAllPts = s => Object.keys(K.lib).reduce((a, id) => a + kPts(id, kRec(s, i
 function kCur(s) { for (const m of K.mods) { if (!m.tasks || !kOpenM(s, m)) continue; if (kModProg(s, m) < 1) return m; } return null; }
 const stepIco = ch => ({ o: '✅', x: '🔁', n: '⚠️', w: '⏳', '-': '▫️' }[ch] || '▫️');
 
-function coDraw() {
+const kDone = (s, id) => { const r = kRec(s, id); return !!(r && r.d && !/[-n]/.test(r.s)); };
+const kStepsTxt = (L, r) => L.steps.map((st, i) => `${stepIco(r ? r.s[i] : '-')} ${E(stepName(st))}`).join(' · ');
+const waitsOf = L => { const w = []; L.forEach(s => Object.keys((s.k && s.k.t) || {}).forEach(id => { const r = s.k.t[id]; if (K.lib[id] && kWait(r) && !(s.kc.a || {})[id]) w.push([s, id, r]); })); return w; };
+const coLine = s => { const m = kCur(s); const open = K.mods.filter(x => x.tasks && kOpenM(s, x)); if (!open.length) return 'Модули не открыты'; const mm = m || open[open.length - 1], d = mm.tasks.filter(id => kDone(s, id)).length; return `Сейчас: ${E(mName(mm))} · ${d} из ${mm.tasks.length} заданий`; };
+
+function coDraw(quiet) {
   if (!box || !isCoach() || CO.as) return;
   VIEW = { m: null, t: null, step: null, co: 1 };
-  if (CO.who) return CO.mod ? coModView() : coStudView();
-  let h = `<div class="kr-card top"><h3>👥 Ученики по курсу</h3><p class="mut">Кто на каком модуле, кто ждёт проверки, рейтинг по курсу. Нажми на ученика, чтобы провалиться в модули и задания.</p>
+  if (CO.who) return CO.mod ? coModView(quiet) : coStudView(quiet);
+  if (CO.cm) return CO.ct ? coTaskView(quiet) : coModOver(quiet);
+  const tab = CO.tab || 'st';
+  let h = `<div class="kr-card top"><h3>👥 Ученики и модули курса</h3><p class="mut">Нажми на ученика или на модуль, чтобы зайти внутрь: там задания, проверка и открытие модулей.</p>
     <div class="kr-back" style="margin-top:10px"><button class="kr-btn sm" data-k="co-load">↻ Обновить</button><button class="kr-btn sm" data-k="co-demo">${CO.demo ? '✕ Убрать пример' : '👀 Пример'}</button><button class="kr-btn sm" data-k="co-as">🎓 Курс глазами ученика</button></div></div>`;
   if (CO.demo) h += '<div class="kr-note">👀 Это пример с выдуманными учениками, чтобы посмотреть, как выглядит окно. Кнопки работают, но ничего не сохраняется.</div>';
   else if (CO.st === 'load') h += '<div class="kr-note">⏳ Загружаю учеников...</div>';
@@ -846,57 +929,100 @@ function coDraw() {
   const L = CO.list;
   if ((CO.st === 'ok' || CO.demo) && !L.length) h += '<div class="kr-note">Пока нет принятых учеников Взлёта.</div>';
   if ((CO.st === 'ok' || CO.demo) && L.length) {
-    const live = K.mods;
-    /* ждут проверки */
-    const waits = []; L.forEach(s => Object.keys((s.k && s.k.t) || {}).forEach(id => { const r = s.k.t[id]; if (kWait(r) && !(s.kc.a || {})[id]) waits.push([s, id, r]); }));
-    if (waits.length) h += `<div class="kr-card"><div class="kr-sec">⏳ Ждут проверки (${waits.length})</div><div class="co-w">${waits.map(([s, id, r]) => `<div class="co-wi"><span><b>${E(s.n)}, ${E(s.c)}</b> - ${K.lib[id].e} ${E(K.lib[id].t)}${r.c ? `<br><small class="mut">"${E(r.c)}"</small>` : ''}</span><span class="co-wb"><button class="kr-btn sm pri" data-k="co-acc" data-s="${s.id}" data-t="${id}">✓ Принять</button><button class="kr-btn sm" data-k="co-ret" data-s="${s.id}" data-t="${id}">↩</button></span></div>`).join('')}</div></div>`;
-    /* таблица ученики x модули */
-    h += `<div class="kr-card"><div class="kr-sec">Кто где</div><div class="co-tbl"><div class="co-r co-h"><span>Ученик</span>${live.map(m => `<i title="${E(m.t)}">${m.e}<small>${m.n}</small></i>`).join('')}<b>⭐</b></div>` +
-      L.map(s => `<button class="co-r" data-k="co-who" data-s="${s.id}"><span><b>${E(s.n)}</b> <small>${E(s.c)}</small></span>${live.map(m => { const op = kOpenM(s, m), p = kModProg(s, m), w = m.tasks && m.tasks.some(id => kWait(kRec(s, id)) && !(s.kc.a || {})[id]);
-        return `<i class="${!m.tasks ? 'na' : !op ? 'lk' : p === 1 ? 'dn' : p > 0 ? 'go' : 'op'}">${!m.tasks ? '·' : !op ? '🔒' : Math.round(p * 100) + '%'}${w ? '<em></em>' : ''}</i>`; }).join('')}<b>${kAllPts(s)}</b></button>`).join('') +
-      '</div><p class="mut" style="margin-top:8px;font-size:12.5px">% - сколько заданий модуля пройдено · 🔒 модуль закрыт · жёлтая точка - ждёт проверки</p></div>';
-    /* рейтинг */
-    const rate = L.slice().sort((a, b) => kAllPts(b) - kAllPts(a)).slice(0, 10);
-    h += `<div class="kr-card"><div class="kr-sec">🏆 Рейтинг по курсу</div><ol class="co-rt">${rate.map(s => { const m = kCur(s); return `<li><span>${E(s.n)}, ${E(s.c)}</span><small class="mut">${m ? m.e + ' модуль ' + m.n : ''}</small><b>⭐ ${kAllPts(s)}</b></li>`; }).join('')}</ol></div>`;
-    /* открыть модуль нескольким */
-    h += `<div class="kr-card"><div class="kr-sec">🔓 Открыть модуль нескольким</div><div class="co-ch">${L.map(s => `<button data-k="co-sel" data-s="${s.id}" class="${CO.sel.has(s.id) ? 'on' : ''}">${E(s.n)} ${E(s.c)}</button>`).join('')}</div>
-      <div class="kr-back" style="margin-top:10px"><select id="coMod" class="co-sl">${K.mods.map(m => `<option value="${m.id}">${m.e} Модуль ${m.n}. ${E(m.t)}</option>`).join('')}</select><button class="kr-btn sm pri" data-k="co-bulk" ${CO.sel.size ? '' : 'disabled'}>Открыть выбранным (${CO.sel.size})</button></div></div>`;
-    /* лайки по заданиям */
-    const lk = {}; L.forEach(s => Object.keys((s.k && s.k.t) || {}).forEach(id => { const v = s.k.t[id].k; if (!v) return; lk[id] = lk[id] || [0, 0]; lk[id][v > 0 ? 0 : 1]++; }));
-    const ids = Object.keys(lk);
-    if (ids.length) h += `<div class="kr-card"><div class="kr-sec">👍 / 👎 тестировщиков</div><ul class="kr-hist">${ids.map(id => `<li><span>${K.lib[id].e} ${E(K.lib[id].t)}</span><span>👍 ${lk[id][0]} · 👎 ${lk[id][1]}</span></li>`).join('')}</ul><p class="mut" style="margin-top:8px;font-size:12.5px">Много 👎 - задание стоит поправить или заменить.</p></div>`;
+    const waits = waitsOf(L);
+    h += `<div class="co-tabs"><button data-k="co-tab" data-v="st" class="${tab === 'st' ? 'on' : ''}">Ученики<small>${L.length}</small></button><button data-k="co-tab" data-v="mo" class="${tab === 'mo' ? 'on' : ''}">Модули<small>${K.mods.length}</small></button></div>`;
+    if (waits.length) h += `<div class="kr-card"><div class="kr-sec">⏳ Ждут проверки (${waits.length})</div><div class="co-w">${waits.map(([s, id, r]) => `<div class="co-wi"><span><b>${E(s.n)}, ${E(s.c)}</b><br>${K.lib[id].e} ${E(K.lib[id].t)}${r.c ? `<br><small class="mut">"${E(r.c)}"</small>` : ''}</span><span class="co-wb"><button class="kr-btn sm pri" data-k="co-acc" data-s="${s.id}" data-t="${id}">✓ Принять</button><button class="kr-btn sm" data-k="co-ret" data-s="${s.id}" data-t="${id}">↩ Вернуть</button></span></div>`).join('')}</div></div>`;
+    if (tab === 'st') {
+      h += '<div class="co-list">' + L.map(s => { const w = K.mods.some(m => m.tasks && m.tasks.some(id => kWait(kRec(s, id)) && !(s.kc.a || {})[id]));
+        const pr = (() => { const cm = kCur(s); return cm ? kModProg(s, cm) : 0; })();
+        return `<button class="co-sr" data-k="co-who" data-s="${s.id}"><span class="co-sn"><b>${E(s.n)}</b> <small>${E(s.c)}</small>${w ? '<em class="co-dot" title="ждёт проверки"></em>' : ''}</span><span class="co-sl2">${coLine(s)}</span><span class="kr-bar"><i data-w="${pr * 100}" style="width:${pr * 100}%"></i></span><b class="co-sp">⭐ ${kAllPts(s)}</b></button>`; }).join('') + '</div>';
+      const rate = L.slice().sort((a, b) => kAllPts(b) - kAllPts(a)).slice(0, 10);
+      h += `<div class="kr-card"><div class="kr-sec">🏆 Рейтинг по курсу</div><ol class="co-rt">${rate.map(s => { const m = kCur(s); return `<li><span>${E(s.n)}, ${E(s.c)}</span><small class="mut">${m ? E(mName(m)) : ''}</small><b>⭐ ${kAllPts(s)}</b></li>`; }).join('')}</ol></div>`;
+    } else {
+      h += '<div class="kr-mods">' + K.mods.map(m => {
+        if (!m.tasks) return `<div class="kr-m lock" style="cursor:default"><span class="nn">МОДУЛЬ ${m.n}</span><b>${E(m.t)}</b><small>${E(m.sub)}</small><div class="st">🛠 задания готовятся</div></div>`;
+        const op = L.filter(s => kOpenM(s, m)).length, dn = L.filter(s => kModProg(s, m) === 1).length, w = L.reduce((a, s) => a + m.tasks.filter(id => kWait(kRec(s, id)) && !(s.kc.a || {})[id]).length, 0);
+        return `<button class="kr-m on" data-k="co-cm" data-m="${m.id}"><span class="nn">МОДУЛЬ ${m.n} ›</span><b>${E(m.t)}</b><small>${E(m.sub)}</small><div class="st">Открыт у ${op} из ${L.length} · пройден у ${dn}${w ? ` · <span style="color:#facc15">ждут проверки: ${w}</span>` : ''}</div></button>`; }).join('') + '</div>';
+      const lk = {}; L.forEach(s => Object.keys((s.k && s.k.t) || {}).forEach(id => { const v = s.k.t[id].k; if (!v || !K.lib[id]) return; lk[id] = lk[id] || [0, 0]; lk[id][v > 0 ? 0 : 1]++; }));
+      const ids = Object.keys(lk);
+      if (ids.length) h += `<div class="kr-card"><div class="kr-sec">👍 / 👎 тестировщиков</div><ul class="kr-hist">${ids.map(id => `<li><span>${K.lib[id].e} ${E(K.lib[id].t)}</span><span>👍 ${lk[id][0]} · 👎 ${lk[id][1]}</span></li>`).join('')}</ul><p class="mut" style="margin-top:8px;font-size:12.5px">Много 👎 - задание стоит поправить или заменить.</p></div>`;
+    }
   }
-  mount(h);
+  mount(h, quiet);
 }
 function coStud() { return CO.list.find(s => s.id === CO.who); }
-function coStudView() {
+function coStudView(quiet) {
   const s = coStud(); if (!s) { CO.who = null; return coDraw(); }
   let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-back">← Все ученики</button>${CO.demo ? '<span class="mut">👀 пример</span>' : ''}</div>
     <div class="kr-card top"><h3>${E(s.n)}, ${E(s.c)}</h3><p class="mut">⭐ ${kAllPts(s)} очков за курс${s.upd ? ' · обновлено ' + E(s.upd) : ''}</p></div>`;
   h += '<div class="kr-mods">' + K.mods.map(m => {
     const op = kOpenM(s, m), p = kModProg(s, m), lv = kLvl(s, m), w = m.tasks && m.tasks.filter(id => kWait(kRec(s, id)) && !(s.kc.a || {})[id]).length;
-    return `<div class="kr-m ${op ? 'on' : 'lock'}" style="cursor:default"><span class="e">${m.e}</span><span class="nn">МОДУЛЬ ${m.n}</span><b>${E(m.t)}</b>
-      ${m.tasks ? `<div class="kr-bar"><i data-w="${(p || 0) * 100}"></i></div><div class="st">${op ? Math.round(p * 100) + '% заданий' : '🔒 закрыт'}${w ? ` · <span style="color:#facc15">⏳ ждёт проверки: ${w}</span>` : ''}</div>` : '<div class="st">🛠 задания готовятся</div>'}
-      ${m.tasks ? `<div class="kr-lvs" style="margin-top:8px">${LV.map(v => `<button data-k="co-lvl" data-m="${m.id}" data-v="${v.n}" class="${v.n === lv ? 'on' : ''}" style="min-height:40px">${v.e}<small>${E(v.t)}</small></button>`).join('')}</div>` : ''}
-      <div class="kr-back" style="margin-top:8px">${PREVIEW_OPEN.includes(m.id) ? '<span class="mut" style="font-size:12.5px">открыт для пробы всем</span>' : op ? `<button class="kr-btn sm" data-k="co-close" data-m="${m.id}">🔒 Закрыть</button>` : `<button class="kr-btn sm pri" data-k="co-open" data-m="${m.id}">🔓 Открыть модуль</button>`}${m.tasks ? `<button class="kr-btn sm" data-k="co-mod" data-m="${m.id}">Задания ▸</button>` : ''}</div></div>`;
+    return `<div class="kr-m ${op ? 'on' : 'lock'}" style="cursor:default;animation:none"><span class="nn">МОДУЛЬ ${m.n}</span><b>${E(m.t)}</b><small>${E(m.sub)}</small>
+      ${m.tasks ? `<div class="kr-bar"><i data-w="${(p || 0) * 100}" style="width:${(p || 0) * 100}%"></i></div><div class="st">${op ? '🔓 открыт · ' + Math.round(p * 100) + '% заданий' : '🔒 закрыт'}${w ? ` · <span style="color:#facc15">⏳ ждёт проверки: ${w}</span>` : ''}</div>` : '<div class="st">🛠 задания готовятся</div>'}
+      ${m.tasks ? `<div class="co-lvh">Сложность для ${E(s.n)}:</div><div class="kr-lvs">${LV.map(v => `<button data-k="co-lvl" data-m="${m.id}" data-v="${v.n}" class="${v.n === lv ? 'on' : ''}" style="min-height:44px">${v.e} ${E(v.t)}<small>${E(v.s)}</small></button>`).join('')}</div>` : ''}
+      ${m.tasks ? `<div class="kr-back" style="margin-top:10px">${PREVIEW_OPEN.includes(m.id) ? '<span class="mut" style="font-size:12.5px">открыт для пробы всем</span>' : op ? `<button class="kr-btn sm" data-k="co-close" data-m="${m.id}">🔒 Закрыть модуль</button>` : `<button class="kr-btn sm pri" data-k="co-open" data-m="${m.id}">🔓 Открыть модуль</button>`}<button class="kr-btn sm" data-k="co-mod" data-m="${m.id}">Задания ›</button></div>` : ''}</div>`;
   }).join('') + '</div>';
-  mount(h); bars();
+  mount(h, quiet);
 }
-function coModView() {
-  const s = coStud(), m = K.mods.find(x => x.id === CO.mod); if (!s || !m) { CO.mod = null; return coDraw(); }
-  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-who" data-s="${s.id}">← ${E(s.n)}</button><span class="mut">${m.e} Модуль ${m.n}. ${E(m.t)} · ${lvChip(kLvl(s, m))}</span></div>`;
-  h += '<div class="kr-road">' + m.tasks.map((id, k) => {
-    const L = K.lib[id], r = kRec(s, id), dn = r && r.d && !/[-n]/.test(r.s), acc = (s.kc.a || {})[id], ret = (s.kc.r || {})[id];
-    const steps = L.steps.map((st, i) => `<span class="co-st">${stepIco(r ? r.s[i] : '-')} ${E(stepName(st))}</span>`).join('');
-    const info = r ? [r.p != null ? 'результат ' + r.p + '%' : '', r.a ? 'попыток ' + r.a : '', r.d ? '✓ ' + E(r.d) : '', r.l ? lvInfo(r.l).e : '', r.s.indexOf('x') >= 0 ? '🔁 было доп.задание' : '', r.s.indexOf('n') >= 0 ? '⚠️ нужно доп.задание' : '', r.k ? (r.k > 0 ? '👍' : '👎') : ''].filter(Boolean).join(' · ') : 'ещё не начинал';
-    const cw = L.steps.some(x => x.s === 'coach');
-    return `<div class="kr-t ${dn ? 'ok' : ''}" style="cursor:default;flex-wrap:wrap;animation-delay:${k * 40}ms"><span class="d">${dn ? '✓' : k + 1}</span><span class="e">${L.e}</span><span style="min-width:0;flex:1"><b>${E(L.t)}</b><small>${info}</small>
-      <span class="co-sts">${steps}</span>${r && r.f ? `<small>✈ ${E(r.f)}</small>` : ''}${r && r.c ? `<small>💬 "${E(r.c)}"</small>` : ''}${acc ? `<small style="color:#86efac">✓ принято ${E(acc)}</small>` : ''}${ret ? `<small style="color:#fca5a5">↩ возвращено ${E(ret[0])}${ret[1] ? ': ' + E(ret[1]) : ''}</small>` : ''}
-      ${cw ? `<span class="kr-back" style="margin-top:6px">${kWait(r) && !acc ? '<small class="wait" style="margin-right:6px">⏳ ждёт проверки</small>' : ''}<button class="kr-btn sm ${kWait(r) && !acc ? 'pri' : ''}" data-k="co-acc" data-s="${s.id}" data-t="${id}">✓ Принять</button><button class="kr-btn sm" data-k="co-ret" data-s="${s.id}" data-t="${id}">↩ Вернуть</button></span>` : ''}</span></div>`;
-  }).join('') + '</div>';
-  mount(h);
+/* задания одного модуля у выбранного ученика */
+function coModView(quiet) {
+  const s = coStud(), m = mOf(CO.mod); if (!s || !m) { CO.mod = null; return coDraw(); }
+  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-who" data-s="${s.id}">← ${E(s.n)}</button></div>
+    <div class="kr-card top"><div class="mut" style="font-weight:800;font-size:12px;letter-spacing:.08em">МОДУЛЬ ${m.n}</div><h3>${E(m.t)}</h3><p class="mut">${E(s.n)}, ${E(s.c)} · сложность: ${lvChip(kLvl(s, m))}</p></div>`;
+  h += '<div class="kr-road">' + m.tasks.map((id, k) => coTaskRow(s, id, k, true)).join('') + '</div>';
+  mount(h, quiet);
+}
+function coTaskRow(s, id, k, withName) {
+  const L = K.lib[id], r = kRec(s, id), dn = kDone(s, id), acc = (s.kc.a || {})[id], ret = (s.kc.r || {})[id];
+  const info = r ? [r.p != null ? 'результат ' + r.p + '%' : '', r.a ? 'попыток ' + r.a : '', r.d ? '✓ ' + E(r.d) : '', r.l ? lvInfo(r.l).e : '', r.s.indexOf('x') >= 0 ? '🔁 было доп.задание' : '', r.s.indexOf('n') >= 0 ? '⚠️ нужно доп.задание' : '', r.sk && !dn ? '⏭ пропустил' : '', r.k ? (r.k > 0 ? '👍' : '👎') : ''].filter(Boolean).join(' · ') : 'ещё не начинал';
+  const cw = L.steps.some(x => x.s === 'coach');
+  return `<div class="kr-t ${dn ? 'ok' : ''}" style="cursor:default;flex-wrap:wrap;animation:none"><span class="d">${dn ? '✓' : k + 1}</span><span class="e">${L.e}</span><span style="min-width:0;flex:1"><b>${withName ? '' : E(s.n) + ', ' + E(s.c) + ' - '}${E(L.t)}</b><small>${info}</small>
+    <span class="co-sts">${kStepsTxt(L, r)}</span>${r && r.f ? `<small>✈ ${E(r.f)}</small>` : ''}${r && r.c ? `<small>💬 "${E(r.c)}"</small>` : ''}${acc ? `<small style="color:#86efac">✓ принято ${E(acc)}</small>` : ''}${ret ? `<small style="color:#fca5a5">↩ возвращено ${E(ret[0])}${ret[1] ? ': ' + E(ret[1]) : ''}</small>` : ''}
+    ${cw ? `<span class="kr-back" style="margin-top:6px">${kWait(r) && !acc ? '<small class="wait" style="margin-right:6px">⏳ ждёт проверки</small>' : ''}<button class="kr-btn sm ${kWait(r) && !acc ? 'pri' : ''}" data-k="co-acc" data-s="${s.id}" data-t="${id}">✓ Принять</button><button class="kr-btn sm" data-k="co-ret" data-s="${s.id}" data-t="${id}">↩ Вернуть</button></span>` : ''}</span></div>`;
+}
+/* модуль целиком: кому открыт и какие в нём задания */
+function coModOver(quiet) {
+  const m = mOf(CO.cm); if (!m || !m.tasks) { CO.cm = null; return coDraw(); }
+  const L = CO.list;
+  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-back">← Все модули</button></div>
+    <div class="kr-card top"><div class="mut" style="font-weight:800;font-size:12px;letter-spacing:.08em">МОДУЛЬ ${m.n}</div><h3>${E(m.t)}</h3><p class="mut">${E(m.sub)}</p></div>
+    <div class="kr-card"><div class="kr-sec">🔓 Кому открыт модуль</div><p class="mut" style="margin-bottom:8px">Отметь учеников и открой или закрой модуль сразу всем выбранным. Зелёная галочка - уже открыт.</p>
+      <div class="co-ch">${L.map(s => `<button data-k="co-sel" data-s="${s.id}" class="${CO.sel.has(s.id) ? 'on' : ''} ${kOpenM(s, m) ? 'op' : ''}">${kOpenM(s, m) ? '✓ ' : ''}${E(s.n)} ${E(s.c)}</button>`).join('')}</div>
+      <div class="kr-back" style="margin-top:10px"><button class="kr-btn sm" data-k="co-all">Выбрать всех</button><button class="kr-btn sm pri" data-k="co-bulk" data-m="${m.id}" ${CO.sel.size ? '' : 'disabled'}>Открыть выбранным (${CO.sel.size})</button><button class="kr-btn sm" data-k="co-bulkc" data-m="${m.id}" ${CO.sel.size ? '' : 'disabled'}>Закрыть выбранным</button></div>
+      ${PREVIEW_OPEN.includes(m.id) ? '<p class="mut" style="margin-top:8px;font-size:12.5px">В пробной версии этот модуль открыт всем.</p>' : ''}</div>
+    <div class="kr-sec">Задания модуля</div><div class="kr-road">${m.tasks.map((id, k) => { const Lb = K.lib[id], done = L.filter(s => kDone(s, id)).length, w = L.filter(s => kWait(kRec(s, id)) && !(s.kc.a || {})[id]).length, sk = L.filter(s => (kRec(s, id) || {}).sk && !kDone(s, id)).length;
+      let up = 0, dn = 0; L.forEach(s => { const v = (kRec(s, id) || {}).k; if (v > 0) up++; if (v < 0) dn++; });
+      return `<button class="kr-t" data-k="co-ct" data-t="${id}" style="animation:none"><span class="d">${k + 1}</span><span class="e">${Lb.e}</span><span style="min-width:0;flex:1"><b>${E(Lb.t)}</b><small>Прошли ${done} из ${L.length}${w ? ` · <span style="color:#facc15">ждут проверки: ${w}</span>` : ''}${sk ? ` · пропустили: ${sk}` : ''}${up || dn ? ` · 👍 ${up} · 👎 ${dn}` : ''}</small></span><span class="r">›</span></button>`; }).join('')}</div>`;
+  mount(h, quiet);
+}
+/* одно задание: все ученики */
+function coTaskView(quiet) {
+  const m = mOf(CO.cm), id = CO.ct, Lb = K.lib[id]; if (!m || !Lb) { CO.ct = null; return coDraw(); }
+  const L = CO.list;
+  let h = `<div class="kr-back"><button class="kr-btn sm" data-k="co-cm" data-m="${m.id}">← ${E(mName(m))}</button></div>
+    <div class="kr-card top"><span style="float:right;font-size:30px">${Lb.e}</span><h3>${E(Lb.t)}</h3><p class="mut">${E(Lb.sub)}</p><p class="mut" style="margin-top:6px">Шаги: ${Lb.steps.map(st => E(stepName(st))).join(' → ')}</p></div>
+    <div class="kr-road">${L.map((s, k) => coTaskRow(s, id, k, false)).join('')}</div>`;
+  mount(h, quiet);
 }
 css.textContent += `
+#t-kurs.kq .kr-m,#t-kurs.kq .kr-t,#t-kurs.kq .kr-card{animation:none !important}
+.kr-gnav{position:sticky;bottom:68px;z-index:40;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-top:16px;padding:8px;border-radius:18px;background:rgb(12,13,30);border:1px solid rgba(var(--krgb),.35);box-shadow:0 10px 30px -10px rgba(0,0,0,.7)}
+.kr-gnav .kr-btn{min-height:48px;padding:0 14px;font-size:15px}
+.kr-gnc{min-width:0;text-align:center;line-height:1.25}.kr-gnc b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kr-gnc span{display:block;font-size:12px;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kr-spin{display:inline-block;width:11px;height:11px;margin-right:6px;border-radius:50%;border:2px solid rgba(var(--krgb),.3);border-top-color:var(--ka);vertical-align:-1px;animation:krSp .8s linear infinite}
+@keyframes krSp{to{transform:rotate(360deg)}}
+@media (max-width:420px){.kr-gnav .kr-btn{padding:0 10px;font-size:14px}.kr-gnc b{font-size:12.5px}}
+.co-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.co-tabs button{min-height:48px;border-radius:14px;border:1px solid rgba(127,127,160,.35);background:rgba(127,127,160,.08);color:inherit;font-family:inherit;font-weight:800;font-size:15px;cursor:pointer}
+.co-tabs button small{margin-left:6px;opacity:.7;font-weight:700}.co-tabs button.on{border-color:var(--ka);background:rgba(var(--krgb),.18);box-shadow:0 0 0 1px var(--ka) inset}
+.co-list{display:grid;gap:8px}
+.co-sr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;text-align:left;width:100%;padding:12px 14px;border-radius:16px;border:1px solid rgba(127,127,160,.26);background:rgba(12,13,30,.86);color:inherit;font-family:inherit;cursor:pointer}
+.co-sr:active{transform:scale(.99)}.co-sn{font-size:16px}.co-sn small{opacity:.7;font-size:13px}.co-sl2{grid-column:1;font-size:13px;opacity:.85;line-height:1.35}.co-sp{grid-row:1;grid-column:2;font-size:14px}
+.co-sr .kr-bar{grid-column:1/3;margin-top:2px}
+.co-dot{display:inline-block;width:9px;height:9px;margin-left:8px;border-radius:50%;background:#facc15;box-shadow:0 0 6px #facc15}
+.co-lvh{margin-top:10px;font-size:12.5px;font-weight:700;opacity:.8}
+.co-ch button.op{border-color:#22c55e}
 .co-tbl{display:grid;gap:4px;overflow-x:auto}
 .co-r{display:grid;grid-template-columns:minmax(96px,1.6fr) repeat(${K.mods.length},minmax(34px,1fr)) 42px;gap:4px;align-items:center;width:100%;min-width:380px;padding:6px;border-radius:12px;border:1px solid rgba(127,127,160,.2);background:rgba(127,127,160,.06);color:inherit;font-family:inherit;text-align:left;cursor:pointer}
 .co-r.co-h{background:none;border:none;cursor:default;font-size:12px;font-weight:800;opacity:.8}
@@ -922,15 +1048,21 @@ document.addEventListener('click', e => {
   else if (k === 'co-demo') { CO.demo = !CO.demo; CO.who = null; CO.mod = null; CO.sel.clear(); if (CO.demo) coDemo(); else { CO.list = []; coLoad(); return; } coDraw(); }
   else if (k === 'co-as') { CO.as = true; home(); scrollTop(); }
   else if (k === 'co-home') { CO.as = false; home(); scrollTop(); }
-  else if (k === 'co-back') { CO.who = null; CO.mod = null; coDraw(); }
-  else if (k === 'co-who') { CO.who = sid; CO.mod = null; coDraw(); scrollTop(); }
+  else if (k === 'co-back') { CO.who = null; CO.mod = null; CO.cm = null; CO.ct = null; coDraw(); scrollTop(); }
+  else if (k === 'co-who') { CO.who = sid; CO.mod = null; CO.cm = null; CO.ct = null; coDraw(); scrollTop(); }
   else if (k === 'co-mod') { CO.mod = b.dataset.m; coDraw(); scrollTop(); }
+  else if (k === 'co-tab') { CO.tab = b.dataset.v; coDraw(true); }
+  else if (k === 'co-cm') { CO.cm = b.dataset.m; CO.ct = null; CO.who = null; CO.mod = null; CO.sel.clear(); coDraw(); scrollTop(); }
+  else if (k === 'co-ct') { CO.ct = b.dataset.t; coDraw(); scrollTop(); }
+  else if (k === 'co-retry') { COQ.bad = false; coSv(); coPump(); }
+  else if (k === 'co-all') { const all = CO.list.every(x => CO.sel.has(x.id)); CO.list.forEach(x => all ? CO.sel.delete(x.id) : CO.sel.add(x.id)); coDraw(true); }
   else if (k === 'co-open' || k === 'co-close') coAct(CO.who, { k: k === 'co-open' ? 'open' : 'close', mod: b.dataset.m });
   else if (k === 'co-lvl') coAct(CO.who, { k: 'lvl', mod: b.dataset.m, v: +b.dataset.v });
   else if (k === 'co-acc') coAct(sid, { k: 'acc', task: b.dataset.t });
   else if (k === 'co-ret') { const why = prompt('Что доделать? (ученик увидит эту подсказку)', ''); if (why === null) return; coAct(sid, { k: 'ret', task: b.dataset.t, why: why.slice(0, 140) }); }
-  else if (k === 'co-sel') { CO.sel.has(sid) ? CO.sel.delete(sid) : CO.sel.add(sid); b.classList.toggle('on'); const go = $('[data-k="co-bulk"]', box); if (go) { go.disabled = !CO.sel.size; go.textContent = 'Открыть выбранным (' + CO.sel.size + ')'; } }
-  else if (k === 'co-bulk') { const m = $('#coMod', box).value; coAct([...CO.sel], { k: 'open', mod: m }); CO.sel.clear(); }
+  else if (k === 'co-sel') { CO.sel.has(sid) ? CO.sel.delete(sid) : CO.sel.add(sid); coDraw(true); }
+  else if (k === 'co-bulk') { if (CO.sel.size) coAct([...CO.sel], { k: 'open', mod: b.dataset.m }); CO.sel.clear(); }
+  else if (k === 'co-bulkc') { if (CO.sel.size) coAct([...CO.sel], { k: 'close', mod: b.dataset.m }); CO.sel.clear(); }
 });
 document.addEventListener('submit', e => {
   if (!box || e.target.id !== 'coPin') return; e.preventDefault();
@@ -942,7 +1074,10 @@ document.addEventListener('click', e => {
   if (!box || !box.contains(e.target)) return;
   const b = e.target.closest('[data-k]'); if (!b) return;
   const k = b.dataset.k;
-  if (k === 'home') { home(); scrollTop(); }
+  if (k === 'nav-b') navBack();
+  else if (k === 'nav-f') navFwd();
+  else if (k === 'skip') { const tid = b.dataset.t; if (!confirm('Пропустить это задание? Откроется следующее. Вернуться к нему можно позже.')) return; T(tid).skip = today(); save(); snd('tap'); const m = modOf(tid), nx = m.tasks[m.tasks.indexOf(tid) + 1]; toastK('Пропущено. К заданию можно вернуться из модуля'); nx ? taskView(nx) : modView(m.id); scrollTop(); }
+  else if (k === 'home') { home(); scrollTop(); }
   else if (k === 'mod') { modView(b.dataset.m); scrollTop(); }
   else if (k === 'task') { taskView(b.dataset.t); scrollTop(); }
   else if (k === 'step') { taskView(VIEW.t, +b.dataset.i); scrollTop(); }
