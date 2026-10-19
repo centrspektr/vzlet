@@ -701,7 +701,7 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 const SHEET_ID = '1GNVM7smAVzjOVK77FzJ_HfDQ9lI85DCSt0idMU8GJqk';
 const ROLE = (()=>{ try{ return sessionStorage.getItem('vzlet_role')||''; }catch(e){ return ''; } })();  // admin | helper | ''
 const MODE = ROLE==='admin' ? 'coach' : 'public';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDO0jGc8TCvXuDEgbUEIn0N6jPRAD8HcuscR3gSzhLEyYpx4PilYBYmisS7cJICbZ_Pw/exec';  // адрес Apps Script, через который тренерская версия сохраняет правки   // 'coach' — версия тренера, 'public' — для группы
+const SCRIPT_URL = 'https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b?s=vzlet';  // адрес Apps Script, через который тренерская версия сохраняет правки   // 'coach' — версия тренера, 'public' — для группы
 
 const REFRESH_MIN = 5;            // автообновление, минут
 const LS_KEY = 'vzlet_sheet_id';
@@ -782,14 +782,15 @@ async function fetchSheet(id, name){
 async function loadData(manual){
   const id = sheetId();
   $('setup').classList.toggle('hidden', !!id);
-  $('editBtn').href = id ? `https://docs.google.com/spreadsheets/d/${id}/edit` : '#';
+  $('editBtn').style.display = 'none';
   $('sheetLink').href = id ? `https://docs.google.com/spreadsheets/d/${id}/edit` : '#';
   if(!id){ data = FALLBACK; source='sample'; renderAll(); return; }
 
   setStatus('load','загрузка…');
   try{
-    const parts = await Promise.all(SHEETS.map(n => fetchSheet(id,n).catch(()=>null)));
-    if(parts.every(p=>p===null)) throw new Error('таблица недоступна');
+    const rj = await (await fetch(SCRIPT_URL+'&op=data', {cache:'no-store'})).json();
+    if(!rj.ok) throw new Error(rj.error||'сервер недоступен');
+    const parts = SHEETS.map(n => rj.data[n] || null);
     data = {}; SHEETS.forEach((n,i)=> data[n] = parts[i] || []);
     const missing = SHEETS.filter((n,i)=>parts[i]===null);
     source = 'live';
@@ -803,7 +804,7 @@ async function loadData(manual){
     if(c && c.id===id){ data=c.data; source='cache'; renderAll();
       setStatus('warn','нет связи · данные от '+new Date(c.t).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}));
     } else { data=FALLBACK; source='sample'; renderAll(); setStatus('warn','нет связи · образец'); }
-    $('err').innerHTML = `Не удалось загрузить таблицу (${esc(e.message)}). Проверьте интернет и что доступ открыт «Все, у кого есть ссылка → Читатель».`;
+    $('err').innerHTML = `Не удалось загрузить данные (${esc(e.message)}). Проверьте интернет.`;
     $('err').classList.remove('hidden');
   }
 }
@@ -1202,7 +1203,7 @@ function renderModal(){
 
 function renderAll(){
   renderKPI(); renderEvents(); renderTasks(); renderPilots(); renderSchedule(); renderNews(); renderStatus(); renderModal(); renderTracks(); renderRus(); renderHelp(); renderFgd();
-  $('footer').textContent = source==='live' ? 'Данные из Google Таблицы клуба' : source==='cache' ? 'Показана последняя сохранённая версия' : 'Данные-образец';
+  $('footer').textContent = source==='live' ? 'Данные клуба' : source==='cache' ? 'Показана последняя сохранённая версия' : 'Данные-образец';
   if(source==='sample' && sheetId()) {} else if(source==='sample') setStatus('warn','образец');
 }
 

@@ -909,7 +909,7 @@ function gStory(stg, st, hint, done, lv) {
    Ученик (вошёл по коду в "🏆 Рейтинг"): прогресс курса уходит на сервер (op ksync), в ответ приходят решения тренера:
    открытые модули, принятые и возвращённые задания, уровень по модулям.
    Тренер (вход по PIN): видит всех учеников по модулям (slist), открывает модули, принимает задания (sset act kurs). */
-const SPK_API = 'https://script.google.com/macros/s/AKfycbwmh9Ksw7lm9pYZCy3ao-mvZ5ogKbFM7E66zJIAa5ZvorA6q7FLH8ZlFZvFK9RKHRM-/exec';
+const SPK_API = 'https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b';
 const spkCall = q => fetch(SPK_API, { method: 'POST', body: JSON.stringify(q) }).then(r => r.json());
 const sesS = { get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} } };
 function meK() { try { const P = JSON.parse(localStorage.getItem('spk_vzlet') || 'null'); return P && P.code && P.status === 'принят' ? P : null; } catch (e) { return null; } }
