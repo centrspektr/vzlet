@@ -49,7 +49,9 @@ function clsLvl() {
 }
 S.lvl = S.lvl || {};
 const modOf = tid => K.mods.find(x => x.tasks && x.tasks.includes(tid));
-const lvlOf = mid => S.lvl[mid] || clsLvl();
+/* BETA: бета-версия 2 - все тестируют на базовом уровне, если тренер или сам ученик не выбрал другой. После беты - 0 */
+const BETA = 2;
+const lvlOf = mid => S.lvl[mid] || (BETA ? 1 : clsLvl());
 const lvInfo = n => LV[(n || 1) - 1];
 const lvChip = n => { const v = lvInfo(n); return `<span class="kr-lv l${v.n}">${v.e} ${E(v.t)}</span>`; };
 
@@ -130,6 +132,7 @@ css.textContent = `
 .kr-bar{height:9px;border-radius:99px;background:rgba(127,127,160,.2);overflow:hidden;margin-top:10px}
 .kr-bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--ka),var(--kb));transition:width 1s cubic-bezier(.2,.8,.2,1)}
 .kr-row{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;opacity:.82;margin-top:6px}
+.kr-beta summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;flex-wrap:wrap}.kr-beta summary::-webkit-details-marker{display:none}.kr-beta summary small{margin-left:auto;opacity:.7}.kr-beta[open] summary small{display:none}.kr-bt{font-weight:800;font-size:11px;letter-spacing:.06em;padding:3px 8px;border-radius:99px;background:linear-gradient(90deg,#a855f7,#22d3ee);color:#fff}.kr-beta p,.kr-beta ul,.kr-beta ol{margin:10px 0;font-size:14px;line-height:1.55}.kr-beta ul,.kr-beta ol{padding-left:20px}.kr-beta li{margin:4px 0}.kr-beta .kr-sec{margin-top:12px}
 .kr-note{padding:10px 12px;border-radius:14px;border:1px dashed rgba(var(--krgb),.5);background:rgba(var(--krgb),.08);font-size:13.5px;line-height:1.45}
 .kr-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:13px;border:1px solid rgba(127,127,160,.35);background:rgba(127,127,160,.12);color:inherit;font-family:inherit;font-weight:700;font-size:14px;line-height:1.1;cursor:pointer;transition:transform .15s,background .2s;-webkit-tap-highlight-color:transparent}
 .kr-btn:active{transform:scale(.96)}.kr-btn.pri{background:linear-gradient(135deg,var(--ka),var(--kb));color:#0b0b18;border:none}
@@ -203,6 +206,8 @@ css.textContent = `
 .kr-x{border:1px solid rgba(250,204,21,.6);background:rgba(250,204,21,.09);border-radius:16px;padding:14px;margin-top:12px;text-align:left}
 .kr-like{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:12px;font-size:13.5px}
 .kr-like button{min-height:40px;min-width:54px;border-radius:12px;border:1px solid rgba(127,127,160,.35);background:rgba(127,127,160,.1);color:inherit;font-size:18px;cursor:pointer;transition:transform .15s}
+.kr-fbd summary{cursor:pointer;font-weight:700;font-size:14px}.kr-fbd .kr-like{justify-content:flex-start}
+.kr-fb{display:grid;gap:6px;margin-top:12px;font-size:13.5px}.kr-fb label{opacity:.85}.kr-fb textarea{width:100%;box-sizing:border-box;border-radius:12px;border:1px solid rgba(127,127,160,.35);background:rgba(127,127,160,.08);color:inherit;font:inherit;padding:8px 10px;resize:vertical}.kr-fb .kr-btn{justify-self:start}
 .kr-like button.on{background:rgba(var(--krgb),.22);border-color:var(--ka);transform:scale(1.08)}
 .kr-in{display:grid;gap:10px}.kr-in label{display:grid;gap:4px;font-size:13px;font-weight:700;opacity:.9}
 .kr-in input,.kr-in select,.kr-in textarea{font:inherit;font-size:15px;color:inherit;background:rgba(0,0,0,.25);border:1px solid rgba(127,127,160,.4);border-radius:11px;padding:10px 12px;width:100%;box-sizing:border-box}
@@ -350,6 +355,20 @@ function scrollTop() {
   if (Math.abs(r.top - off) > 30) window.scrollTo({ top: scrollY + r.top - off, behavior: RED ? 'auto' : 'smooth' });
 }
 
+/* руководство тестера (бета 2): раскрыто, пока не нажали "Понятно" */
+function betaGuide() {
+  let seen = false; try { seen = localStorage.getItem('vz_beta2_seen') === '1'; } catch (e) {}
+  return `<details class="kr-card kr-beta" ${seen ? '' : 'open'}><summary><span class="kr-bt">БЕТА 2</span><b>Нужна ваша помощь в тестировании</b><small>руководство</small></summary>
+  <p><b>Ребята, это бета-версия 2 курса пилота.</b> Вы проходите его первыми. Помогите сделать курс понятным и интересным: найдите, что непонятно, скучно или не работает. Перед бетой 2 результаты всех обнулены, начинаем с чистого листа.</p>
+  <div class="kr-sec">Зачем тестируем</div>
+  <ul><li>Проверить, что материал понятен с первого раза.</li><li>Найти ошибки в вопросах, ответах и пояснениях.</li><li>Понять, что интересно, а что скучно или слишком длинно, и переделать.</li><li>Проверить, что всё работает и на телефоне, и на компьютере.</li></ul>
+  <div class="kr-sec">Как тестировать</div>
+  <ol><li>Проходите на <b>🟢 Базовом</b> уровне, он уже выбран сам.</li><li>Идите по модулям по порядку, задание за заданием, от первого до шестого.</li><li>Полёты в симуляторе и задания "на занятии" можно пропустить кнопкой "⏭ Пропустить", их проверим в клубе.</li><li>Внизу каждого задания есть "💬 Оставь комментарий": поставьте 👍 или 👎 и коротко напишите, что понятно, а что нет. Тренер видит все комментарии.</li><li>Нашли ошибку (неверный ответ, опечатка, кнопка не работает) - жмите ⚠ у задания или "Нашёл ошибку?" внизу справа.</li></ol>
+  <div class="kr-sec">Что писать в комментарии</div>
+  <ul><li>какое слово, вопрос или пояснение было непонятно;</li><li>где ответ кажется неверным;</li><li>что было скучно или слишком долго;</li><li>что понравилось.</li></ul>
+  <p class="mut">Краткость - сестра таланта: одна мысль - одна строка. Спасибо, что помогаете!</p>
+  <button class="kr-btn pri" data-k="beta-ok">Понятно, начинаю</button></details>`;
+}
 function home() {
   if (isCoach() && !CO.as) { if (CO.st === 'idle') coLoad(); else coDraw(); return; }
   VIEW = { m: null, t: null, step: null };
@@ -358,7 +377,7 @@ function home() {
   let h = go ? `<button class="kr-btn pri kr-cont" data-k="task" data-t="${go.tid}"><span>${go.st ? '▶ Продолжить' : '▶ Начать'}: Модуль ${go.m.n} · "${E(K.lib[go.tid].t)}"</span><small>шаг ${go.st + 1} из ${K.lib[go.tid].steps.length}</small></button>` : '';
   h += `<div class="kr-card top">${bugBtn()}<h3>🎓 Твой прогресс</h3><p class="mut">Внутри модуля шаги открываются сами. Следующий модуль открывает тренер, когда проверит задания.</p>
     <div class="kr-bar"><i data-w="${tot ? dn / tot * 100 : 0}"></i></div><div class="kr-row"><span>Пройдено заданий: ${dn} из ${tot}</span><span>⭐ ${allPts()} очков</span></div></div>`;
-  h += `<div class="kr-note">🧪 Пробная версия: наполнены все 6 модулей, они открыты для проверки. В каждом модуле 3 уровня сложности (по классу).</div>${isCoach() ? '<div class="kr-back"><button class="kr-btn sm pri" data-k="co-home">👥 К ученикам (окно тренера)</button><span class="mut">Вы тренер: здесь курс глазами ученика, всё открыто.</span></div>' : ''}`;
+  h += (BETA ? betaGuide() : `<div class="kr-note">🧪 Пробная версия: наполнены все 6 модулей, они открыты для проверки. В каждом модуле 3 уровня сложности (по классу).</div>`) + `${isCoach() ? '<div class="kr-back"><button class="kr-btn sm pri" data-k="co-home">👥 К ученикам (окно тренера)</button><span class="mut">Вы тренер: здесь курс глазами ученика, всё открыто.</span></div>' : ''}`;
   h += '<div class="kr-mods">' + K.mods.map((m, i) => {
     const op = modOpen(m), p = modProg(m), full = p === 1;
     const st = !m.tasks ? '🛠 готовится' : full ? '✓ модуль пройден' + (S.t[m.tasks[m.tasks.length - 1]] ? '' : '') : op ? '▶ ' + Math.round(p * 100) + '% пройдено' : '🔒 откроет тренер';
@@ -419,7 +438,7 @@ function taskView(tid, step) {
   const L = K.lib[tid], t = T(tid), m = K.mods.find(x => x.tasks && x.tasks.includes(tid));
   if (step == null) { step = L.steps.findIndex((st, i) => !(t.s[i] && t.s[i].ok)); if (step < 0) step = t.done ? -1 : 0; }
   VIEW = { m: m.id, t: tid, step };
-  mount(`<div id="krHead">${taskHead(tid, step)}</div><div class="kr-card" id="krStage"></div>`);
+  mount(`<div id="krHead">${taskHead(tid, step)}</div><div class="kr-card" id="krStage"></div>${BETA && step !== -1 && !isCoach() ? `<details class="kr-card kr-fbd"${T(tid).fb ? ' open' : ''}><summary>💬 Что-то непонятно? Оставь комментарий к заданию</summary>${likeRow(tid)}</details>` : ''}`);
   const stg = $('#krStage', box);
   if (step === -1) return summary(tid, stg);
   runStep(tid, step, stg);
@@ -456,7 +475,8 @@ function nextBtn(tid, i) {
 }
 function likeRow(tid) {
   const v = T(tid).like || 0;
-  return `<div class="kr-like"><span class="mut">Как тебе задание?</span><button data-k="like" data-v="1" data-t="${tid}" class="${v === 1 ? 'on' : ''}" aria-label="Класс">👍</button><button data-k="like" data-v="-1" data-t="${tid}" class="${v === -1 ? 'on' : ''}" aria-label="Не очень">👎</button></div>`;
+  return `<div class="kr-like"><span class="mut">Как тебе задание?</span><button data-k="like" data-v="1" data-t="${tid}" class="${v === 1 ? 'on' : ''}" aria-label="Класс">👍</button><button data-k="like" data-v="-1" data-t="${tid}" class="${v === -1 ? 'on' : ''}" aria-label="Не очень">👎</button></div>
+  <div class="kr-fb"><label for="fb-${tid}">💬 Что понятно, что нет? Напиши коротко</label><textarea id="fb-${tid}" maxlength="140" rows="2" placeholder="Например: не понял, чем Acro отличается от Angle">${E(T(tid).fb || '')}</textarea><button class="kr-btn sm" data-k="fb" data-t="${tid}">${T(tid).fb ? '✓ Отправлено, изменить' : 'Отправить тренеру'}</button></div>`;
 }
 
 function summary(tid, stg) {
@@ -900,12 +920,13 @@ function kSummary() {
       if (x.w) Object.keys(x.w).forEach(k => w[k] = (w[k] || 0) + x.w[k]);
       const ch = x.ok ? (st.s === 'coach' && !x.acc ? 'w' : x.viaX ? 'x' : 'o') : x.needX ? 'n' : '-'; if (ch === 'w') wd = x.date || '';
       return ch; }).join('');
-    if (s.replace(/-/g, '') === '' && !z.like && !z.skip) return;
+    if (s.replace(/-/g, '') === '' && !z.like && !z.skip && !z.fb) return;
     t[id] = { s, p: best.length ? Math.round(best.reduce((a, b) => a + b, 0) / best.length * 100) : null, a: att, d: z.done || z.was || '', l: lv || lvlOf((modOf(id) || {}).id), k: z.like || 0, sk: z.skip && !z.done ? 1 : 0, c: String(c).slice(0, 140), f: String(f).slice(0, 60) };
     /* новые поля: w - до 5 вопросов, где чаще ошибался (ключ вопроса: число ошибок), wd - когда отправил тренеру */
     const wk = Object.keys(w).sort((a, b) => w[b] - w[a]).slice(0, 5);
     if (wk.length) { t[id].w = {}; wk.forEach(k => t[id].w[k] = w[k]); }
     if (wd) t[id].wd = wd;
+    if (z.fb) t[id].fb = String(z.fb).slice(0, 140);
   });
   return { v: 1, t, pts: allPts(), lv: S.lvl };
 }
@@ -1228,6 +1249,9 @@ function coModsHtml(L) {
     return `<button class="kr-m on co-mc" data-k="co-cm" data-m="${m.id}"><span class="nn">МОДУЛЬ ${m.n} ›</span><b>${E(m.t)}</b>${coMS(q)}<div class="st">Открыт у ${q.op} из ${L.length} · пройден у ${q.dn}${q.w ? ` · <span class="cw">ждут проверки: ${q.w}</span>` : ''}</div></button>`; }).join('') + '</div>' + unready();
   const lk = {}; L.forEach(s => Object.keys((s.k && s.k.t) || {}).forEach(id => { const v = s.k.t[id].k; if (!v || !K.lib[id]) return; lk[id] = lk[id] || [0, 0]; lk[id][v > 0 ? 0 : 1]++; }));
   const ids = Object.keys(lk).sort((a, b) => lk[b][1] - lk[a][1] || lk[a][0] - lk[b][0]);
+  const fbs = []; L.forEach(s => Object.keys((s.k && s.k.t) || {}).forEach(id => { const r = s.k.t[id]; if (r.fb && K.lib[id]) fbs.push([id, s, r]); }));
+  fbs.sort((a, b) => { const ia = K.mods.findIndex(m => m.tasks && m.tasks.includes(a[0])), ib = K.mods.findIndex(m => m.tasks && m.tasks.includes(b[0])); return ia - ib || a[0].localeCompare(b[0]); });
+  if (fbs.length) h += `<div class="kr-card"><div class="kr-sec">💬 Комментарии тестеров (${fbs.length})</div><ul class="kr-hist">${fbs.map(([id, s, r]) => `<li><span>${mTag(id)} ${E(K.lib[id].t)}<br><small class="mut">${E(s.n)}, ${E(s.c)}${r.k ? ' ' + (r.k > 0 ? '👍' : '👎') : ''}</small></span><span>"${E(r.fb)}"</span></li>`).join('')}</ul></div>`;
   if (ids.length) h += `<div class="kr-card"><div class="kr-sec">Как ученикам задания</div><ul class="kr-hist">${ids.map(id => `<li><span>${mTag(id)} ${E(K.lib[id].t)}</span><span class="co-lk">👎 ${lk[id][1]} · 👍 ${lk[id][0]}</span></li>`).join('')}</ul><p class="mut" style="margin-top:8px;font-size:12.5px">Сверху задания с самым большим числом 👎 - их стоит поправить или заменить.</p></div>`;
   return h;
 }
@@ -1320,13 +1344,17 @@ function coDraw(quiet) {
     h += coSum(ST);
     h += `<div class="co-tabs"><button data-k="co-tab" data-v="gr" class="${tab === 'gr' ? 'on' : ''}">📊 Обзор</button><button data-k="co-tab" data-v="st" class="${tab === 'st' ? 'on' : ''}">Ученики<small>${L.length}</small></button><button data-k="co-tab" data-v="mo" class="${tab === 'mo' ? 'on' : ''}">Модули<small>${K.mods.filter(m => m.tasks).length}</small></button></div>`;
     if (waits.length && (tab === 'st' || CO.f === 'w')) h += coWaitCard(waits);
-    h += tab === 'st' ? coListHtml(ST) + coRate(ST) : tab === 'gr' ? coGridHtml(L) : coModsHtml(L);
+    h += tab === 'st' ? coListHtml(ST) + coRate(ST) + coResetAll(L) : tab === 'gr' ? coGridHtml(L) : coModsHtml(L);
   }
   /* тихая перерисовка таблицы: прокрутка вбок остаётся на месте, открытое окошко обновляется */
   const gw = box && $('.co-gw', box), gx = gw ? gw.scrollLeft : 0;
   mount(h, quiet);
   const gw2 = $('.co-gw', box); if (gw2 && gx) gw2.scrollLeft = gx;
   const gp = document.getElementById('krGp'); if (gp && gp.className === 'on' && gp._o) { if (tab === 'gr') gPop(gp._o.sid, gp._o.mid); else gPopClose(); }
+}
+function coResetAll(L) {
+  if (CO.demo) return '';
+  return `<div class="kr-card"><div class="kr-sec">↺ Обнулить всех</div><p class="mut" style="margin:6px 0 10px;font-size:13px">Сбросит у всех ${L.length} учеников Взлёта очки, тесты, тренировки и прогресс курса. Ученики, коды и открытые модули останутся. Отменить нельзя.</p><button class="kr-btn" data-k="co-rstall">↺ Обнулить результаты всех</button></div>`;
 }
 function coStud() { return CO.list.find(s => s.id === CO.who); }
 function coStudView(quiet) {
@@ -1373,6 +1401,7 @@ function coTaskRow(s, id, k, mine) {
     if (r.l) inf.push('уровень ' + E(lvInfo(r.l).t));
   }
   if (r && r.k) inf.push(r.k > 0 ? '👍' : '👎');
+  if (r && r.fb) inf.push('💬 "' + E(r.fb) + '"');
   const tags = [];
   if (stk) tags.push(coChip('cn', '⚠ нужно доп. задание'));
   if (r && r.s.indexOf('x') >= 0) tags.push(coChip('', '🔁 было доп. задание'));
@@ -1636,6 +1665,8 @@ document.addEventListener('click', e => {
   if (!box || !box.contains(e.target)) return;
   const b = e.target.closest('[data-k^="co-"]'); if (!b) return;
   const k = b.dataset.k, sid = b.dataset.s;
+  if (k === 'co-rstall') { const ids = CO.list.map(s => s.id); if (!ids.length || !confirm('Обнулить результаты всех ' + ids.length + ' учеников Взлёта? Отменить нельзя.')) return; b.disabled = true; b.textContent = '⏳ Обнуляю...';
+    (async () => { let bad = ''; for (let i = 0; i < ids.length; i += 50) { try { const j = await spkCall({ op: 'sset', act: 'reset', ids: ids.slice(i, i + 50), token: CO.tok }); if (!j.ok) bad = j.error || 'ошибка'; } catch (e) { bad = 'нет связи'; } } toastK(bad ? 'Не получилось: ' + bad : 'Готово: результаты всех обнулены'); coLoad(); })(); return; }
   if (k === 'co-load') { CO.demo = false; CO.menu = false; coLoad(); }
   else if (k === 'co-demo') { undoFlush(); CO.demo = !CO.demo; CO.menu = false; CO.who = null; CO.mod = null; CO.cm = null; CO.ct = null; CO.f = null; CO.sel.clear(); if (CO.demo) coDemo(); else { CO.list = []; coLoad(); return; } coDraw(); }
   else if (k === 'co-menu') { CO.menu = !CO.menu; coDraw(true); }
@@ -1694,6 +1725,8 @@ document.addEventListener('click', e => {
   else if (k === 'bug') { const s = document.querySelector('.spkbug'); if (s) s.click(); else toastK('Окно сообщения ещё загружается, попробуй через пару секунд'); }
   else if (k === 'lockmore') { ROADALL[b.dataset.m] = 1; modView(b.dataset.m); }
   else if (k === 'lvl') { S.lvl[b.dataset.m] = +b.dataset.v; save(); snd('tap'); modView(b.dataset.m); toastK('Уровень: ' + lvInfo(+b.dataset.v).t); }
+  else if (k === 'fb') { const t = T(b.dataset.t), ta = document.getElementById('fb-' + b.dataset.t), v = ta ? ta.value.replace(/\s+/g, ' ').trim().slice(0, 140) : ''; t.fb = v; save(); b.textContent = v ? '✓ Отправлено, изменить' : 'Отправить тренеру'; snd('tap'); toastK(v ? 'Спасибо! Тренер увидит комментарий' : 'Комментарий убран'); }
+  else if (k === 'beta-ok') { try { localStorage.setItem('vz_beta2_seen', '1'); } catch (e) {} const d = b.closest('details'); if (d) d.open = false; window.scrollTo({ top: Math.max(0, (box.getBoundingClientRect().top + scrollY) - 70), behavior: 'smooth' }); }
   else if (k === 'like') { const t = T(b.dataset.t), v = +b.dataset.v; t.like = t.like === v ? 0 : v; save(); $$('.kr-like button', box).forEach(z => z.classList.toggle('on', +z.dataset.v === t.like)); snd('tap'); if (t.like) toastK(v > 0 ? 'Спасибо! 👍 Тренер увидит' : 'Спасибо! Тренер поправит задание'); }
 });
 
