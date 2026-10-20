@@ -374,6 +374,14 @@ function betaGuide() {
   <p class="mut">Краткость - сестра таланта: одна мысль - одна строка. Спасибо, что помогаете!</p>
   <button class="kr-btn pri" data-k="beta-ok">Понятно, начинаю</button></details>`;
 }
+/* гость или заявка ещё не принята: прогресс пока только на этом устройстве */
+function kGuest() {
+  if (isCoach()) return '';
+  if (meK()) return '';
+  let P = null; try { P = JSON.parse(localStorage.getItem('spk_vzlet') || 'null'); } catch (e) {}
+  if (P && P.id && P.status === 'заявка') return `<div class="kr-note">⏳ Твоя заявка ждёт тренера. Проходи курс: как только тренер примет заявку, твои результаты сами уйдут ему.</div>`;
+  return `<div class="kr-note kr-guest"><b>👋 Тренер пока не видит твой курс.</b> Подключись к клубу (имя и класс) или введи свой код - тогда результаты будут уходить тренеру. Пока ты не подключён, прогресс хранится только на этом устройстве.<div style="margin-top:8px"><button class="kr-btn sm pri" data-k="to-rate">👋 Подключиться</button></div></div>`;
+}
 function home() {
   if (isCoach() && !CO.as) { if (CO.st === 'idle') coLoad(); else coDraw(); return; }
   VIEW = { m: null, t: null, step: null };
@@ -382,6 +390,7 @@ function home() {
   let h = go ? `<button class="kr-btn pri kr-cont" data-k="task" data-t="${go.tid}"><span>${go.st ? '▶ Продолжить' : '▶ Начать'}: Модуль ${go.m.n} · "${E(K.lib[go.tid].t)}"</span><small>шаг ${go.st + 1} из ${K.lib[go.tid].steps.length}</small></button>` : '';
   h += `<div class="kr-card top">${bugBtn()}<h3>🎓 Твой прогресс</h3><p class="mut">Внутри модуля шаги открываются сами. Следующий модуль открывает тренер, когда проверит задания.</p>
     <div class="kr-bar"><i data-w="${tot ? dn / tot * 100 : 0}"></i></div><div class="kr-row"><span>Пройдено заданий: ${dn} из ${tot}</span><span>⭐ ${allPts()} очков</span></div></div>`;
+  h += kGuest();
   h += (BETA ? betaGuide() : `<div class="kr-note">🧪 Пробная версия: наполнены все 6 модулей, они открыты для проверки. В каждом модуле 3 уровня сложности (по классу).</div>`) + `${isCoach() ? '<div class="kr-back"><button class="kr-btn sm pri" data-k="co-home">👥 К ученикам (окно тренера)</button><span class="mut">Вы тренер: здесь курс глазами ученика, всё открыто.</span></div>' : ''}`;
   h += '<div class="kr-mods">' + K.mods.map((m, i) => {
     const op = modOpen(m), p = modProg(m), full = p === 1;
@@ -935,15 +944,20 @@ function kSummary() {
   });
   return { v: 1, t, pts: allPts(), lv: S.lvl };
 }
-let kT = 0, kBusy = false;
+let kT = 0, kBusy = false, kLast = '';
+/* то, что ещё не ушло тренеру: например, курс начали до одобрения заявки, а код пришёл позже */
+let kWas = null;
+function kCheck() { const on = !!meK(); if (kWas !== null && on !== kWas && box && !isCoach() && VIEW.m == null && VIEW.t == null) home(); kWas = on; if (!meK() || isCoach() || kBusy || !Object.keys(S.t).length) return; if (JSON.stringify(kSummary()) !== kLast) kSync(); }
 function kSync(soon) {
   const P = meK(); if (!P || isCoach()) return;
   clearTimeout(kT);
   kT = setTimeout(() => {
     if (kBusy) return kSync(true); kBusy = true;
-    spkCall({ op: 'ksync', code: P.code, club: 'vzlet', e: P.e || 0, k: kSummary() }).then(j => {
+    const k = kSummary(), ks = JSON.stringify(k);
+    spkCall({ op: 'ksync', code: P.code, club: 'vzlet', e: P.e || 0, k }).then(j => {
       kBusy = false;
       if (j && j.retry) return kSync(true);
+      if (j && j.ok && !j.reset) kLast = ks;
       if (j && j.ok && j.kc && !j.reset) applyKc(j.kc);
     }).catch(() => { kBusy = false; });
   }, soon ? 9000 : 1500);
@@ -1783,6 +1797,7 @@ document.addEventListener('click', e => {
   else if (k === 'lockmore') { ROADALL[b.dataset.m] = 1; modView(b.dataset.m); }
   else if (k === 'lvl') { S.lvl[b.dataset.m] = +b.dataset.v; save(); snd('tap'); modView(b.dataset.m); toastK('Уровень: ' + lvInfo(+b.dataset.v).t); }
   else if (k === 'fb') { const t = T(b.dataset.t), ta = document.getElementById('fb-' + b.dataset.t), v = ta ? ta.value.replace(/\s+/g, ' ').trim().slice(0, 140) : ''; t.fb = v; save(); b.textContent = v ? '✓ Отправлено, изменить' : 'Отправить тренеру'; snd('tap'); toastK(v ? 'Спасибо! Тренер увидит комментарий' : 'Комментарий убран'); }
+  else if (k === 'to-rate') { const r = document.querySelector('#vt button[data-t="rate"]'); if (r) r.click(); setTimeout(() => { const el = document.querySelector('[data-spk-club="vzlet"]'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 400); }
   else if (k === 'beta-ok') { try { localStorage.setItem('vz_beta2_seen', '1'); } catch (e) {} const d = b.closest('details'); if (d) d.open = false; window.scrollTo({ top: Math.max(0, (box.getBoundingClientRect().top + scrollY) - 70), behavior: 'smooth' }); }
   else if (k === 'like') { const t = T(b.dataset.t), v = +b.dataset.v; t.like = t.like === v ? 0 : v; save(); $$('.kr-like button', box).forEach(z => z.classList.toggle('on', +z.dataset.v === t.like)); snd('tap'); if (t.like) toastK(v > 0 ? 'Спасибо! 👍 Тренер увидит' : 'Спасибо! Тренер поправит задание'); }
 });
@@ -1790,9 +1805,10 @@ document.addEventListener('click', e => {
 /* ---------- старт ---------- */
 function init() {
   box = document.getElementById('t-kurs'); if (!box) return;
-  home(); kSync();
+  home(); kSync(); kWas = !!meK();
   bodyCls(); try { new MutationObserver(bodyCls).observe(box, { attributes: true, attributeFilter: ['hidden'] }); } catch (e) {}
   setInterval(coUpd, 30000);
+  setInterval(kCheck, 15000); document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(kCheck, 2500); });
   const nav = document.getElementById('vt');
   if (nav) nav.addEventListener('click', e => { const b = e.target.closest('button[data-t="kurs"]'); if (b && VIEW.t == null && VIEW.m == null) home(); });
 }
