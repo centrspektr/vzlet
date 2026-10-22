@@ -237,6 +237,28 @@
 .vtb .tbt button.zk .ic{opacity:.55}
 .vtb .tbt button.zk .ic::before{content:"🔒";position:absolute;right:-7px;top:-7px;font-size:13px;line-height:1;filter:drop-shadow(0 1px 2px #000)}
 @media (prefers-reduced-motion: reduce){.zag-in img{animation:none}}
+/* кнопка "На экран": установка на телефон, как в дашборде Спектра */
+.inb{display:inline-flex;align-items:center;gap:7px}
+.inb .shico{width:19px;height:19px;flex:none;fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;animation:inbR 1.8s ease-in-out infinite}
+@keyframes inbR{50%{transform:translateX(3px)}}
+@media (prefers-reduced-motion: reduce){.inb .shico{animation:none}}
+.ins-c{max-width:440px}
+.ins-c .stp{display:flex;gap:12px;align-items:flex-start;margin:10px 0}.ins-c .stp i{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;color:#04121b;background:linear-gradient(135deg,#00d4ff,#0077ff)}
+.ins-c .stp b{display:block}.ins-c .stp div{font-size:14px;color:var(--dim)}.ins-c .stp div b{color:var(--text)}
+.ins-c .ins-t{color:var(--dim);font-size:14px;margin:8px 0}
+.ins-c .ins-go{display:flex;justify-content:center;width:100%;margin:10px 0;text-decoration:none}
+.ins-g{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+/* верхний блок: сверху статус и маленькие кнопки, снизу две главные кнопки одной ширины */
+header .toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px;min-width:min(100%,360px)}
+.tb-sub{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tb-sub .status{flex:1 1 130px;min-width:0;min-height:40px;box-sizing:border-box}.tb-sub .status>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-sub .btn{height:40px;display:inline-flex;align-items:center;justify-content:center}
+.tb-sub .tb-ic{width:40px;padding:0;font-size:17px}
+.tb-main{display:flex;gap:8px}
+.tb-main .btn{flex:1;height:46px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:14px;border-radius:13px;white-space:nowrap}
+.tb-main .btn[hidden]{display:none}
+.tb-help{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+@media(max-width:600px){header{flex-direction:column;align-items:stretch;gap:14px}header .toolbar{min-width:0}}
 #zayBody .spk-top{display:none}
 .tabwave{position:fixed;inset:0;z-index:60;pointer-events:none;background:linear-gradient(100deg,transparent 28%,rgba(120,190,255,.13) 40%,rgba(255,255,255,.22) 50%,rgba(210,130,255,.13) 60%,transparent 72%)}
 
@@ -551,14 +573,19 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
     </div>
   </div>
   <div class="toolbar">
-    <span class="status" id="status"><i></i><span>загрузка…</span></span>
-    <button class="btn coach-only" onclick="loadData(true)">↻ Обновить</button>
-    <a class="btn coach-only" id="editBtn" target="_blank" href="#" title="Открыть Google Таблицу">▦ Таблица</a>
-    <span class="coach-only" data-spk-panel data-club="vzlet" data-coach data-pin-key="vzlet_pin" data-btn="btn" data-accent="#00d4ff"></span>
-    <button class="btn" id="lockBtn" onclick="lockClick()" style="display:none">✎ Войти</button>
-    <button class="btn" data-fx-skin title="Сменить живой фон" aria-label="Сменить фон">🎨</button>
-    <button class="btn" id="zayBtn" onclick="openZay()" hidden>👋 Подать заявку</button>
-    <button class="btn primary" onclick="openModal()">📖 Справка</button>
+    <div class="tb-sub">
+      <span class="status" id="status"><i></i><span>загрузка…</span></span>
+      <button class="btn coach-only" onclick="loadData(true)">↻ Обновить</button>
+      <a class="btn coach-only" id="editBtn" target="_blank" href="#" title="Открыть Google Таблицу">▦ Таблица</a>
+      <span class="coach-only" data-spk-panel data-club="vzlet" data-coach data-pin-key="vzlet_pin" data-btn="btn" data-accent="#00d4ff"></span>
+      <button class="btn" id="lockBtn" onclick="lockClick()" style="display:none">✎ Войти</button>
+      <button class="btn inb" id="inBtn" type="button" title="Установить Взлёт на экран телефона" aria-label="Установить на экран телефона"><svg class="shico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5 21 11l-7 6.5v-3.8c-5 0-8.3 1.5-11 5.3.9-5.4 3.9-10.4 11-11.3z"/></svg><span>На экран</span></button>
+      <button class="btn tb-ic" data-fx-skin title="Сменить живой фон" aria-label="Сменить фон">🎨</button>
+    </div>
+    <div class="tb-main">
+      <button class="btn primary" id="zayBtn" onclick="openZay()" hidden>👋 Подать заявку</button>
+      <button class="btn tb-help" onclick="openModal()">📖 Справка</button>
+    </div>
   </div>
 </header>
 
@@ -722,6 +749,11 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.index
 
 <div class="modal" id="zmodal" onclick="if(event.target===this)closeZay()">
   <div class="modal-card"><button class="close-x" onclick="closeZay()">✕</button><h2>👋 Заявка в клуб "Взлёт"</h2><div id="zayBody"></div></div>
+</div>
+
+<div class="modal" id="imodal" role="dialog" aria-modal="true" aria-label="Установить Взлёт на телефон" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-card ins-c"><button class="close-x" onclick="document.getElementById('imodal').classList.remove('open')">✕</button><h2>📲 Взлёт на экран телефона</h2><p class="sub">Значок появится рядом с другими приложениями и будет открываться одним касанием.</p><div id="shI"></div>
+    <div class="ins-g"><button class="btn" id="shShare">📤 Поделиться ссылкой</button><button class="btn" id="shCopy">📋 Скопировать</button></div></div>
 </div>
 
 <footer id="footer"></footer>
@@ -2184,5 +2216,38 @@ zakApply();
 <script src="moduli.js" defer></script>
 <script src="trener-panel.js" defer></script>
 <script>if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+<script>
+/* "На экран": установка клуба на телефон как приложение (по образцу дашборда Спектра) */
+(function(){
+  var URL0='https://centrspektr.github.io/vzlet/', $=function(i){return document.getElementById(i)}, IM=$('imodal'), dp=null;
+  var ua=navigator.userAgent, IOS=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1), MOB=/Android|iPhone|iPad|iPod/i.test(ua)||IOS, AND=/Android/i.test(ua);
+  var APP=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  var INAPP=/; wv\)|VKAndroidApp|VKClient|vkontakte|Telegram|Instagram|FBAN|FBAV|OdnoklassnikiApp|OKApp|ru\.oneme|OneMe|MAXApp|\bMAX\//i.test(ua)||(IOS&&!/Safari\//.test(ua)&&!/CriOS|FxiOS|YaBrowser|EdgiOS/.test(ua));
+  var BR=/YaBrowser|YaApp/.test(ua)?'ya':/SamsungBrowser/.test(ua)?'samsung':/Firefox|FxiOS/.test(ua)?'ff':/OPR\/|Opera/.test(ua)?'opera':/EdgA|EdgiOS/.test(ua)?'edge':/MiuiBrowser|HuaweiBrowser|HeyTapBrowser/.test(ua)?'other':'chrome', YA=BR==='ya'&&AND;
+  addEventListener('beforeinstallprompt',function(e){if(YA)e.preventDefault();dp=e;inst()});
+  addEventListener('appinstalled',function(){dp=null;APP=true;inst()});
+  var D='<p class="ins-t">';
+  function S(n,b,t){return '<div class="stp"><i>'+n+'</i><div><b>'+b+'</b>'+(t||'')+'</div></div>'}
+  function intent(pkg){return 'intent://centrspektr.github.io/vzlet/#Intent;scheme=https;package='+pkg+';S.browser_fallback_url='+encodeURIComponent(URL0)+';end'}
+  function steps(){
+    if(!MOB)return D+'На компьютере: нажмите значок установки справа в адресной строке или меню ⋮ → "Установить".</p>';
+    if(INAPP&&IOS)return S(1,'Откройте в Safari','Нажмите ⋯ или значок компаса → "Открыть в Safari".')+S(2,'Нажмите "Поделиться"','Квадрат со стрелкой.')+S(3,'"На экран "Домой""','И "Добавить".');
+    if(IOS)return S(1,'Нажмите "Поделиться"','Квадрат со стрелкой'+(/CriOS|YaBrowser|EdgiOS|FxiOS/.test(ua)?' в адресной строке.':' внизу или в меню ⋯.'))+S(2,'"На экран "Домой""','И "Добавить".');
+    if(BR==='samsung'&&!INAPP)return S(1,'Нажмите ≡ внизу справа')+S(2,'"Добавить страницу на" → "Главный экран"');
+    if(BR==='ff'&&!INAPP)return S(1,'Нажмите ⋮')+S(2,'Выберите "Установить"');
+    if((BR==='chrome'||BR==='edge')&&!INAPP)return S(1,'Нажмите ⋮ вверху справа')+S(2,'Выберите "Установить приложение"','Если такого пункта нет - "Добавить на гл. экран", потом "Установить".');
+    return D+'Приложение ставится через Chrome.</p><a class="btn primary ins-go" href="'+intent('com.android.chrome')+'">Открыть в Chrome</a>'+S(1,'Не открылось?','Скопируйте ссылку кнопкой ниже и вставьте её в Chrome.')+S(2,'В Chrome нажмите ⋮','И выберите "Установить приложение".')}
+  function inst(){var el=$('shI');if(!el)return;
+    if(APP){el.innerHTML='<b>✅ Взлёт уже установлен</b>'+D+'Вы открыли его как приложение.</p>';return}
+    if(dp&&!YA){el.innerHTML='<button class="btn primary ins-go" id="shGo">📲 Установить приложение</button>';$('shGo').onclick=function(){dp.prompt();dp.userChoice.then(function(){dp=null;inst()}).catch(function(){})};return}
+    el.innerHTML=steps()}
+  $('inBtn').onclick=function(){inst();IM.classList.add('open')};
+  $('shShare').onclick=function(){if(navigator.share)navigator.share({title:'Клуб "Взлёт"',text:'Клуб FPV "Взлёт": рейтинг пилотов и заезды',url:URL0}).catch(function(){});else copy()};
+  $('shCopy').onclick=copy;
+  function copy(){var b=$('shCopy'),lab=b.textContent,done=function(){b.textContent='✓ Скопировано';setTimeout(function(){b.textContent=lab},1800)};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(URL0).then(done,fb);else fb();
+    function fb(){var t=document.createElement('textarea');t.value=URL0;document.body.appendChild(t);t.select();try{document.execCommand('copy');done()}catch(e){}t.remove()}}
+})();
+</script>
 </body>
 </html>
