@@ -277,8 +277,9 @@ header .toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px;
 .tb-main .btn[hidden]{display:none}
 .tb-help{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
 @media(max-width:600px){header{flex-direction:column;align-items:stretch;gap:14px}header .toolbar{min-width:0}}
-/* ссылка на Иртыш-портал над названием клуба */
-.irt{display:flex;width:fit-content;align-items:center;margin-bottom:6px;padding:3px 10px;border-radius:999px;font:700 12px system-ui,sans-serif;color:var(--dim,#8b98a5);text-decoration:none;border:1px solid var(--line,#30363d);transition:color .2s,border-color .2s}.irt:hover{color:var(--accent,#00d4ff);border-color:var(--accent,#00d4ff)}
+/* ссылка на Иртыш-портал под строкой с адресом, у левого края шапки */
+.logo{flex-wrap:wrap;row-gap:8px}.irtw{flex:0 0 100%}.logo>div:nth-child(2){flex:1 1 0}
+.irt{display:flex;width:fit-content;align-items:center;margin-top:-2px;padding:3px 10px;border-radius:999px;font:700 12px system-ui,sans-serif;color:var(--dim,#8b98a5);text-decoration:none;border:1px solid var(--line,#30363d);transition:color .2s,border-color .2s}.irt:hover{color:var(--accent,#00d4ff);border-color:var(--accent,#00d4ff)}
 #zayBody .spk-top{display:none}
 .tabwave{position:fixed;inset:0;z-index:60;pointer-events:none;background:linear-gradient(100deg,transparent 28%,rgba(120,190,255,.13) 40%,rgba(255,255,255,.22) 50%,rgba(210,130,255,.13) 60%,transparent 72%)}
 
@@ -588,10 +589,10 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
   <div class="logo">
     <div class="logo-badge vzb" id="vzb" title="Клуб Взлёт"><span class="vzo"></span><svg class="vzd" viewBox="6 6 88 88" aria-hidden="true"><g stroke="#5b7a96" stroke-width="7" stroke-linecap="round"><line x1="24" y1="24" x2="76" y2="76"/><line x1="76" y1="24" x2="24" y2="76"/></g><rect x="38" y="33" width="24" height="34" rx="8" fill="#0d2233" stroke="#00d4ff" stroke-width="2.5"/><circle cx="50" cy="39" r="4" fill="#a371f7"/><rect x="44" y="49" width="12" height="12" rx="3" fill="#ffb02e"/><circle cx="24" cy="24" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp" style="transform-origin:24px 24px"><ellipse cx="24" cy="24" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="24" cy="24" r="2.6" fill="#00d4ff"/></g><circle cx="76" cy="24" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp r" style="transform-origin:76px 24px"><ellipse cx="76" cy="24" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="76" cy="24" r="2.6" fill="#00d4ff"/></g><circle cx="24" cy="76" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp r" style="transform-origin:24px 76px"><ellipse cx="24" cy="76" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="24" cy="76" r="2.6" fill="#00d4ff"/></g><circle cx="76" cy="76" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp" style="transform-origin:76px 76px"><ellipse cx="76" cy="76" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="76" cy="76" r="2.6" fill="#00d4ff"/></g></svg></div>
     <div>
-      <a class="irt" href="https://centrspektr.github.io/irtysh.html" title="Иртыш-портал">← Иртыш-портал</a>
       <h1>Клуб "Взлёт" <span class="grant-note">(при поддержке Росмолодёжь.Гранты)</span> <span class="coach-badge coach-only">тренер</span></h1>
       <p>FPV-тренировки · с. Иртыш · Черлакский район · Омская область</p>
     </div>
+    <div class="irtw"><a class="irt" href="https://centrspektr.github.io/irtysh.html" title="Иртыш-портал">← Иртыш-портал</a></div>
   </div>
   <div class="toolbar">
     <div class="tb-sub">
