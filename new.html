@@ -621,7 +621,7 @@ window.KURS_ONLY_LINK = false;
      Список хранится на сервере (лист "Статус", строка "_замок"). ZAK_DEF - список, пока тренер ничего не сохранял.
      Тренер видит все вкладки как обычно, замочек у него - только значок. -->
 <div id="zkbar" class="cbar" hidden></div>
-<div id="zag" hidden><div class="card zag-in"><img src="drone.webp" alt=""><h3>Раздел обновляется - скоро вернёмся!</h3><p class="muted" id="zagTx">А пока загляни в Клуб.</p><button class="btn" onclick="document.querySelector('#vt [data-t=club]').click()">Клуб</button><button class="btn" id="zagRate" onclick="document.querySelector('#vt [data-t=rate]').click()">🏆 Рейтинг</button><button class="btn primary" id="zagZay" onclick="openZay()">👋 Подать заявку</button></div></div>
+<div id="zag" hidden><div class="card zag-in"><img src="drone.webp" alt=""><h3>Раздел обновляется - скоро вернёмся!</h3><p class="muted" id="zagTx">А пока загляни в Клуб.</p><button class="btn" onclick="document.querySelector('#vt [data-t=club]').click()">Клуб</button><button class="btn" id="zagRate" onclick="document.querySelector('#vt [data-t=rate]').click()">🏆 Рейтинг</button></div></div>
 <script>
 window.ZAK_DEF = ['kurs', 'put', 'learn', 'train', 'quiz', 'calc', 'me', 'rate'];
 window.ZAKRYTO = ZAK_DEF.slice();
@@ -2041,8 +2041,8 @@ window.zakBar=function(t){if(!zkCoach||t==='club'){bar.hidden=true;return}const 
   bar.querySelector('button').onclick=()=>zkToggle(t)};
 window.zakApply=function(){ZAKRYTO=zkList();
   vt.querySelectorAll('button').forEach(b=>b.classList.toggle('zk',ZAKRYTO.includes(b.dataset.t)));
-  const rl=zk('rate');document.getElementById('zayBtn').hidden=!rl;document.getElementById('zagRate').hidden=rl;document.getElementById('zagZay').hidden=!rl;
-  document.getElementById('zagTx').textContent=rl?'А пока загляни в Клуб. Хочешь в клуб - подай заявку.':'А пока загляни в Клуб или Рейтинг.';
+  const rl=zk('rate');document.getElementById('zayBtn').hidden=!rl;document.getElementById('zagRate').hidden=rl;
+  document.getElementById('zagTx').textContent=rl?'А пока загляни в Клуб.':'А пока загляни в Клуб или Рейтинг.';
   if(box){if(rl&&box.parentNode!==zb)zb.appendChild(box);else if(!rl&&box.parentNode!==rate)rate.appendChild(box)}
   if(window.vzShow){const t=cur(),stub=!document.getElementById('zag').hidden;if(zk(t)!==stub)vzShow(t,false);else zakBar(t)}};
 let busy=false;
