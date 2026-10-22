@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Клуб БПЛА Взлёт: рейтинг пилотов, шпаргалки по FPV, тесты, калькуляторы и тренажёр стиков.">
 <title>Взлёт - дашборд клуба</title>
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="app.webmanifest">
 <script>/* Chrome может предложить установку раньше, чем загрузится вся страница - ловим сразу */addEventListener('beforeinstallprompt',function(e){window.__vzBIP=e});</script>
 <meta name="theme-color" content="#0d1117">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Взлёт">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script src="fx.js"></script>
@@ -2230,7 +2233,7 @@ zakApply();
 <script src="zadaniya-vzlet.js" defer></script>
 <script src="moduli.js" defer></script>
 <script src="trener-panel.js" defer></script>
-<script>if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+<script>if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{});</script>
 <script>
 /* "На экран": установка клуба на телефон как приложение (по образцу дашборда Спектра) */
 (function(){
