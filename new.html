@@ -248,6 +248,17 @@
 .ins-c .ins-t{color:var(--dim);font-size:14px;margin:8px 0}
 .ins-c .ins-go{display:flex;justify-content:center;width:100%;margin:10px 0;text-decoration:none}
 .ins-g{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+/* верхний блок: сверху статус и маленькие кнопки, снизу две главные кнопки одной ширины */
+header .toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px;min-width:min(100%,360px)}
+.tb-sub{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tb-sub .status{flex:1 1 130px;min-width:0;min-height:40px;box-sizing:border-box}.tb-sub .status>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-sub .btn{height:40px;display:inline-flex;align-items:center;justify-content:center}
+.tb-sub .tb-ic{width:40px;padding:0;font-size:17px}
+.tb-main{display:flex;gap:8px}
+.tb-main .btn{flex:1;height:46px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:14px;border-radius:13px;white-space:nowrap}
+.tb-main .btn[hidden]{display:none}
+.tb-help{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+@media(max-width:600px){header{flex-direction:column;align-items:stretch;gap:14px}header .toolbar{min-width:0}}
 #zayBody .spk-top{display:none}
 .tabwave{position:fixed;inset:0;z-index:60;pointer-events:none;background:linear-gradient(100deg,transparent 28%,rgba(120,190,255,.13) 40%,rgba(255,255,255,.22) 50%,rgba(210,130,255,.13) 60%,transparent 72%)}
 
@@ -562,15 +573,19 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
     </div>
   </div>
   <div class="toolbar">
-    <span class="status" id="status"><i></i><span>загрузка…</span></span>
-    <button class="btn coach-only" onclick="loadData(true)">↻ Обновить</button>
-    <a class="btn coach-only" id="editBtn" target="_blank" href="#" title="Открыть Google Таблицу">▦ Таблица</a>
-    <span class="coach-only" data-spk-panel data-club="vzlet" data-coach data-pin-key="vzlet_pin" data-btn="btn" data-accent="#00d4ff"></span>
-    <button class="btn" id="lockBtn" onclick="lockClick()" style="display:none">✎ Войти</button>
-    <button class="btn" data-fx-skin title="Сменить живой фон" aria-label="Сменить фон">🎨</button>
-    <button class="btn inb" id="inBtn" type="button" title="Установить Взлёт на экран телефона" aria-label="Установить на экран телефона"><svg class="shico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5 21 11l-7 6.5v-3.8c-5 0-8.3 1.5-11 5.3.9-5.4 3.9-10.4 11-11.3z"/></svg><span>На экран</span></button>
-    <button class="btn" id="zayBtn" onclick="openZay()" hidden>👋 Подать заявку</button>
-    <button class="btn primary" onclick="openModal()">📖 Справка</button>
+    <div class="tb-sub">
+      <span class="status" id="status"><i></i><span>загрузка…</span></span>
+      <button class="btn coach-only" onclick="loadData(true)">↻ Обновить</button>
+      <a class="btn coach-only" id="editBtn" target="_blank" href="#" title="Открыть Google Таблицу">▦ Таблица</a>
+      <span class="coach-only" data-spk-panel data-club="vzlet" data-coach data-pin-key="vzlet_pin" data-btn="btn" data-accent="#00d4ff"></span>
+      <button class="btn" id="lockBtn" onclick="lockClick()" style="display:none">✎ Войти</button>
+      <button class="btn inb" id="inBtn" type="button" title="Установить Взлёт на экран телефона" aria-label="Установить на экран телефона"><svg class="shico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5 21 11l-7 6.5v-3.8c-5 0-8.3 1.5-11 5.3.9-5.4 3.9-10.4 11-11.3z"/></svg><span>На экран</span></button>
+      <button class="btn tb-ic" data-fx-skin title="Сменить живой фон" aria-label="Сменить фон">🎨</button>
+    </div>
+    <div class="tb-main">
+      <button class="btn primary" id="zayBtn" onclick="openZay()" hidden>👋 Подать заявку</button>
+      <button class="btn tb-help" onclick="openModal()">📖 Справка</button>
+    </div>
   </div>
 </header>
 
