@@ -237,6 +237,7 @@
 .vtb .tbt button.zk .ic{opacity:.55}
 .vtb .tbt button.zk .ic::before{content:"🔒";position:absolute;right:-7px;top:-7px;font-size:13px;line-height:1;filter:drop-shadow(0 1px 2px #000)}
 @media (prefers-reduced-motion: reduce){.zag-in img{animation:none}}
+#zayBody .spk-top{display:none}
 .tabwave{position:fixed;inset:0;z-index:60;pointer-events:none;background:linear-gradient(100deg,transparent 28%,rgba(120,190,255,.13) 40%,rgba(255,255,255,.22) 50%,rgba(210,130,255,.13) 60%,transparent 72%)}
 
 @keyframes vtin{from{opacity:0;transform:translateY(18px)}}
@@ -536,6 +537,7 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
     <span class="coach-only" data-spk-panel data-club="vzlet" data-coach data-pin-key="vzlet_pin" data-btn="btn" data-accent="#00d4ff"></span>
     <button class="btn" id="lockBtn" onclick="lockClick()" style="display:none">✎ Войти</button>
     <button class="btn" data-fx-skin title="Сменить живой фон" aria-label="Сменить фон">🎨</button>
+    <button class="btn" id="zayBtn" onclick="openZay()" hidden>👋 Подать заявку</button>
     <button class="btn primary" onclick="openModal()">📖 Справка</button>
   </div>
 </header>
@@ -615,13 +617,17 @@ window.KURS_ONLY_LINK = false;
   <div data-spk-club="vzlet"></div>
 </div>
 
-<!-- Временно закрытые вкладки. Чтобы открыть вкладку, убери её из списка ZAKRYTO.
-     Пустой список [] = всё открыто. Тренер (вход по PIN) видит все вкладки как обычно. -->
-<div id="zag" hidden><div class="card zag-in"><img src="drone.webp" alt=""><h3>Раздел обновляется - скоро вернёмся!</h3><p class="muted">А пока загляни в Клуб или Рейтинг.</p><button class="btn" onclick="document.querySelector('#vt [data-t=club]').click()">Клуб</button><button class="btn" onclick="document.querySelector('#vt [data-t=rate]').click()">🏆 Рейтинг</button></div></div>
+<!-- Замочки на вкладках. Какие вкладки закрыты, решает тренер: кнопка над вкладкой в режиме тренера.
+     Список хранится на сервере (лист "Статус", строка "_замок"). ZAK_DEF - список, пока тренер ничего не сохранял.
+     Тренер видит все вкладки как обычно, замочек у него - только значок. -->
+<div id="zkbar" class="cbar" hidden></div>
+<div id="zag" hidden><div class="card zag-in"><img src="drone.webp" alt=""><h3>Раздел обновляется - скоро вернёмся!</h3><p class="muted" id="zagTx">А пока загляни в Клуб.</p><button class="btn" onclick="document.querySelector('#vt [data-t=club]').click()">Клуб</button><button class="btn" id="zagRate" onclick="document.querySelector('#vt [data-t=rate]').click()">🏆 Рейтинг</button><button class="btn primary" id="zagZay" onclick="openZay()">👋 Подать заявку</button></div></div>
 <script>
-window.ZAKRYTO = ['kurs', 'put', 'learn', 'train', 'quiz', 'calc', 'me'];
-window.zk = function (t) { try { if (sessionStorage.getItem('vzlet_role') === 'admin') return false; } catch (e) {} return window.ZAKRYTO.indexOf(t) >= 0; };
-document.querySelectorAll('#vt button').forEach(function (b) { if (zk(b.dataset.t)) b.classList.add('zk'); });
+window.ZAK_DEF = ['kurs', 'put', 'learn', 'train', 'quiz', 'calc', 'me', 'rate'];
+window.ZAKRYTO = ZAK_DEF.slice();
+window.zkCoach = (function () { try { return sessionStorage.getItem('vzlet_role') === 'admin'; } catch (e) { return false; } })();
+window.zk = function (t) { return !zkCoach && ZAKRYTO.indexOf(t) >= 0; };
+document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.indexOf(b.dataset.t) >= 0) b.classList.add('zk'); });
 </script>
 <div class="vtab" id="t-club">
 
@@ -692,6 +698,10 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (zk(b.dataset.
 <div id="toast"></div>
 <div class="modal" id="pmodal" onclick="if(event.target===this)closePilot()">
   <div class="modal-card"><button class="close-x" onclick="closePilot()">✕</button><div id="pbody"></div></div>
+</div>
+
+<div class="modal" id="zmodal" onclick="if(event.target===this)closeZay()">
+  <div class="modal-card"><button class="close-x" onclick="closeZay()">✕</button><h2>👋 Заявка в клуб "Взлёт"</h2><div id="zayBody"></div></div>
 </div>
 
 <footer id="footer"></footer>
@@ -1129,7 +1139,7 @@ const SCHED_FORM = `<div class="sform"><p class="lead">🗓 Расписание
   <div class="sw"><b>30-55'</b><span>🔄 Меняемся местами</span></div>
   <div><b>55-60'</b><span>Разбор: лучшие круги идут в рейтинг клуба</span></div></div>
   <p class="note">Каждый пилот за занятие: 25 минут в симуляторе + 25 минут теории и тестов. Подключиться к группе можно во вкладке 🏆 Рейтинг.</p>
-  <div><button class="btn primary" onclick="document.querySelector('#vt [data-t=rate]').click()">👋 Подключиться</button></div></div>`;
+  <div><button class="btn primary" onclick="zk('rate')?openZay():document.querySelector('#vt [data-t=rate]').click()">👋 Подключиться</button></div></div>`;
 function renderSchedule(){
   const list = data['Расписание']||[];
   if(MODE==='public' && !SCHED_OPEN && !list.length){ $('c-schedule').textContent=''; $('schedule').innerHTML=SCHED_FORM; return; }
@@ -1622,11 +1632,12 @@ window.tabFx=function(el,dir,wave){
   if(!wave)return;const w=document.createElement('div');w.className='tabwave';document.body.appendChild(w);
   w.animate([{transform:`translateX(${dir<0?100:-100}%)`,opacity:0},{opacity:1,offset:.25},{opacity:1,offset:.7},{transform:`translateX(${dir<0?-100:100}%)`,opacity:0}],{duration:850,easing:'cubic-bezier(.45,.05,.35,1)'}).onfinish=()=>w.remove()};
 function show(t,push){const pv=TAB,OR=$$('#vt button').map(b=>b.dataset.t);TAB=t;$$('#vt button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));moveVti();
-  const Z=zk(t);$$('.vtab').forEach(v=>v.hidden=Z||v.id!=='t-'+t);$('#zag').hidden=!Z;if(pv!==t)requestAnimationFrame(()=>tabFx(Z?$('#zag'):$('#t-'+t),pv?Math.sign(OR.indexOf(t)-OR.indexOf(pv)):0,!!pv));const h=$('#ahero');h.hidden=t==='club'||Z;
+  const Z=zk(t);$$('.vtab').forEach(v=>v.hidden=Z||v.id!=='t-'+t);$('#zag').hidden=!Z;if(window.zakBar)zakBar(t);if(pv!==t)requestAnimationFrame(()=>tabFx(Z?$('#zag'):$('#t-'+t),pv?Math.sign(OR.indexOf(t)-OR.indexOf(pv)):0,!!pv));const h=$('#ahero');h.hidden=t==='club'||Z;
   if(t!=='club'){$('#ahT').textContent=HERO[t][0];$('#ahP').textContent=HERO[t][1];h.style.animation='none';h.offsetWidth;h.style.animation='vtin .5s cubic-bezier(.2,.8,.2,1)';renderXP()}
   if(t==='train')trSize();if(t==='me')renderBadges();
   if(push)try{history.replaceState(null,'',t==='club'?location.pathname:'#'+t)}catch(e){}
   if(push)window.scrollTo({top:0,behavior:'smooth'})}
+window.vzShow=show;
 $$('#vt button').forEach(b=>b.onclick=()=>{tbProg=Date.now();show(b.dataset.t,true)});addEventListener('resize',moveVti);
 /* карусель разделов: плавно, только transform/opacity */
 (function(){const B=[...TBT.children];let raf=0,set=0,touch=false,cw=0,mid=[];
@@ -2014,6 +2025,35 @@ function renderPult(){try{renderEv();renderPod();renderDay()}catch(e){console.wa
 window.renderPult=renderPult;
 const _ra=renderAll;renderAll=function(){if(DEMO&&data&&!data._demo)data=demoData(data);_ra.apply(this,arguments);renderPult();applyHide()};
 if(typeof data==='object'&&data){if(DEMO)renderAll();else{renderPult();applyHide()}}
+})();
+</script>
+<script>
+/* ---- замочки на вкладках: тренер закрывает вкладку для всех; список в листе "Статус", строка "_замок" ---- */
+(function(){
+const vt=document.getElementById('vt'),rate=document.getElementById('t-rate'),box=document.querySelector('#t-rate [data-spk-club]'),zb=document.getElementById('zayBody'),bar=document.getElementById('zkbar');
+const NM={};vt.querySelectorAll('button').forEach(b=>NM[b.dataset.t]=b.querySelector('b').textContent);
+function zkList(){const r=(data&&data['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_замок');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):ZAK_DEF.slice()}
+const cur=()=>{const b=vt.querySelector('button.on');return b?b.dataset.t:'club'};
+window.openZay=()=>document.getElementById('zmodal').classList.add('open');
+window.closeZay=()=>document.getElementById('zmodal').classList.remove('open');
+window.zakBar=function(t){if(!zkCoach||t==='club'){bar.hidden=true;return}const on=ZAKRYTO.includes(t);bar.hidden=false;
+  bar.innerHTML=`<button type="button" class="vbtn${on?' off':''}" style="position:static">${on?'🔒 Закрыто для всех':'👁 Видят все'}</button><span class="muted">${on?'Ученики и гости видят заглушку "Раздел обновляется". Вы видите вкладку как обычно.':'Нажмите, чтобы закрыть вкладку "'+NM[t]+'" на замок для всех.'}</span>`;
+  bar.querySelector('button').onclick=()=>zkToggle(t)};
+window.zakApply=function(){ZAKRYTO=zkList();
+  vt.querySelectorAll('button').forEach(b=>b.classList.toggle('zk',ZAKRYTO.includes(b.dataset.t)));
+  const rl=zk('rate');document.getElementById('zayBtn').hidden=!rl;document.getElementById('zagRate').hidden=rl;document.getElementById('zagZay').hidden=!rl;
+  document.getElementById('zagTx').textContent=rl?'А пока загляни в Клуб. Хочешь в клуб - подай заявку.':'А пока загляни в Клуб или Рейтинг.';
+  if(box){if(rl&&box.parentNode!==zb)zb.appendChild(box);else if(!rl&&box.parentNode!==rate)rate.appendChild(box)}
+  if(window.vzShow){const t=cur(),stub=!document.getElementById('zag').hidden;if(zk(t)!==stub)vzShow(t,false);else zakBar(t)}};
+let busy=false;
+async function zkToggle(t){if(busy)return;busy=true;const was=ZAKRYTO.includes(t),nl=was?ZAKRYTO.filter(x=>x!==t):[...ZAKRYTO,t];
+  const S=(data['Статус']||[]).filter(x=>String(x['Параметр']||'').trim()!=='_замок'),old=data['Статус'];
+  const rows=[...S,{'Параметр':'_замок','Значение':nl.join(', ')}];data['Статус']=rows;zakApply();bar.querySelector('button').disabled=true;
+  try{await postSheet('Статус',rows);toast(was?'Вкладка открыта для всех ✓':'Вкладка закрыта на замок ✓','ok')}
+  catch(e){data['Статус']=old;zakApply();toast('Не сохранилось: '+e.message,'bad')}
+  finally{busy=false;const b=bar.querySelector('button');if(b)b.disabled=false}}
+const _rz=renderAll;renderAll=function(){_rz.apply(this,arguments);zakApply()};
+zakApply();
 })();
 </script>
 <script>
