@@ -6,6 +6,7 @@
 <meta name="description" content="Клуб БПЛА Взлёт: рейтинг пилотов, шпаргалки по FPV, тесты, калькуляторы и тренажёр стиков.">
 <title>Взлёт - дашборд клуба</title>
 <link rel="manifest" href="app.webmanifest">
+<script>/* Chrome может предложить установку раньше, чем загрузится вся страница - ловим сразу */addEventListener('beforeinstallprompt',function(e){window.__vzBIP=e});</script>
 <meta name="theme-color" content="#0d1117">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -251,6 +252,20 @@
 .ins-c .ins-t{color:var(--dim);font-size:14px;margin:8px 0}
 .ins-c .ins-go{display:flex;justify-content:center;width:100%;margin:10px 0;text-decoration:none}
 .ins-g{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.ins-app{display:flex;gap:12px;align-items:center;margin:8px 0}.ins-app img{width:56px;height:56px;border-radius:14px}.ins-app b{display:block;font-size:16px}.ins-app div{color:var(--dim);font-size:13px}
+.ins-big{height:52px;font-size:16px;border-radius:14px}
+/* картинки-подсказки: адресная строка, меню и окно Chrome */
+.im-bar,.im-menu,.im-dlg{margin-top:8px;border-radius:12px;background:#202124;border:1px solid #3c4043;color:#e8eaed;font:500 13px system-ui,sans-serif}
+.im-bar{display:flex;align-items:center;gap:10px;padding:8px 10px}.im-bar em{flex:1;font-style:normal;background:#303134;border-radius:99px;padding:5px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.im-bar b,.im-menu b,.im-dlg b{position:relative;color:#fff}
+.im-bar b{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;font-size:18px;box-shadow:0 0 0 2px #00d4ff;animation:impulse 1.4s ease-in-out infinite}
+.im-menu{display:grid;padding:6px 0;max-width:230px;margin-left:auto}.im-menu span,.im-menu b{padding:7px 14px}.im-menu span{opacity:.6}
+.im-menu b{background:rgba(0,212,255,.18);box-shadow:inset 3px 0 0 #00d4ff;animation:impulse 1.4s ease-in-out infinite}
+.im-dlg{display:flex;align-items:center;gap:10px;padding:10px 12px}.im-dlg img{width:30px;height:30px;border-radius:8px}.im-dlg span{flex:1}
+.im-bar,.im-menu,.im-dlg{box-sizing:border-box;max-width:100%}.ins-c .stp>div{min-width:0;flex:1}
+.im-dlg b{padding:6px 14px;border-radius:99px;background:#8ab4f8;color:#202124!important;box-shadow:0 0 0 2px #00d4ff;animation:none}
+@keyframes impulse{50%{filter:brightness(1.35)}}
+@media (prefers-reduced-motion: reduce){.im-bar b,.im-menu b,.im-dlg b{animation:none}}
 /* верхний блок: сверху статус и маленькие кнопки, снизу две главные кнопки одной ширины */
 header .toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px;min-width:min(100%,360px)}
 .tb-sub{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -2231,22 +2246,29 @@ zakApply();
   var APP=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
   var INAPP=/; wv\)|VKAndroidApp|VKClient|vkontakte|Telegram|Instagram|FBAN|FBAV|OdnoklassnikiApp|OKApp|ru\.oneme|OneMe|MAXApp|\bMAX\//i.test(ua)||(IOS&&!/Safari\//.test(ua)&&!/CriOS|FxiOS|YaBrowser|EdgiOS/.test(ua));
   var BR=/YaBrowser|YaApp/.test(ua)?'ya':/SamsungBrowser/.test(ua)?'samsung':/Firefox|FxiOS/.test(ua)?'ff':/OPR\/|Opera/.test(ua)?'opera':/EdgA|EdgiOS/.test(ua)?'edge':/MiuiBrowser|HuaweiBrowser|HeyTapBrowser/.test(ua)?'other':'chrome', YA=BR==='ya'&&AND;
+  if(window.__vzBIP){dp=window.__vzBIP;if(YA)dp=null}
   addEventListener('beforeinstallprompt',function(e){if(YA)e.preventDefault();dp=e;inst()});
   addEventListener('appinstalled',function(){dp=null;APP=true;inst()});
   var D='<p class="ins-t">';
   function S(n,b,t){return '<div class="stp"><i>'+n+'</i><div><b>'+b+'</b>'+(t||'')+'</div></div>'}
   function intent(pkg){return 'intent://centrspektr.github.io/vzlet/#Intent;scheme=https;package='+pkg+';S.browser_fallback_url='+encodeURIComponent(URL0)+';end'}
+  /* Chrome на Android: шаги с картинками меню */
+  function CH(){return '<p class="ins-t">Три касания:</p>'
+    +S(1,'Нажмите ⋮ в правом верхнем углу','Три точки справа от адреса сайта.<div class="im-bar"><span>⌂</span><em>centrspektr.github.io/vzlet</em><span>+</span><span>▢</span><b>⋮</b></div>')
+    +S(2,'Выберите "Добавить на гл. экран"','Пункт может называться "Установить приложение".<div class="im-menu"><span>Новая вкладка</span><span>История</span><span>Скачанные файлы</span><b>📲 Добавить на гл. экран</b><span>Настройки</span></div>')
+    +S(3,'Нажмите "Установить"','<div class="im-dlg"><img src="icon-192.png" alt=""><span>Взлёт</span><b>Установить</b></div>')
+    +'<p class="ins-t">Если в меню написано "Открыть приложение" - Взлёт уже установлен, ищите значок на экране телефона.</p>'}
   function steps(){
     if(!MOB)return D+'На компьютере: нажмите значок установки справа в адресной строке или меню ⋮ → "Установить".</p>';
     if(INAPP&&IOS)return S(1,'Откройте в Safari','Нажмите ⋯ или значок компаса → "Открыть в Safari".')+S(2,'Нажмите "Поделиться"','Квадрат со стрелкой.')+S(3,'"На экран "Домой""','И "Добавить".');
     if(IOS)return S(1,'Нажмите "Поделиться"','Квадрат со стрелкой'+(/CriOS|YaBrowser|EdgiOS|FxiOS/.test(ua)?' в адресной строке.':' внизу или в меню ⋯.'))+S(2,'"На экран "Домой""','И "Добавить".');
     if(BR==='samsung'&&!INAPP)return S(1,'Нажмите ≡ внизу справа')+S(2,'"Добавить страницу на" → "Главный экран"');
     if(BR==='ff'&&!INAPP)return S(1,'Нажмите ⋮')+S(2,'Выберите "Установить"');
-    if((BR==='chrome'||BR==='edge')&&!INAPP)return S(1,'Нажмите ⋮ вверху справа')+S(2,'Выберите "Установить приложение"','Если такого пункта нет - "Добавить на гл. экран", потом "Установить".');
+    if((BR==='chrome'||BR==='edge')&&!INAPP)return CH();
     return D+'Приложение ставится через Chrome.</p><a class="btn primary ins-go" href="'+intent('com.android.chrome')+'">Открыть в Chrome</a>'+S(1,'Не открылось?','Скопируйте ссылку кнопкой ниже и вставьте её в Chrome.')+S(2,'В Chrome нажмите ⋮','И выберите "Установить приложение".')}
   function inst(){var el=$('shI');if(!el)return;
     if(APP){el.innerHTML='<b>✅ Взлёт уже установлен</b>'+D+'Вы открыли его как приложение.</p>';return}
-    if(dp&&!YA){el.innerHTML='<button class="btn primary ins-go" id="shGo">📲 Установить приложение</button>';$('shGo').onclick=function(){dp.prompt();dp.userChoice.then(function(){dp=null;inst()}).catch(function(){})};return}
+    if(dp&&!YA){el.innerHTML='<div class="ins-app"><img src="icon-192.png" alt=""><div><b>Клуб "Взлёт"</b>Значок появится на экране телефона</div></div><button class="btn primary ins-go ins-big" id="shGo">📲 Установить</button>';$('shGo').onclick=function(){dp.prompt();dp.userChoice.then(function(){dp=null;inst()}).catch(function(){})};return}
     el.innerHTML=steps()}
   $('inBtn').onclick=function(){inst();IM.classList.add('open')};
   $('shShare').onclick=function(){if(navigator.share)navigator.share({title:'Клуб "Взлёт"',text:'Клуб FPV "Взлёт": рейтинг пилотов и заезды',url:URL0}).catch(function(){});else copy()};
