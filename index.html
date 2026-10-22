@@ -259,6 +259,9 @@ header .toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px;
 .tb-main .btn[hidden]{display:none}
 .tb-help{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
 @media(max-width:600px){header{flex-direction:column;align-items:stretch;gap:14px}header .toolbar{min-width:0}}
+/* ссылка на Иртыш-портал под строкой с адресом, у левого края шапки */
+.logo{flex-wrap:wrap;row-gap:8px}.irtw{flex:0 0 100%}.logo>div:nth-child(2){flex:1 1 0}
+.irt{display:flex;width:fit-content;align-items:center;margin-top:-2px;padding:3px 10px;border-radius:999px;font:700 12px system-ui,sans-serif;color:var(--dim,#8b98a5);text-decoration:none;border:1px solid var(--line,#30363d);transition:color .2s,border-color .2s}.irt:hover{color:var(--accent,#00d4ff);border-color:var(--accent,#00d4ff)}
 #zayBody .spk-top{display:none}
 .tabwave{position:fixed;inset:0;z-index:60;pointer-events:none;background:linear-gradient(100deg,transparent 28%,rgba(120,190,255,.13) 40%,rgba(255,255,255,.22) 50%,rgba(210,130,255,.13) 60%,transparent 72%)}
 
@@ -571,6 +574,7 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
       <h1>Клуб "Взлёт" <span class="grant-note">(при поддержке Росмолодёжь.Гранты)</span> <span class="coach-badge coach-only">тренер</span></h1>
       <p>FPV-тренировки · с. Иртыш · Черлакский район · Омская область</p>
     </div>
+    <div class="irtw"><a class="irt" href="https://centrspektr.github.io/irtysh.html" title="Иртыш-портал">← Иртыш-портал</a></div>
   </div>
   <div class="toolbar">
     <div class="tb-sub">
