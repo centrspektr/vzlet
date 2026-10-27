@@ -1417,8 +1417,24 @@ async function api(body){
 function lockClick(){ ROLE ? openLogout() : openLogin(); }
 function openLogout(){
   $('pbody').innerHTML = `<h2>${ROLE==='admin'?'Тренер':'Помощник'}</h2><p class="sub">Вы в режиме редактирования.</p>
+    ${ROLE==='admin'?`<details style="margin:4px 0 14px"><summary style="cursor:pointer">🔑 Новый PIN помощника</summary>
+    <p class="muted" style="margin:8px 0">Придумайте PIN из 4-8 цифр и скажите его помощнику. Старый PIN помощника сразу перестанет работать. Посмотреть PIN потом нельзя - только задать новый.</p>
+    <form id="hpForm" class="addlap" autocomplete="off"><label>Новый PIN<input id="hpPin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" style="width:120px"></label>
+    <label>Ещё раз<input id="hpPin2" type="password" inputmode="numeric" maxlength="8" placeholder="••••" style="width:120px"></label>
+    <button class="btn primary" id="hpBtn">Сохранить</button></form><p class="muted" id="hpMsg" style="min-height:18px;margin-top:8px"></p></details>`:''}
     <div class="ebar"><button class="btn" onclick="closePilot()">Отмена</button><span class="sp"></span><button class="btn" onclick="logout(false,true)" title="Если это чужой или общий компьютер">Выйти и скрыть вход здесь</button><button class="btn primary" onclick="logout()">Выйти</button></div>`;
-  $('pmodal').classList.add('open'); }
+  $('pmodal').classList.add('open');
+  const f=$('hpForm'); if(f) f.onsubmit=async e=>{ e.preventDefault(); const a=$('hpPin').value.trim(), b=$('hpPin2').value.trim(), m=$('hpMsg'), btn=$('hpBtn');
+    m.style.color='#ff7a7a';
+    if(!/^\d{4,8}$/.test(a)){ m.textContent='PIN - от 4 до 8 цифр'; return; }
+    if(a!==b){ m.textContent='PIN не совпадает - введите ещё раз'; return; }
+    btn.disabled=true; btn.textContent='Сохраняю…';
+    try{ const r=await api({op:'setHelperPin', key:ss_.get(PIN_KEY), pin:a});
+      if(!r.ok) throw new Error(r.error||'ошибка');
+      $('hpPin').value=''; $('hpPin2').value=''; m.style.color=''; m.textContent='Готово: новый PIN помощника сохранён.';
+    }catch(err){ m.textContent='Не сохранилось: '+err.message; }
+    btn.disabled=false; btn.textContent='Сохранить'; };
+}
 function logout(silent, hide){ ss_.del(PIN_KEY); ss_.del('vzlet_role'); if(hide) ls.del('vzlet_editor_dev'); if(!silent) location.reload(); }
 function trustedDev(){ return ls.get('vzlet_editor_dev')==='1'; }
 function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0, sx=0, sy=0, mv=false;
