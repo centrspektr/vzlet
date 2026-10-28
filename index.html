@@ -415,6 +415,25 @@ details.card>summary{font-family:var(--fh);font-size:12.5px;font-weight:600;lett
 .plev .nm{font:800 clamp(18px,2.6vw,24px)/1.2 var(--fh);margin-bottom:4px}
 .plev .pl-place{color:var(--dim);font-size:14px}
 .cedit{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}.cedit .btn{border-style:dashed}
+/* главный блок: 1-2 фото и текст тренера (28.10) */
+.ptop{margin-bottom:16px;display:grid;gap:16px;background:radial-gradient(110% 120% at 0% 0%,rgba(0,212,255,.16),transparent 55%),radial-gradient(90% 100% at 100% 100%,rgba(163,113,247,.18),transparent 60%),rgba(22,27,34,.85);animation:ptIn .7s cubic-bezier(.2,.8,.2,1) both}
+.ptop:empty{display:none}
+.ptop.f1,.ptop.f2{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:center}
+@media(max-width:760px){.ptop.f1,.ptop.f2{grid-template-columns:1fr}}
+.pt-ph{display:grid;gap:10px}.ptop.f2 .pt-ph{grid-template-columns:1fr 1fr}
+.pt-ph button{display:block;padding:0;border:0;border-radius:14px;overflow:hidden;background:#0b1118;cursor:zoom-in;aspect-ratio:4/3;box-shadow:0 14px 30px -18px rgba(0,0,0,.9);-webkit-tap-highlight-color:transparent}
+.ptop.f1 .pt-ph button{aspect-ratio:16/10}
+.pt-ph img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+@media(hover:hover){.pt-ph button:hover img{transform:scale(1.04)}}
+.pt-tx h2{font:800 clamp(20px,3vw,28px)/1.2 var(--fh);margin:0 0 8px}
+.pt-tx p{white-space:pre-line;line-height:1.55;color:var(--text);font-size:15px;margin:0}
+.pt-emp{color:var(--dim);font-size:14px}
+.pt-ed{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.pt-sl{position:relative;aspect-ratio:4/3;border-radius:12px;border:1px dashed var(--line);display:grid;place-items:center;overflow:hidden;background:rgba(127,127,160,.06);cursor:pointer;font-weight:700;color:var(--dim);text-align:center;font-size:14px;padding:6px}
+.pt-sl img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pt-sl .x{position:absolute;top:6px;right:6px;z-index:2;width:32px;height:32px;border-radius:50%;border:0;background:rgba(0,0,0,.7);color:#fff;font-size:15px;cursor:pointer}
+@keyframes ptIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.ptop{animation:none}.pt-ph img{transition:none}}
 .dq-t{padding:10px 12px;border-radius:12px;background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.35);margin-bottom:12px;font-size:14px}
 .dq-h{margin:16px 0 8px;font-size:15px}
 .dq-i{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--line)}.dq-i.off{opacity:.5}
@@ -702,6 +721,7 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.index
 
 <div class="banner hidden coach-only" id="err"></div>
 
+<section class="card pl ptop" id="plTop"></section>
 <section class="pult" id="pult">
   <div class="card pl plev" id="plEv"></div>
   <div class="card pl" id="plPod"></div>
@@ -2164,7 +2184,7 @@ function demoData(d){
 if(DEMO){postSheet=async()=>{throw new Error('демо-режим: изменения не сохраняются')};
   const b=document.createElement('div');b.className='demo-flag';b.textContent='ДЕМО: заезды придуманы';document.body.appendChild(b)}
 /* ---- видимость блоков: тренер скрывает лишнее от всех; список хранится в листе "Статус", строка "_скрыто" ---- */
-const BLK=[['plEv','Ближайший старт'],['plPod','Рейтинг пилотов (симуляторы)'],['plDay','Вопрос дня'],['kpi','Клуб в цифрах'],['События','Ближайшие события'],['Задачи','Задачи клуба'],['Пилоты','Старая таблица рейтинга'],['Расписание','Расписание недели'],['Новости','Новости и документы'],['Статус','Статус лицензии и федерации'],['Заезды','Рекорды трасс'],['Рейтинг России','Рейтинг пилотов России'],['fgd','Новости ФГД']];
+const BLK=[['plTop','Главный блок (фото и текст)'],['plEv','Ближайший старт'],['plPod','Рейтинг пилотов (симуляторы)'],['plDay','Вопрос дня'],['kpi','Клуб в цифрах'],['События','Ближайшие события'],['Задачи','Задачи клуба'],['Пилоты','Старая таблица рейтинга'],['Расписание','Расписание недели'],['Новости','Новости и документы'],['Статус','Статус лицензии и федерации'],['Заезды','Рекорды трасс'],['Рейтинг России','Рейтинг пилотов России'],['fgd','Новости ФГД']];
 const HIDE_DEF=['Пилоты','Заезды'];
 const blkEl=k=>k.startsWith('pl')?q(k):k==='kpi'?q('kpiBox'):k==='fgd'?q('fgd-card'):document.querySelector(`#t-club details[data-tab="${k}"]`);
 function hideList(){const r=(data&&data['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_скрыто');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):HIDE_DEF}
@@ -2195,8 +2215,39 @@ function openVis(){const H=hideList();
     try{await postSheet('Статус',[...S,{'Параметр':'_скрыто','Значение':nh.join(', ')}]);closePilot();renderAll();toast('Сохранено ✓','ok')}
     catch(e){toast('Не сохранилось: '+e.message,'bad');b.disabled=false;b.textContent='Сохранить'}}}
 window.openVis=openVis;
-if(MODE==='coach'){const p=q('pult');if(p)p.insertAdjacentHTML('beforebegin','<div class="cbar"><span class="muted">Кнопка над каждым блоком: 👁 видят все или 🙈 скрыто от всех. Скрытые блоки видите только вы.</span></div>')}
-function renderPult(){try{renderEv();renderPod();renderDay()}catch(e){console.warn('pult',e)}}
+if(MODE==='coach'){const p=q('plTop')||q('pult');if(p)p.insertAdjacentHTML('beforebegin','<div class="cbar"><span class="muted">Кнопка над каждым блоком: 👁 видят все или 🙈 скрыто от всех. Скрытые блоки видите только вы.</span></div>')}
+/* ---- главный блок: 1-2 фото и текст. Хранится в листе "Статус", строка _блок (JSON: h, p, f - фото) ---- */
+const PT_IMG=/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/;
+function ptData(){const T=sGet('_блок')||{};return{h:String(T.h||'').slice(0,80),p:String(T.p||'').slice(0,700),f:(Array.isArray(T.f)?T.f:[]).filter(x=>PT_IMG.test(String(x))).slice(0,2)}}
+function renderTop(){const el=q('plTop');if(!el)return;const T=ptData(),co=MODE==='coach';
+  el.classList.remove('f1','f2');if(T.f.length)el.classList.add('f'+T.f.length);
+  if(!T.h&&!T.p&&!T.f.length){el.innerHTML=co?'<div class="pt-tx"><h2>Главный блок</h2><p class="pt-emp">Пусто - гости его не видят. Добавьте 1-2 фото и текст: они встанут первым блоком клуба.</p><div class="cedit"><button class="btn" type="button" onclick="openTop()">✎ Добавить фото и текст</button></div></div>':'';return}
+  el.innerHTML=(T.f.length?`<div class="pt-ph">${T.f.map((u,i)=>`<button type="button" aria-label="Открыть фото ${i+1}" onclick="ptZoom(${i})"><img src="${u}" alt="${esc(T.h||'Фото клуба')}" decoding="async"></button>`).join('')}</div>`:'')+
+    `<div class="pt-tx">${T.h?`<h2>${esc(T.h)}</h2>`:''}${T.p?`<p>${esc(T.p)}</p>`:''}${co?'<div class="cedit"><button class="btn" type="button" onclick="openTop()">✎ Изменить фото и текст</button></div>':''}</div>`}
+function ptZoom(i){const u=ptData().f[i];if(!u)return;$('pbody').innerHTML=`<img src="${u}" alt="" style="display:block;width:100%;height:auto;border-radius:12px"><div class="ebar" style="margin-top:12px"><span class="sp"></span><button class="btn" onclick="closePilot()">Закрыть</button></div>`;$('pmodal').classList.add('open')}
+/* фото уменьшаем в телефоне: длинная сторона до 1280 px, JPEG до ~190 КБ */
+function ptSmall(file){return new Promise((ok,no)=>{if(!/^image\//.test(file.type||'image/'))return no(new Error('это не фото'));const u=URL.createObjectURL(file),im=new Image();
+  im.onload=()=>{URL.revokeObjectURL(u);const k=Math.min(1,1280/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.max(1,Math.round(im.naturalWidth*k)),h=Math.max(1,Math.round(im.naturalHeight*k)),c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.fillStyle='#000';g.fillRect(0,0,w,h);g.drawImage(im,0,0,w,h);
+    let qq=.82,d=c.toDataURL('image/jpeg',qq);while(d.length>260000&&qq>.45){qq-=.08;d=c.toDataURL('image/jpeg',qq)}ok(d)};
+  im.onerror=()=>{URL.revokeObjectURL(u);no(new Error('не получилось открыть фото'))};im.src=u})}
+function openTop(){const T=ptData(),F=T.f.slice();
+  trkModal('✎ Главный блок',`<p class="sub">Первый блок клуба: до 2 фото и текст. Видят все. Совет: на фото дети - только со согласия родителей, лучше со спины или издалека.</p>
+    <div class="pt-ed" id="ptEd"></div><input type="file" id="ptFile" accept="image/*">
+    <label style="display:grid;gap:6px;margin-bottom:12px;font-weight:700">Заголовок<input id="ptH" maxlength="80" value="${esc(T.h)}" placeholder="Например: Набор в клуб открыт!"></label>
+    <label style="display:grid;gap:6px;font-weight:700">Текст<textarea id="ptP" maxlength="700" rows="5" placeholder="Пара предложений для гостей и учеников">${esc(T.p)}</textarea></label>
+    <p class="sub" style="margin:10px 0 0"><button class="btn" type="button" id="ptClr">🗑 Очистить блок</button></p>`,'Сохранить',async()=>{
+    const h=q('ptH').value.trim().slice(0,80),p=q('ptP').value.trim().slice(0,700);
+    await sPut('_блок',{h,p,f:F.slice(0,2)});closePilot();renderTop();applyHide();toast('Главный блок сохранён ✓','ok')});
+  const fi=q('ptFile');fi.style.display='none';let slot=0;
+  const draw=()=>{q('ptEd').innerHTML=[0,1].map(i=>F[i]?`<div class="pt-sl"><img src="${F[i]}" alt="Фото ${i+1}"><button type="button" class="x" data-x="${i}" aria-label="Убрать фото ${i+1}">✕</button></div>`:`<button type="button" class="pt-sl" data-a="${i}">＋ Фото ${i+1}</button>`).join('');
+    q('ptEd').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{F.splice(+b.dataset.x,1);draw()});
+    q('ptEd').querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{slot=+b.dataset.a;fi.value='';fi.click()})};
+  fi.onchange=async()=>{const f=fi.files&&fi.files[0];if(!f)return;const b=q('ptEd').querySelector(`[data-a="${slot}"]`);if(b)b.textContent='⏳ Уменьшаю…';
+    try{const d=await ptSmall(f);if(slot<F.length)F[slot]=d;else F.push(d);}catch(e){toast(e.message,'bad')}draw()};
+  q('ptClr').onclick=()=>{F.length=0;q('ptH').value='';q('ptP').value='';draw()};
+  draw()}
+window.openTop=openTop;window.ptZoom=ptZoom;
+function renderPult(){try{renderTop();renderEv();renderPod();renderDay()}catch(e){console.warn('pult',e)}}
 window.renderPult=renderPult;
 const _ra=renderAll;renderAll=function(){if(DEMO&&data&&!data._demo)data=demoData(data);_ra.apply(this,arguments);renderPult();applyHide()};
 if(typeof data==='object'&&data){if(DEMO)renderAll();else{renderPult();applyHide()}}

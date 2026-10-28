@@ -390,7 +390,7 @@ function home() {
   let h = go ? `<button class="kr-btn pri kr-cont" data-k="task" data-t="${go.tid}"><span>${go.st ? '▶ Продолжить' : '▶ Начать'}: Модуль ${go.m.n} · "${E(K.lib[go.tid].t)}"</span><small>шаг ${go.st + 1} из ${K.lib[go.tid].steps.length}</small></button>` : '';
   h += `<div class="kr-card top">${bugBtn()}<h3>🎓 Твой прогресс</h3><p class="mut">Внутри модуля шаги открываются сами. Следующий модуль открывает тренер, когда проверит задания.</p>
     <div class="kr-bar"><i data-w="${tot ? dn / tot * 100 : 0}"></i></div><div class="kr-row"><span>Пройдено заданий: ${dn} из ${tot}</span><span>⭐ ${allPts()} очков</span></div></div>`;
-  h += kGuest();
+  h += kGuest() + '<div id="krGrp"></div>';
   h += (BETA ? betaGuide() : `<div class="kr-note">🧪 Пробная версия: наполнены все 6 модулей, они открыты для проверки. В каждом модуле 3 уровня сложности (по классу).</div>`) + `${isCoach() ? '<div class="kr-back"><button class="kr-btn sm pri" data-k="co-home">👥 К ученикам (окно тренера)</button><span class="mut">Вы тренер: здесь курс глазами ученика, всё открыто.</span></div>' : ''}`;
   h += '<div class="kr-mods">' + K.mods.map((m, i) => {
     const op = modOpen(m), p = modProg(m), full = p === 1;
@@ -398,7 +398,7 @@ function home() {
     return `<button class="kr-m ${op && !full ? 'on' : ''} ${!op ? 'lock' : ''}" data-k="mod" data-m="${m.id}" style="animation-delay:${i * 60}ms"><span class="e">${m.e}</span><span class="nn">МОДУЛЬ ${m.n}</span><b>${E(m.t)}</b><small>${E(m.sub)}</small>
       ${m.tasks ? `<div class="kr-bar"><i data-w="${p * 100}"></i></div>` : ''}<div class="st">${st}</div></button>`;
   }).join('') + '</div>';
-  mount(h); bars();
+  mount(h); bars(); grpLoad();
 }
 /* куда вернуться: первое незаконченное открытое задание (пропущенные - в конце) */
 function contTarget() {
@@ -1012,6 +1012,7 @@ async function coLoad(pin) {
 }
 function coParse(j) {
   CO.server = (j.list || []).some(x => 'kurs' in x);
+  CO.pub = j.kpub ? !!j.kpub.vzlet : null;
   CO.list = (j.list || []).filter(x => x.club === 'vzlet' && x.st === 'принят' && !x.hid).map(x => ({ id: x.id, n: x.first, c: x.cls, k: x.kurs || {}, kc: x.kc || {}, upd: x.upd }))
     .sort((a, b) => (parseInt(a.c) || 99) - (parseInt(b.c) || 99) || a.n.localeCompare(b.n, 'ru'));
   /* то, что ещё в очереди на сервер, сразу видно и в свежем списке */
@@ -1207,6 +1208,7 @@ function coHead() {
   return `<div class="kr-card top co-hd"><div class="co-hr"><div class="co-ht"><h3>👥 Ученики курса</h3>${CO.demo ? '<span class="co-demo">👀 Пример - не сохраняется</span>' : `<span class="co-upd">${E(CO.busy ? 'обновляю...' : updAgo())}</span>`}</div>
     <div class="co-hb"><button class="kr-btn co-ib" data-k="co-load" aria-label="Обновить" title="Обновить">↻</button><button class="kr-btn co-ib" data-k="co-menu" aria-expanded="${!!CO.menu}" aria-label="Ещё" title="Ещё">⋯</button>${bugBtn()}</div></div>
     <div class="co-tp" data-spk-panel data-club="vzlet" data-coach data-pin-key="vzlet_pin" data-accent="#00d4ff"></div>
+    ${CO.demo || CO.st !== 'ok' ? '' : coPubRow()}
     ${CO.menu ? `<div class="co-menu"><button class="kr-btn" data-k="co-demo">${CO.demo ? '✕ Убрать пример' : '👀 Пример с выдуманными учениками'}</button><button class="kr-btn" data-k="co-as">🎓 Курс глазами ученика</button><p class="mut">Нажми на ученика или модуль, чтобы зайти внутрь. Цифры сводки - фильтры списка.</p></div>` : ''}</div>`;
 }
 function coSum(ST) {
@@ -1395,6 +1397,42 @@ function coDraw(quiet) {
   mount(h, quiet);
   const gw2 = $('.co-gw', box); if (gw2 && gx) gw2.scrollLeft = gx;
   const gp = document.getElementById('krGp'); if (gp && gp.className === 'on' && gp._o) { if (tab === 'gr') gPop(gp._o.sid, gp._o.mid); else gPopClose(); }
+}
+/* ---------- прогресс группы для учеников (с 28.10) ----------
+   Тренер включает кнопкой. Ученики с кодом видят имена, классы и сколько заданий сдано (без процентов, ошибок и комментариев).
+   Гости не видят: сервер отдаёт список только по коду ученика Взлёта. */
+function coPubRow() {
+  const on = CO.pub === true, old = CO.pub == null;
+  return `<div class="co-pub ${on ? 'on' : ''}"><span><b>${on ? '👁 Ученики видят прогресс группы' : '🙈 Прогресс группы видите только вы'}</b><small>${old ? 'Кнопка заработает после установки нового файла сервера.' : on ? 'Ученики с кодом видят имена, классы и сколько заданий сдано. Гости не видят.' : 'Можно показать ученикам: имя, класс и сколько заданий сдано.'}</small></span><button class="kr-btn sm ${on ? '' : 'pri'}" data-k="co-pub" ${old || CO.pubBusy ? 'disabled' : ''}>${CO.pubBusy ? '⏳' : on ? '🙈 Скрыть' : '👁 Показать'}</button></div>`;
+}
+async function coPubSet(on) {
+  if (on && !confirm('Ученики Взлёта (вошедшие по своему коду) увидят имена, классы и сколько заданий сдал каждый. Гости не увидят.\n\nВключайте, если у родителей есть согласие на такой показ. Показать?')) return;
+  CO.pubBusy = true; coDraw(true);
+  try { const j = await spkCall({ op: 'kpubset', club: 'vzlet', on: on, token: CO.tok });
+    if (j && j.ok) { CO.pub = !!j.on; toastK(j.on ? 'Ученики видят прогресс группы ✓' : 'Прогресс группы скрыт от учеников ✓'); }
+    else toastK('Не сохранилось: ' + (j && j.error || 'ошибка')); }
+  catch (e) { toastK('Нет связи с сервером'); }
+  CO.pubBusy = false; coDraw(true);
+}
+const GRP = { at: 0, j: null, busy: false };
+function grpHtml(L) {
+  const M = K.mods.filter(m => m.tasks); if (!L || !L.length || !M.length) return '';
+  const T = M.reduce((a, m) => a + m.tasks.length, 0);
+  const R = L.map(s => { const d = new Set(s.d || []); return { s, m: M.map(m => m.tasks.filter(id => d.has(id)).length), n: M.reduce((a, m) => a + m.tasks.filter(id => d.has(id)).length, 0) }; })
+    .sort((a, b) => b.n - a.n || (parseInt(a.s.c) || 99) - (parseInt(b.s.c) || 99) || String(a.s.n).localeCompare(String(b.s.n), 'ru'));
+  return `<div class="kr-card kr-grp"><h3>👥 Прогресс группы</h3><p class="mut">Сколько заданий сдал каждый. Полоски - модули ${M.map(m => m.n).join(', ')}.</p>
+    <div class="gp-l">${R.map((x, i) => `<div class="gp-r ${x.s.me ? 'me' : ''}" style="animation-delay:${Math.min(i, 12) * 40}ms"><div class="gp-n"><b>${E(x.s.n)}${x.s.me ? ' <em>ты</em>' : ''}</b><small>${E(x.s.c)}</small></div>
+      <div class="gp-m" aria-hidden="true">${M.map((m, k) => `<i title="Модуль ${m.n}: ${x.m[k]} из ${m.tasks.length}"><u data-w="${x.m[k] / m.tasks.length * 100}"></u></i>`).join('')}</div>
+      <b class="gp-c" aria-label="сдано ${x.n} из ${T}">${x.n}<small>/${T}</small></b></div>`).join('')}</div></div>`;
+}
+function grpPut(h) { const el = box && $('#krGrp', box); if (!el) return; el.innerHTML = h; requestAnimationFrame(() => requestAnimationFrame(() => $$('.gp-m u[data-w]', el).forEach(u => u.style.width = u.dataset.w + '%'))); }
+function grpLoad() {
+  if (isCoach()) { if (CO.as && CO.pub && CO.list.length) grpPut(grpHtml(CO.list.map(s => ({ n: s.n, c: s.c, d: allT().filter(id => kDone(s, id)) })))); return; }
+  const P = meK(); if (!P) return;
+  if (GRP.j && Date.now() - GRP.at < 60000) return grpPut(GRP.j.on ? grpHtml(GRP.j.list) : '');
+  if (GRP.busy) return; GRP.busy = true;
+  spkCall({ op: 'kpub', code: P.code, club: 'vzlet' }).then(j => { GRP.busy = false; if (!j || !j.ok) return; GRP.j = j; GRP.at = Date.now(); if (VIEW.m == null && VIEW.t == null) grpPut(j.on ? grpHtml(j.list) : ''); })
+    .catch(() => { GRP.busy = false; });
 }
 function coResetAll(L) {
   if (CO.demo) return '';
@@ -1730,6 +1768,17 @@ i.d-ok{background:#22c55e}i.d-x{background:#38bdf8}i.d-n{background:#f87171}i.d-
 .co-gh2{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:4px}.co-gh2 .kr-sec{margin:0}
 .co-ch{display:flex;flex-wrap:wrap;gap:6px}.co-ch button{min-height:44px;padding:0 14px;border-radius:99px;border:1px solid rgba(127,127,160,.35);background:rgba(127,127,160,.08);color:inherit;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer}
 .co-ch button.on{background:rgba(var(--krgb),.22);border-color:var(--ka)}.co-ch button.op{border-color:#22c55e}
+.co-pub{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:14px;border:1px dashed rgba(127,127,160,.4);background:rgba(127,127,160,.06)}
+.co-pub.on{border-style:solid;border-color:rgba(34,197,94,.55);background:rgba(34,197,94,.08)}
+.co-pub span{flex:1;min-width:0;display:grid;gap:2px}.co-pub b{font-size:14px}.co-pub small{font-size:12.5px;opacity:.75;line-height:1.35}.co-pub .kr-btn{flex:none}
+.kr-grp h3{margin:0 0 4px}.gp-l{display:grid;gap:6px;margin-top:10px}
+.gp-r{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.6fr) auto;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(127,127,160,.07);animation:krIn .45s cubic-bezier(.2,.8,.2,1) both}
+.gp-r.me{background:rgba(var(--krgb),.14);box-shadow:inset 0 0 0 1px rgba(var(--krgb),.55)}
+.gp-n{min-width:0;display:grid}.gp-n b{font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gp-n em{font-style:normal;font-size:11px;font-weight:800;padding:1px 7px;border-radius:99px;background:linear-gradient(135deg,var(--ka),var(--kb));color:#0b0b18;vertical-align:1px}.gp-n small{font-size:12px;opacity:.7}
+.gp-m{display:flex;gap:4px}.gp-m i{flex:1;height:8px;border-radius:9px;background:rgba(127,127,160,.22);overflow:hidden}.gp-m u{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--ka),var(--kb));transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.gp-c{font-size:15px;font-weight:800;min-width:44px;text-align:right}.gp-c small{font-size:11.5px;opacity:.6;font-weight:700}
+@media (max-width:420px){.gp-r{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.gp-m{grid-column:1/-1;grid-row:2}}
+@media (prefers-reduced-motion:reduce){.gp-r{animation:none}.gp-m u{transition:none}}
 `;
 document.addEventListener('click', e => {
   if (!box || !box.contains(e.target)) return;
@@ -1740,6 +1789,7 @@ document.addEventListener('click', e => {
   if (k === 'co-load') { CO.demo = false; CO.menu = false; coLoad(); }
   else if (k === 'co-demo') { undoFlush(); CO.demo = !CO.demo; CO.menu = false; CO.who = null; CO.mod = null; CO.cm = null; CO.ct = null; CO.f = null; CO.sel.clear(); if (CO.demo) coDemo(); else { CO.list = []; coLoad(); return; } coDraw(); }
   else if (k === 'co-menu') { CO.menu = !CO.menu; coDraw(true); }
+  else if (k === 'co-pub') { if (!CO.pubBusy) coPubSet(!CO.pub); }
   else if (k === 'co-f') { const v = b.dataset.v || null; CO.f = CO.f === v ? null : v; CO.tab = 'st'; sesS.set('vz_co_tab', 'st'); coDraw(true); }
   else if (k === 'co-rt') { CO.rt = !CO.rt; coDraw(true); }
   else if (k === 'co-oped') { CO.opEd = !CO.opEd; if (!CO.opEd) CO.sel.clear(); coDraw(true); }
