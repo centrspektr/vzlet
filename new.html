@@ -2207,7 +2207,9 @@ if(typeof data==='object'&&data){if(DEMO)renderAll();else{renderPult();applyHide
 (function(){
 const vt=document.getElementById('vt'),rate=document.getElementById('t-rate'),box=document.querySelector('#t-rate [data-spk-club]'),zb=document.getElementById('zayBody'),bar=document.getElementById('zkbar');
 const NM={};vt.querySelectorAll('button').forEach(b=>NM[b.dataset.t]=b.querySelector('b').textContent);
-function zkList(){const r=(data&&data['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_замок');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):ZAK_DEF.slice()}
+/* 28.10: пока сервер не ответил, берём список замков из прошлой загрузки (кэш), чтобы вкладки и кнопки не "прыгали" */
+function zkSrc(){if(data)return data;try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');return c&&c.data||null}catch(e){return null}}
+function zkList(){const d=zkSrc(),r=(d&&d['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_замок');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):ZAK_DEF.slice()}
 const cur=()=>{const b=vt.querySelector('button.on');return b?b.dataset.t:'club'};
 window.openZay=()=>document.getElementById('zmodal').classList.add('open');
 window.closeZay=()=>document.getElementById('zmodal').classList.remove('open');
