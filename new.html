@@ -642,13 +642,20 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 /* Курс FPV - отдельный продукт (проект "Обучающий курс FPV Взлёт - продукт").
    KURS_URL - адрес курса. Пусто = вкладка "Курс" как сейчас (встроенный курс).
    KURS_ONLY_LINK = true - во вкладке только кнопка на курс (когда прогресс учеников перенесён). */
-window.KURS_URL = 'https://centrspektr.github.io/kurs-fpv/';
+window.KURS_URL = 'https://centrspektr.gitverse.site/kurs-fpv/';
 window.KURS_ONLY_LINK = false;
 (function () {
   var U = window.KURS_URL; if (!U) return;
   var card = '<div id="kursLink" style="margin:0 0 14px;padding:16px 18px;border-radius:14px;border:1px solid rgba(0,212,255,.45);background:rgba(0,212,255,.08);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">' +
     '<div><b style="font-size:16px">🎓 Курс FPV</b><div style="color:var(--dim);font-size:13px;margin-top:4px">Модули, тренажёры и проверки. Вход тем же личным кодом.</div></div>' +
-    '<a class="btn" style="background:linear-gradient(135deg,#00d4ff,#0077ff);color:#04121b;border:0;font-weight:800" href="' + U + '">Открыть курс →</a></div>';
+    '<a class="btn" style="background:linear-gradient(135deg,#00d4ff,#0077ff);color:#04121b;border:0;font-weight:800" href="' + U + '" onclick="kursGo(this)">Открыть курс →</a></div>';
+  /* Вход ученика переносим в курс: #perenos=base64(UTF-8 JSON {"spk_vzlet": ...}) */
+  window.kursGo = function (a) {
+    var v = null; try { v = localStorage.getItem('spk_vzlet'); } catch (e) {}
+    var h = '';
+    if (v) { try { h = '#perenos=' + btoa(unescape(encodeURIComponent(JSON.stringify({ spk_vzlet: v })))); } catch (e) {} }
+    a.href = U + h;
+  };
   function put() {
     var t = document.getElementById('t-kurs'); if (!t) return;
     if (window.KURS_ONLY_LINK) { if (t.innerHTML.indexOf('id="kursLink"') < 0 || t.children.length > 1) t.innerHTML = card; }
