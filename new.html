@@ -6,6 +6,7 @@
 <meta name="description" content="Клуб БПЛА Взлёт: рейтинг пилотов, шпаргалки по FPV, тесты, калькуляторы и тренажёр стиков.">
 <title>Взлёт - дашборд клуба</title>
 <link rel="manifest" href="app.webmanifest">
+<script src="perenos.js"></script>
 <script>/* Chrome может предложить установку раньше, чем загрузится вся страница - ловим сразу */addEventListener('beforeinstallprompt',function(e){window.__vzBIP=e});</script>
 <meta name="theme-color" content="#0d1117">
 <link rel="icon" type="image/png" href="favicon.png">
@@ -1545,7 +1546,7 @@ initRole();
 loadData(); loadSpkPilots();
 setInterval(()=>{ if(sheetId() && !document.hidden && !document.querySelector('.editing')) loadData(); }, REFRESH_MIN*60*1000);
 </script>
-<a id="toSchool" href="https://centrspektr.github.io/" title="На портал Спектра">&#8592; СПЕКТР</a>
+<a id="toSchool" href="https://centrspektr.gitverse.site/spektr/" title="В дашборд Спектра">&#8592; СПЕКТР</a>
 <style>#toSchool{position:fixed; left:14px; bottom:14px; z-index:9999; display:inline-flex; align-items:center; gap:6px; padding:10px 16px; border-radius:999px; font:700 14px system-ui,sans-serif; text-decoration:none; color:#fff; background:linear-gradient(135deg,#3b5bfd,#8b5cf6); box-shadow:0 8px 22px rgba(59,91,253,.4); transition:transform .2s}#toSchool:hover{transform:translateY(-2px)}@media print{#toSchool{display:none}}
 /* рейтинг пилотов: таблица пилот / трасса / время / дрон / аварии */
 .sr{container-type:inline-size}
@@ -2317,7 +2318,7 @@ zakApply();
 <script>
 /* "На экран": установка клуба на телефон как приложение (по образцу дашборда Спектра) */
 (function(){
-  var URL0='https://centrspektr.github.io/vzlet/', $=function(i){return document.getElementById(i)}, IM=$('imodal'), dp=null;
+  var URL0='https://centrspektr.gitverse.site/vzlet/', $=function(i){return document.getElementById(i)}, IM=$('imodal'), dp=null;
   var ua=navigator.userAgent, IOS=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1), MOB=/Android|iPhone|iPad|iPod/i.test(ua)||IOS, AND=/Android/i.test(ua);
   var APP=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
   var INAPP=/; wv\)|VKAndroidApp|VKClient|vkontakte|Telegram|Instagram|FBAN|FBAV|OdnoklassnikiApp|OKApp|ru\.oneme|OneMe|MAXApp|\bMAX\//i.test(ua)||(IOS&&!/Safari\//.test(ua)&&!/CriOS|FxiOS|YaBrowser|EdgiOS/.test(ua));
@@ -2327,10 +2328,10 @@ zakApply();
   addEventListener('appinstalled',function(){dp=null;APP=true;inst()});
   var D='<p class="ins-t">';
   function S(n,b,t){return '<div class="stp"><i>'+n+'</i><div><b>'+b+'</b>'+(t||'')+'</div></div>'}
-  function intent(pkg){return 'intent://centrspektr.github.io/vzlet/#Intent;scheme=https;package='+pkg+';S.browser_fallback_url='+encodeURIComponent(URL0)+';end'}
+  function intent(pkg){return 'intent://centrspektr.gitverse.site/vzlet/#Intent;scheme=https;package='+pkg+';S.browser_fallback_url='+encodeURIComponent(URL0)+';end'}
   /* Chrome на Android: шаги с картинками меню */
   function CH(){return '<p class="ins-t">Три касания:</p>'
-    +S(1,'Нажмите ⋮ в правом верхнем углу','Три точки справа от адреса сайта.<div class="im-bar"><span>⌂</span><em>centrspektr.github.io/vzlet</em><span>+</span><span>▢</span><b>⋮</b></div>')
+    +S(1,'Нажмите ⋮ в правом верхнем углу','Три точки справа от адреса сайта.<div class="im-bar"><span>⌂</span><em>centrspektr.gitverse.site/vzlet</em><span>+</span><span>▢</span><b>⋮</b></div>')
     +S(2,'Выберите "Добавить на гл. экран"','Пункт может называться "Установить приложение".<div class="im-menu"><span>Новая вкладка</span><span>История</span><span>Скачанные файлы</span><b>📲 Добавить на гл. экран</b><span>Настройки</span></div>')
     +S(3,'Нажмите "Установить"','<div class="im-dlg"><img src="icon-192.png" alt=""><span>Взлёт</span><b>Установить</b></div>')
     +'<p class="ins-t">Если в меню написано "Открыть приложение" - Взлёт уже установлен, ищите значок на экране телефона.</p>'}
