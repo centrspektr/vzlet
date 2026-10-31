@@ -1,0 +1,46 @@
+# Зеркало в GitVerse: после каждого изменения в main копирует ветку main в GitVerse.
+# Нужно в настройках репозитория GitHub (Settings -> Secrets and variables -> Actions):
+#   секрет GITVERSE_TOKEN - токен доступа GitVerse (создаёт владелец, в файлы не писать);
+#   переменная GITVERSE_USER - имя пользователя GitVerse;
+#   переменная GITVERSE_REPO - путь репозитория на GitVerse, например "owner/repo".
+# Пока секрета нет, копирование просто пропускается.
+name: Зеркало в GitVerse
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: gitverse-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Проверить настройки
+        id: check
+        env:
+          TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "${{ vars.GITVERSE_USER }}" ] || [ -z "${{ vars.GITVERSE_REPO }}" ]; then
+            echo "Нет GITVERSE_TOKEN, GITVERSE_USER или GITVERSE_REPO - пропускаю."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ok == 'true'
+        with:
+          fetch-depth: 0
+
+      - name: Отправить main в GitVerse
+        if: steps.check.outputs.ok == 'true'
+        env:
+          TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+          GV_USER: ${{ vars.GITVERSE_USER }}
+          GV_REPO: ${{ vars.GITVERSE_REPO }}
+        run: |
+          git push --force "https://${GV_USER}:${TOKEN}@gitverse.ru/${GV_REPO}.git" HEAD:refs/heads/main
