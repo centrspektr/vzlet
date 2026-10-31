@@ -1,0 +1,40 @@
+# Старый адрес https://centrspektr.github.io/vzlet/ ведёт на GitVerse.
+# GitHub Pages публикует не сам сайт, а страницы-переходы для каждого .html
+# (тот же путь, ?код и #метка сохраняются, вход ученика и тренера уезжает в #perenos)
+# + 404.html для остальных адресов + sw.js, который снимает старую офлайн-копию с телефонов.
+# Нужно: Settings - Pages - Source: GitHub Actions.
+name: Переадресация на GitVerse
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Собрать страницы-переходы
+        env:
+          NEW_SITE: https://centrspektr.gitverse.site
+        run: bash .github/pereadresaciya.sh
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
