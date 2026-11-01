@@ -644,19 +644,27 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
    KURS_URL - адрес курса. Пусто = вкладка "Курс" как сейчас (встроенный курс).
    KURS_ONLY_LINK = true - во вкладке только кнопка на курс (когда прогресс учеников перенесён). */
 window.KURS_URL = 'https://centrspektr.gitverse.site/kurs-fpv/';
-window.KURS_ONLY_LINK = false;
+window.KURS_ONLY_LINK = true;
 (function () {
   var U = window.KURS_URL; if (!U) return;
   var card = '<div id="kursLink" style="margin:0 0 14px;padding:16px 18px;border-radius:14px;border:1px solid rgba(0,212,255,.45);background:rgba(0,212,255,.08);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">' +
     '<div><b style="font-size:16px">🎓 Курс FPV</b><div style="color:var(--dim);font-size:13px;margin-top:4px">Модули, тренажёры и проверки. Вход тем же личным кодом.</div></div>' +
     '<a class="btn" style="background:linear-gradient(135deg,#00d4ff,#0077ff);color:#04121b;border:0;font-weight:800" href="' + U + '" onclick="kursGo(this)">Открыть курс →</a></div>';
   /* Вход ученика переносим в курс: #perenos=base64(UTF-8 JSON {"spk_vzlet": ...}) */
-  window.kursGo = function (a) {
+  function kursHref() {
     var v = null; try { v = localStorage.getItem('spk_vzlet'); } catch (e) {}
     var h = '';
     if (v) { try { h = '#perenos=' + btoa(unescape(encodeURIComponent(JSON.stringify({ spk_vzlet: v })))); } catch (e) {} }
-    a.href = U + h;
-  };
+    return U + h;
+  }
+  window.kursGo = function (a) { a.href = kursHref(); };
+  /* 01.11 (промт 27): вкладка "Курс" открыта (замочка нет) - по нажатию ученик сразу уходит в курс, в той же вкладке.
+     Под замочком - заглушка, как раньше. Тренер (admin) остаётся здесь: видит карточку и кнопку замочка. */
+  var kb = document.querySelector('#vt button[data-t="kurs"]');
+  if (kb) kb.addEventListener('click', function () {
+    if (!window.KURS_ONLY_LINK || window.zkCoach || !window.zk || window.zk('kurs')) return;
+    try { location.assign(kursHref()); } catch (e) {}
+  });
   function put() {
     var t = document.getElementById('t-kurs'); if (!t) return;
     if (window.KURS_ONLY_LINK) { if (t.innerHTML.indexOf('id="kursLink"') < 0 || t.children.length > 1) t.innerHTML = card; }
