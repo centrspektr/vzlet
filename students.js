@@ -4,7 +4,8 @@
      <script src="students.js" defer></script>
    Прогресс сайт отдаёт через window.SPK_PROGRESS = () => ({p: очки, b: значки, l: 'уровень', t: {тест: [лучший балл, попыток]}})
    и сообщает об изменениях вызовом window.SPK && SPK.sync().
-   Если педагог обнулил ученика, вызывается window.SPK_RESET(club): сайт стирает свой прогресс на этом устройстве. */
+   Если педагог обнулил ученика, вызывается window.SPK_RESET(club): сайт стирает свой прогресс на этом устройстве.
+   data-spk-norate - без рейтинга учеников: только заявка и личный код (05.11: во Взлёте рейтинг теперь в курсе FPV). */
 (function () {
   'use strict';
   var API = 'https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b';
@@ -71,6 +72,7 @@
   function Box(el) {
     this.el = el;
     this.club = el.getAttribute('data-spk-club');
+    this.norate = el.hasAttribute('data-spk-norate');
     this.key = 'spk_' + this.club;
     this.S = store.get(this.key) || {};
     this.view = '';
@@ -109,6 +111,7 @@
 
   Box.prototype.loadRate = function () {
     var self = this;
+    if (this.norate) { this.topEl.hidden = true; return; }
     api({ op: 'srate', club: this.club, code: this.S.code || '' }).then(function (j) {
       if (!j.ok) { if (!self.top) self.topEl.innerHTML = '<h4>🏆 Рейтинг ' + esc(NAMES[self.club] || '') + '</h4><div class="spk-empty">' + esc(j.error || 'Рейтинг пока недоступен') + '</div>'; return; }
       self.top = j.top || []; self.me = j.me || null;
@@ -166,9 +169,9 @@
       h = '<div class="spk-me' + (S.fresh ? ' spk-pop' : '') + '"><div class="spk-ava">' + esc((S.first || '?').charAt(0)) + '</div><div>' +
         '<h4>' + (S.fresh ? '🎉 Добро пожаловать в группу! ' : '') + esc(S.first) + ', ' + esc(S.cls) + '</h4>' +
         '<div class="spk-stat"><span>⭐ ' + pts + ' ' + pl(+pts || 0, 'очко', 'очка', 'очков') + '</span>' +
-        (me.rank ? '<span>🏆 место ' + me.rank + '</span>' : '') +
+        (me.rank && !this.norate ? '<span>🏆 место ' + me.rank + '</span>' : '') +
         (me.teacher ? '<span>📝 задания: ' + me.teacher + '</span>' : '') + '</div></div></div>' +
-        '<p style="margin-top:12px">Ты в группе ' + club + '. Тесты, тренировки и значки теперь сами попадают в рейтинг, очки за задания педагога тоже.</p>' +
+        '<p style="margin-top:12px">Ты в группе ' + club + '.' + (this.norate ? ' Тренер видит твои тесты и открывает новые задания.' : ' Тесты, тренировки и значки теперь сами попадают в рейтинг, очки за задания педагога тоже.') + '</p>' +
         ((hasPut || max) ? '<div class="spk-row" style="margin-bottom:12px">' + (hasPut ? '<button class="spk-btn pri" data-a="put">🧭 Путь новичка</button>' : '') +
           (max ? '<a class="spk-btn" href="' + max + '" target="_blank" rel="noopener">💬 Группа в MAX</a>' : '') + '</div>' : '') +
         '<p>Твой личный код - запиши его, чтобы войти с другого телефона:</p><div class="spk-code">' + esc(S.code) + '</div>' +
