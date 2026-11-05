@@ -378,7 +378,7 @@
     if (a === 'test') return goTest(MODS[i].test);
     if (a === 'quiz') return startQuiz(i, b.closest('.pn-qw') || b.closest('.pn-q').parentElement);
     if (a === 'next') { OPEN = i + 1; render(); var n = $('.pn-m[data-i="' + (i + 1) + '"]', box); if (n) n.scrollIntoView({ behavior: RED ? 'auto' : 'smooth', block: 'start' }); return; }
-    if (a === 'con') { var r = document.querySelector('[data-t="rate"]'); if (r) r.click(); setTimeout(function () { var f = document.querySelector('[data-spk-club] [data-a="form"]'); if (f) f.click(); var c = document.querySelector('[data-spk-club]'); if (c) c.scrollIntoView({ behavior: RED ? 'auto' : 'smooth', block: 'start' }); }, 400); }
+    if (a === 'con') { var r = document.querySelector('[data-t="rate"]'); if (r) r.click(); else if (window.openZay) window.openZay(); setTimeout(function () { var f = document.querySelector('[data-spk-club] [data-a="form"]'); if (f) f.click(); var c = document.querySelector('[data-spk-club]'); if (c) c.scrollIntoView({ behavior: RED ? 'auto' : 'smooth', block: 'start' }); }, 400); }
   });
   document.addEventListener('spk-status', function () { if (box && box.offsetParent) render(); });
   /* вернулся на вкладку - обновить (тест мог быть сдан в другой вкладке сайта) */
