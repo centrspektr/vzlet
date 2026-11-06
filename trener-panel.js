@@ -237,26 +237,78 @@
   }
   function sw(on, label) { return '<label class="tp-sw"><input type="checkbox" data-tp="all" ' + (on ? 'checked' : '') + '> ' + label + '</label>'; }
 
+  /* ---------- сёла клуба Взлёт (06.11) ----------
+     ST.sela - список сёл, ST.scope - сёла педагога (null - все). Фильтр по селу, перевод ученика (только admin),
+     окно "Сёла и педагоги" (только admin): добавить село, выдать или отозвать PIN педагога/помощника села. */
+  var SEL = { f: null, ed: null, edErr: '', open: false };
+  function selaOn() { return window.VZ_SELA_UI && P.club === 'vzlet' && ST && ST.sela && ST.sela.length; }
+  function sn(id) { var r = (ST.sela || []).filter(function (s) { return s.id === id; })[0]; return r ? r.name : id; }
+  function selF() {
+    if (!selaOn()) return '';
+    if (ST.scope) return ST.scope.join(',');
+    if (SEL.f == null) { var v = window.VZ_VIEW; SEL.f = v && v !== 'all' ? v : ''; }
+    return SEL.f;
+  }
+  function selaHead() {
+    if (!selaOn()) return '';
+    if (ST.scope) return '<p class="tp-dim">📍 Ваше село: <b>' + E(ST.scope.map(sn).join(', ')) + '</b>. Здесь только ученики этого села.</p>';
+    if (ST.sela.length < 2) return '';
+    var f = selF();
+    return '<div class="tp-tabs" role="group" aria-label="Село"><button type="button" class="tp-c' + (!f ? ' on' : '') + '" data-sf="">Все сёла</button>' +
+      ST.sela.map(function (s) { return '<button type="button" class="tp-c' + (f === s.id ? ' on' : '') + '" data-sf="' + E(s.id) + '">' + E(s.name) + '</button>'; }).join('') + '</div>';
+  }
+  function mvSel(x) {
+    if (!selaOn() || ST.scope || ST.sela.length < 2) return '';
+    return '<select class="tp-btn" data-mv="' + E(x.id) + '" aria-label="Перевести в другое село" title="Перевести в другое село (только администратор)">' +
+      ST.sela.map(function (s) { return '<option value="' + E(s.id) + '"' + (s.id === (x.selo || 'irtysh') ? ' selected' : '') + '>📍 ' + E(s.name) + '</option>'; }).join('') + '</select>';
+  }
+  function selaAdmin() {
+    if (!selaOn() || ST.scope) return '';
+    var h = '<details data-tp-sela' + (SEL.open ? ' open' : '') + '><summary>🏘 Сёла и педагоги (для администратора)</summary>';
+    h += '<p class="tp-dim">Сёла клуба: ' + ST.sela.map(function (s) { return '<b>' + E(s.name) + '</b> <small>(' + E(s.id) + ')</small>'; }).join(', ') + '</p>';
+    h += '<form class="tp-pin" data-tp-addselo autocomplete="off"><input name="sid" placeholder="id латиницей, напр. cherlak" maxlength="16" aria-label="id села"><input name="sname" placeholder="Название, напр. Черлак" maxlength="40" aria-label="Название села"><button class="tp-btn pri" type="submit">+ Село</button></form>';
+    h += '<h4>Педагоги и помощники сёл</h4>';
+    if (!SEL.ed) h += '<p class="tp-dim">' + (SEL.edErr ? E(SEL.edErr) : 'Загружаю...') + '</p>';
+    else {
+      var L = SEL.ed.map(function (e, i) { var c = (e.clubs || []).join(','), m = c.match(/vzlet(-pom)?@([a-z0-9]+)/); return m ? { i: i, name: e.name, pom: !!m[1], selo: m[2] } : null; }).filter(Boolean);
+      h += L.length ? L.map(function (x) { return '<div class="tp-r"><span class="tp-nm"><b>' + E(x.name) + '</b><small>' + (x.pom ? 'помощник (только заезды)' : 'педагог') + ' · ' + E(sn(x.selo)) + '</small></span><span class="tp-a"><button type="button" class="tp-btn" data-edel="' + x.i + '" title="Отозвать PIN">🗑 Отозвать</button></span></div>'; }).join('') : '<p class="tp-none">Пока никого.</p>';
+      h += '<form class="tp-pin" data-tp-addped autocomplete="off" style="flex-wrap:wrap"><input name="pname" placeholder="Имя, напр. Черлак - педагог" maxlength="40" aria-label="Имя">' +
+        '<select name="psel" class="tp-btn" aria-label="Село">' + ST.sela.map(function (s) { return '<option value="' + E(s.id) + '">' + E(s.name) + '</option>'; }).join('') + '</select>' +
+        '<select name="pkind" class="tp-btn" aria-label="Роль"><option value="vzlet">педагог</option><option value="vzlet-pom">помощник</option></select>' +
+        '<input name="ppin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN 4-8 цифр" aria-label="PIN"><button class="tp-btn pri" type="submit">Выдать PIN</button></form>' +
+        '<p class="tp-dim">PIN придумываете вы и говорите педагогу сами. Посмотреть PIN потом нельзя, только отозвать и выдать новый. Педагог входит этим PIN и на сайте клуба, и в "Заявки".</p>';
+    }
+    return h + '</details>';
+  }
+  function loadEd() {
+    SEL.edErr = '';
+    return api({ op: 'editors' }).then(function (j) { SEL.ed = j.editors || []; }, function (e) { SEL.ed = null; SEL.edErr = e.message; }).then(function () { if (P.el) draw(); });
+  }
+  function saveEd(list, msg) {
+    return api({ op: 'setEditors', list: list }).then(function (j) { SEL.ed = j.editors || list; toast(msg); draw(); }, function (e) { toast(e.message); });
+  }
+
   function reqHtml() {
-    var all = !P.club, L = ST.list.filter(function (x) { return all || x.club === P.club; });
+    var all = !P.club, sf = selF(), L = ST.list.filter(function (x) { return (all || x.club === P.club) && (!sf || x.club !== 'vzlet' || sf.split(',').indexOf(x.selo || 'irtysh') >= 0); });
     var cn = function (id) { return CN[id] || (ST.clubs || []).reduce(function (a, c) { return c.id === id ? c.name : a; }, '') || id; };
     var pts = function (x) { return (+x.site || 0) + (+x.t || 0); };
     var wt = L.filter(function (x) { return x.st === 'заявка'; }), ok = L.filter(function (x) { return x.st === 'принят'; }).sort(function (a, b) { return pts(b) - pts(a); }), no = L.filter(function (x) { return x.st === 'отклонён'; });
     /* только имя и класс - фамилию не показываем */
     var nm = function (x) { return E(x.first) + ', ' + E(x.cls); };
-    var tag = function (x) { return all ? E(cn(x.club)) + ' · ' : ''; };
+    var tag = function (x) { return (all ? E(cn(x.club)) + ' · ' : '') + (selaOn() && !sf && ST.sela.length > 1 && x.club === 'vzlet' ? '📍 ' + E(sn(x.selo || 'irtysh')) + ' · ' : ''); };
     var who = function (x) { return '<span class="tp-nm"><b>' + nm(x) + '</b><small>' + tag(x) + E(x.when) + '</small></span>'; };
     var B = function (a, id, t, lab, cls) { return '<button type="button" class="tp-btn' + (cls ? ' ' + cls : '') + '" data-st="' + a + '" data-id="' + E(id) + '"' + (lab ? ' aria-label="' + E(lab) + '" title="' + E(lab) + '"' : '') + '>' + t + '</button>'; };
-    var h = '<p class="tp-dim">Ученик нажимает "Подключиться" на сайте кружка. После одобрения он видит свой код и путь новичка, его тесты и значки уходят в рейтинг.</p>';
+    var h = '<p class="tp-dim">Ученик нажимает "Подключиться" на сайте кружка. После одобрения он видит свой код и путь новичка, его тесты и значки уходят в рейтинг.</p>' + selaHead();
     /* клуб Взлёт: только свои заявки, без переключателя "Все кружки" */
     h += '<h4>Новые заявки ' + (wt.length ? '<span class="tp-k">' + wt.length + '</span>' : '') + '</h4>';
     h += wt.length ? wt.map(function (x) { return '<div class="tp-r"><span class="tp-ic" aria-hidden="true">🆕</span>' + who(x) + '<span class="tp-a">' + B('ok', x.id, '✓ Принять', '', 'pri') + B('no', x.id, '✕', 'Отклонить заявку') + '</span></div>'; }).join('') : '<p class="tp-none">Новых заявок нет.</p>';
     h += '<h4>В рейтинге · ' + ok.length + '</h4>';
     h += ok.length ? ok.map(function (x, i) {
       return '<div class="tp-r' + (x.hid ? ' hid' : '') + '"><span class="tp-nm"><b>' + (i + 1) + '. ' + nm(x) + '</b><small>' + tag(x) + 'код <span class="tp-code">' + E(x.code) + '</span> · ⭐ ' + pts(x) + (x.hid ? ' · скрыт' : '') + '</small></span><span class="tp-a">' +
-        B(x.hid ? 'show' : 'hide', x.id, x.hid ? '👁' : '🙈', x.hid ? 'Показать в рейтинге' : 'Скрыть из рейтинга') + B('newcode', x.id, '🔑', 'Выдать новый код') + B('del', x.id, '🗑', 'Удалить ученика') + '</span></div>';
+        B(x.hid ? 'show' : 'hide', x.id, x.hid ? '👁' : '🙈', x.hid ? 'Показать в рейтинге' : 'Скрыть из рейтинга') + B('newcode', x.id, '🔑', 'Выдать новый код') + B('del', x.id, '🗑', 'Удалить ученика') + mvSel(x) + '</span></div>';
     }).join('') : '<p class="tp-none">Пока никого. Примите первую заявку.</p>';
     if (no.length) h += '<details><summary>Отклонённые · ' + no.length + '</summary>' + no.map(function (x) { return '<div class="tp-r"><span class="tp-ic" aria-hidden="true">✕</span>' + who(x) + '<span class="tp-a">' + B('ok', x.id, 'Принять') + B('del', x.id, '🗑', 'Удалить') + '</span></div>'; }).join('') + '</details>';
+    h += selaAdmin();
     return h;
   }
   function bugHtml() {
@@ -284,6 +336,37 @@
       else if (a === 'all') b.onchange = function () { P.all = b.checked; draw(); };
     });
     $$('[data-bf]', el).forEach(function (b) { b.onclick = function () { P.bf = b.dataset.bf; draw(); }; });
+    $$('[data-sf]', el).forEach(function (b) { b.onclick = function () { SEL.f = b.dataset.sf; draw(); }; });
+    $$('[data-mv]', el).forEach(function (b) {
+      b.onchange = function () {
+        var id = b.dataset.mv, x = ST.list.filter(function (y) { return y.id === id; })[0], to = b.value;
+        if (!x || !confirm('Перевести ' + x.first + ', ' + x.cls + ' в село ' + sn(to) + '?')) { draw(); return; }
+        b.disabled = true;
+        api({ op: 'sset', id: id, act: 'selo', selo: to }).then(function (j) { ST = j; paint(); changed({ op: 'sset', act: 'selo', id: id }); toast('Переведён в село ' + sn(to)); },
+          function (e) { toast(e.message); draw(); });
+      };
+    });
+    var sd = el.querySelector('[data-tp-sela]');
+    if (sd) sd.ontoggle = function () { SEL.open = sd.open; if (sd.open && !SEL.ed) loadEd(); };
+    var fa = el.querySelector('[data-tp-addselo]');
+    if (fa) fa.onsubmit = function (e) {
+      e.preventDefault(); var id = fa.elements.sid.value.trim().toLowerCase(), name = fa.elements.sname.value.trim();
+      api({ op: 'selaadd', id: id, name: name }).then(function (j) { ST.sela = j.sela; toast('Село сохранено: ' + name); draw(); }, function (x) { toast(x.message); });
+    };
+    var fp = el.querySelector('[data-tp-addped]');
+    if (fp) fp.onsubmit = function (e) {
+      e.preventDefault(); var f = fp.elements, name = f.pname.value.trim(), pin = f.ppin.value.trim();
+      if (name.length < 2) return toast('Напишите имя');
+      if (!/^\d{4,8}$/.test(pin)) return toast('PIN - от 4 до 8 цифр');
+      var list = (SEL.ed || []).concat([{ name: name, pin: pin, role: 'club', clubs: [f.pkind.value + '@' + f.psel.value] }]);
+      saveEd(list, 'PIN выдан: ' + name);
+    };
+    $$('[data-edel]', el).forEach(function (b) {
+      b.onclick = function () {
+        var i = +b.dataset.edel, x = SEL.ed[i]; if (!x || !confirm('Отозвать PIN у "' + x.name + '"? Этот PIN сразу перестанет работать.')) return;
+        saveEd(SEL.ed.filter(function (_, k) { return k !== i; }), 'PIN отозван: ' + x.name);
+      };
+    });
     $$('[data-st]', el).forEach(function (b) {
       b.onclick = function () {
         var a = b.dataset.st, id = b.dataset.id, x = ST.list.filter(function (y) { return y.id === id; })[0], n = x ? x.first + ', ' + x.cls : '';
