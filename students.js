@@ -40,8 +40,8 @@
     '.spk-f{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 12px}' +
     '.spk-f label{display:grid;gap:4px;font-size:13px;font-weight:700}' +
     '.spk-f label.w{grid-column:1/-1}' +
-    '.spk-f input{width:100%;box-sizing:border-box;font-weight:600;font-size:16px;font-family:inherit;padding:11px 12px;border-radius:12px;border:1px solid rgba(127,127,160,.4);background:rgba(0,0,0,.18);color:inherit}' +
-    '.spk-f input:focus{outline:2px solid var(--spk-a);outline-offset:1px}' +
+    '.spk-f input,.spk-f select{width:100%;box-sizing:border-box;font-weight:600;font-size:16px;font-family:inherit;padding:11px 12px;border-radius:12px;border:1px solid rgba(127,127,160,.4);background:rgba(0,0,0,.18);color:inherit}' +
+    '.spk-f input:focus,.spk-f select:focus{outline:2px solid var(--spk-a);outline-offset:1px}' +
     '.spk-code{font:800 26px ui-monospace,Consolas,monospace;letter-spacing:.18em;padding:8px 14px;border-radius:12px;background:rgba(0,0,0,.25);display:inline-block;margin:4px 0 8px;user-select:all}' +
     '.spk-ok{display:flex;gap:10px;align-items:flex-start;margin:0 0 10px;font-size:13.5px;line-height:1.35;cursor:pointer}' +
     '.spk-ok input{flex-shrink:0;width:20px;height:20px;margin:1px 0 0;accent-color:var(--spk-a)}' +
@@ -192,6 +192,7 @@
         '<p>Нужны только имя и класс - фамилию не пиши.</p>' +
         '<div class="spk-f"><label>Имя<input name="first" autocomplete="given-name" maxlength="30"></label>' +
         '<label>Класс<input name="cls" placeholder="например 7Б" maxlength="4" autocapitalize="characters"></label></div>' +
+        seloField(this.club) +
         '<label class="spk-ok"><input type="checkbox" name="pd1"><span>Согласен(на) на обработку имени и класса для занятий и рейтинга ' + club + '. Если мне меньше 14 лет, согласие дал мой родитель.</span></label>' +
         '<label class="spk-ok"><input type="checkbox" name="pd2"><span>Согласен(на), чтобы мои имя и класс были видны в рейтинге на сайте.</span></label>' +
         '<details class="spk-pd"><summary>Как используются данные</summary>' +
@@ -217,6 +218,15 @@
   Box.prototype.msg = function (t, ok) { var m = this.mine.querySelector('.spk-msg'); if (m) { m.textContent = t; m.className = 'spk-msg ' + (ok ? 'ok' : 'bad'); } };
   Box.prototype.val = function (n) { var i = this.mine.querySelector('input[name="' + n + '"]'); return i ? i.value.trim() : ''; };
 
+  /* сёла клуба Взлёт (06.11, только на странице с window.VZ_SELA_UI): ученик выбирает своё село */
+  function seloField(club) {
+    var L = window.VZ_SELA_UI && club === 'vzlet' && window.VZ_SELA;
+    if (!L || L.length < 2) return '';
+    var v = window.VZ_VIEW && window.VZ_VIEW !== 'all' ? window.VZ_VIEW : '';
+    var E2 = function (x) { return String(x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+    return '<div class="spk-f"><label>Село<select name="selo"><option value="">- выбери -</option>' +
+      L.map(function (s) { return '<option value="' + E2(s.id) + '"' + (s.id === v ? ' selected' : '') + '>' + E2(s.name) + '</option>'; }).join('') + '</select></label></div>';
+  }
   Box.prototype.act = function (a, btn) {
     var self = this, S = this.S;
     if (a === 'form' || a === 'code') { if (a === 'form' && S.status === 'отклонён') { this.S = {}; this.save(); } this.view = a; this.render(); return; }
@@ -227,6 +237,8 @@
     if (a === 'check') { btn.disabled = true; this.check(); setTimeout(function () { btn.disabled = false; if (self.view === 'wait') self.msg('Пока ждём подтверждения педагога', true); }, 1500); return; }
     if (a === 'send') {
       var q = { op: 'sapply', club: this.club, first: this.val('first'), cls: this.val('cls') };
+      var sf = this.mine.querySelector('select[name="selo"]');
+      if (sf) { if (!sf.value) return this.msg('Выбери своё село'); q.selo = sf.value; }
       if (q.first.length < 2) return this.msg('Напиши имя');
       if (!/^\d{1,2}\s*[а-яёa-z]?$/i.test(q.cls)) return this.msg('Класс - например 7Б');
       var c1 = this.mine.querySelector('input[name="pd1"]'), c2 = this.mine.querySelector('input[name="pd2"]');
