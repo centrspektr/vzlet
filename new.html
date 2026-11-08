@@ -2047,6 +2047,18 @@ function srDraw(anim){const box=q('sr');if(!box)return;
   if(ROLE==='helper'||ROLE==='teacher')h+=`<div class="sr-coach"><button class="btn primary" onclick="openHelper()">✎ Заезды сегодня</button></div>`;
   if(coach)h+=`<div class="sr-coach">${TS.length?`<button class="btn primary" id="srTime">⏱ Вписать время</button>`:''}${ADM?`<button class="btn" id="srAdd">+ Трассы</button>${TS.length?`<button class="btn" id="srEd">✎ Трассы</button>`:''}`:''}</div>`;
   box.innerHTML=h;srBind(box)}
+/* 08.11: в рейтинге трасс села - переключатель "своё село / все сёла" (общий рейтинг всех сёл, не уходя со своей страницы) */
+let SR_ALL=false;
+const _srDraw=srDraw;
+srDraw=function(anim){
+  const can=VIEW!=='all'&&RAW&&SELA.length>1;
+  if(can&&SR_ALL){const keep=data;data=Object.assign({},data,{'Заезды':RAW['Заезды']||[],'Пилоты':RAW['Пилоты']||[]});try{_srDraw(anim)}finally{data=keep}}
+  else _srDraw(anim);
+  const box=q('sr');if(!box||!can)return;
+  box.insertAdjacentHTML('afterbegin',`<div class="sr-scope" role="group" aria-label="Чей рейтинг"><button type="button" class="${SR_ALL?'':'on'}" aria-pressed="${!SR_ALL}" data-sc="0">🏠 ${esc(seloName(VIEW))}</button><button type="button" class="${SR_ALL?'on':''}" aria-pressed="${SR_ALL}" data-sc="1">🌍 Все сёла</button></div>`);
+  box.querySelectorAll('.sr-scope button').forEach(b=>b.onclick=()=>{const v=b.dataset.sc==='1';if(v===SR_ALL)return;SR_ALL=v;srDraw(1)});
+};
+document.head.insertAdjacentHTML('beforeend','<style>.sr-scope{display:flex;gap:6px;margin:0 0 10px}.sr-scope button{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--text);font:inherit;font-weight:700;cursor:pointer}.sr-scope button.on{background:var(--accent,#00d4ff);border-color:var(--accent,#00d4ff);color:#04121b}</style>');
 function srBind(box){
   box.querySelectorAll('.sr-sims button').forEach(b=>b.onclick=()=>{if(SR.sim===b.dataset.m)return;SR.sim=b.dataset.m;SR.t='';SR.all=0;srSave();srDraw(1);srPeek()});
   const sel=q('srSel');if(sel)sel.onchange=()=>{SR.t=sel.value;SR.all=0;srSave();srDraw(1)};
