@@ -251,30 +251,30 @@
   }
   function selaHead() {
     if (!selaOn()) return '';
-    if (ST.scope) return '<p class="tp-dim">📍 Ваше село: <b>' + E(ST.scope.map(sn).join(', ')) + '</b>. Здесь только ученики этого села.</p>';
+    if (ST.scope) return '<p class="tp-dim">📍 Ваша площадка: <b>' + E(ST.scope.map(sn).join(', ')) + '</b>. Здесь только ученики этой площадки.</p>';
     if (ST.sela.length < 2) return '';
     var f = selF();
-    return '<div class="tp-tabs" role="group" aria-label="Село"><button type="button" class="tp-c' + (!f ? ' on' : '') + '" data-sf="">Все сёла</button>' +
+    return '<div class="tp-tabs" role="group" aria-label="Площадка"><button type="button" class="tp-c' + (!f ? ' on' : '') + '" data-sf="">Все площадки</button>' +
       ST.sela.map(function (s) { return '<button type="button" class="tp-c' + (f === s.id ? ' on' : '') + '" data-sf="' + E(s.id) + '">' + E(s.name) + '</button>'; }).join('') + '</div>';
   }
   function mvSel(x) {
     if (!selaOn() || ST.scope || ST.sela.length < 2) return '';
-    return '<select class="tp-btn" data-mv="' + E(x.id) + '" aria-label="Перевести в другое село" title="Перевести в другое село (только администратор)">' +
+    return '<select class="tp-btn" data-mv="' + E(x.id) + '" aria-label="Перевести на другую площадку" title="Перевести на другую площадку (только администратор)">' +
       ST.sela.map(function (s) { return '<option value="' + E(s.id) + '"' + (s.id === (x.selo || 'irtysh') ? ' selected' : '') + '>📍 ' + E(s.name) + '</option>'; }).join('') + '</select>';
   }
   function selaAdmin() {
     if (!selaOn() || ST.scope) return '';
     if (SEL.open && !SEL.ed && !SEL.edErr && !SEL.busy) { SEL.busy = 1; setTimeout(function () { loadEd().then(function () { SEL.busy = 0; }); }, 0); }
-    var h = '<details data-tp-sela' + (SEL.open ? ' open' : '') + '><summary>🏘 Сёла и педагоги (для администратора)</summary>';
-    h += '<p class="tp-dim">Сёла клуба: ' + ST.sela.map(function (s) { return '<b>' + E(s.name) + '</b> <small>(' + E(s.id) + ')</small>'; }).join(', ') + '</p>';
-    h += '<form class="tp-pin" data-tp-addselo autocomplete="off"><input name="sid" placeholder="id латиницей, напр. cherlak" maxlength="16" aria-label="id села"><input name="sname" placeholder="Название, напр. Черлак" maxlength="40" aria-label="Название села"><button class="tp-btn pri" type="submit">+ Село</button></form>';
-    h += '<h4>Педагоги и помощники сёл</h4>';
+    var h = '<details data-tp-sela' + (SEL.open ? ' open' : '') + '><summary>🏘 Площадки и педагоги (для администратора)</summary>';
+    h += '<p class="tp-dim">Площадки клуба: ' + ST.sela.map(function (s) { return '<b>' + E(s.name) + '</b> <small>(' + E(s.id) + ')</small>'; }).join(', ') + '</p>';
+    h += '<form class="tp-pin" data-tp-addselo autocomplete="off"><input name="sid" placeholder="id латиницей, напр. cherlak" maxlength="16" aria-label="id площадки"><input name="sname" placeholder="Название, напр. Черлак" maxlength="40" aria-label="Название площадки"><button class="tp-btn pri" type="submit">+ Площадка</button></form>';
+    h += '<h4>Педагоги и помощники площадок</h4>';
     if (!SEL.ed) h += '<p class="tp-dim">' + (SEL.edErr ? E(SEL.edErr) : 'Загружаю...') + '</p>';
     else {
       var L = SEL.ed.map(function (e, i) { var c = (e.clubs || []).join(','), m = c.match(/vzlet(-pom)?@([a-z0-9]+)/); return m ? { i: i, name: e.name, pom: !!m[1], selo: m[2] } : null; }).filter(Boolean);
       h += L.length ? L.map(function (x) { return '<div class="tp-r"><span class="tp-nm"><b>' + E(x.name) + '</b><small>' + (x.pom ? 'помощник (только заезды)' : 'педагог') + ' · ' + E(sn(x.selo)) + '</small></span><span class="tp-a"><button type="button" class="tp-btn" data-edel="' + x.i + '" title="Отозвать PIN">🗑 Отозвать</button></span></div>'; }).join('') : '<p class="tp-none">Пока никого.</p>';
       h += '<form class="tp-pin" data-tp-addped autocomplete="off" style="flex-wrap:wrap"><input name="pname" placeholder="Имя, напр. Черлак - педагог" maxlength="40" aria-label="Имя">' +
-        '<select name="psel" class="tp-btn" aria-label="Село">' + ST.sela.map(function (s) { return '<option value="' + E(s.id) + '">' + E(s.name) + '</option>'; }).join('') + '</select>' +
+        '<select name="psel" class="tp-btn" aria-label="Площадка">' + ST.sela.map(function (s) { return '<option value="' + E(s.id) + '">' + E(s.name) + '</option>'; }).join('') + '</select>' +
         '<select name="pkind" class="tp-btn" aria-label="Роль"><option value="vzlet">педагог</option><option value="vzlet-pom">помощник</option></select>' +
         '<input name="ppin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN 4-8 цифр" aria-label="PIN"><button class="tp-btn pri" type="submit">Выдать PIN</button></form>' +
         '<p class="tp-dim">PIN придумываете вы и говорите педагогу сами. Посмотреть PIN потом нельзя, только отозвать и выдать новый. Педагог входит этим PIN и на сайте клуба, и в "Заявки".</p>';
@@ -341,9 +341,9 @@
     $$('[data-mv]', el).forEach(function (b) {
       b.onchange = function () {
         var id = b.dataset.mv, x = ST.list.filter(function (y) { return y.id === id; })[0], to = b.value;
-        if (!x || !confirm('Перевести ' + x.first + ', ' + x.cls + ' в село ' + sn(to) + '?')) { draw(); return; }
+        if (!x || !confirm('Перевести ' + x.first + ', ' + x.cls + ' на площадку ' + sn(to) + '?')) { draw(); return; }
         b.disabled = true;
-        api({ op: 'sset', id: id, act: 'selo', selo: to }).then(function (j) { ST = j; paint(); changed({ op: 'sset', act: 'selo', id: id }); toast('Переведён в село ' + sn(to)); },
+        api({ op: 'sset', id: id, act: 'selo', selo: to }).then(function (j) { ST = j; paint(); changed({ op: 'sset', act: 'selo', id: id }); toast('Переведён на площадку ' + sn(to)); },
           function (e) { toast(e.message); draw(); });
       };
     });
@@ -352,7 +352,7 @@
     var fa = el.querySelector('[data-tp-addselo]');
     if (fa) fa.onsubmit = function (e) {
       e.preventDefault(); var id = fa.elements.sid.value.trim().toLowerCase(), name = fa.elements.sname.value.trim();
-      api({ op: 'selaadd', id: id, name: name }).then(function (j) { ST.sela = j.sela; toast('Село сохранено: ' + name); draw(); }, function (x) { toast(x.message); });
+      api({ op: 'selaadd', id: id, name: name }).then(function (j) { ST.sela = j.sela; toast('Площадка сохранена: ' + name); draw(); }, function (x) { toast(x.message); });
     };
     var fp = el.querySelector('[data-tp-addped]');
     if (fp) fp.onsubmit = function (e) {

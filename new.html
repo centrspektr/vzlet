@@ -873,15 +873,15 @@ function setView(v){
 function renderSelo(){
   const sub=document.getElementById('vzSub');
   if(sub) sub.textContent = VIEW==='irtysh' ? 'FPV-тренировки · с. Иртыш · Черлакский район · Омская область'
-    : VIEW==='all' ? 'FPV-тренировки · все сёла клуба · Омская область' : 'FPV-тренировки · '+seloName(VIEW)+' · Омская область';
+    : VIEW==='all' ? 'FPV-тренировки · все площадки клуба · Омская область' : 'FPV-тренировки · '+seloName(VIEW)+' · Омская область';
   const bar=document.getElementById('selBar'); if(!bar) return;
   if(SELA.length<2 && !MY_SELO && !ADM){ bar.hidden=true; return; }
   bar.hidden=false;
-  const admBtn = ADM ? `<button class="btn" type="button" onclick="window.SPK_PANEL&&SPK_PANEL.openSela()" title="Добавить село, выдать или отозвать PIN педагога села">🏘 Сёла и педагоги</button>` : '';
+  const admBtn = ADM ? `<button class="btn" type="button" onclick="window.SPK_PANEL&&SPK_PANEL.openSela()" title="Добавить площадку, выдать или отозвать PIN педагога">🏘 Площадки и педагоги</button>` : '';
   const opt=(v,t)=>`<option value="${esc(v)}" ${v===VIEW?'selected':''}>${esc(t)}</option>`;
-  const mine=MY_SELO ? [opt(MY_SELO,'🏠 Моё село: '+seloName(MY_SELO))] : [];
-  bar.innerHTML=`<label>📍 <select id="selSel" aria-label="Село">${mine.join('')}${SELA.filter(s=>s.id!==MY_SELO).map(s=>opt(s.id,(MY_SELO?'Другое: ':'')+s.name)).join('')}${opt('all','🌍 Общий (все сёла)')}</select></label>`+
-    (MY_SELO && VIEW!==MY_SELO ? `<span class="muted">просмотр - править можно только своё село</span>` : VIEW==='all' ? `<span class="muted">общий рейтинг всех сёл</span>` : '') + admBtn;
+  const mine=MY_SELO ? [opt(MY_SELO,'🏠 Моя площадка: '+seloName(MY_SELO))] : [];
+  bar.innerHTML=`<label>📍 <select id="selSel" aria-label="Площадка">${mine.join('')}${SELA.filter(s=>s.id!==MY_SELO).map(s=>opt(s.id,(MY_SELO?'Другое: ':'')+s.name)).join('')}${opt('all','🌍 Общий (все площадки)')}</select></label>`+
+    (MY_SELO && VIEW!==MY_SELO ? `<span class="muted">просмотр - править можно только свою площадку</span>` : VIEW==='all' ? `<span class="muted">общий рейтинг всех площадок</span>` : '') + admBtn;
   document.getElementById('selSel').onchange=e=>setView(e.target.value);
 }
 const SCRIPT_URL = 'https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b?s=vzlet';  // сервер клуба: данные и правки тренера
@@ -1493,8 +1493,8 @@ async function postSheet(sheet, rows){
   const pin=ss_.get(PIN_KEY);
   if(!pin){ throw new Error('войдите по PIN (кнопка "Войти" вверху)'); }
   const bySelo = SELO_SHEETS.includes(sheet);   // вкладки села - только своего села (op seloRows)
-  if(bySelo && VIEW==='all') throw new Error('выберите село вверху страницы - в общем виде вкладки сёл не правят');
-  if(!bySelo && ROLE==='teacher') throw new Error('эта вкладка общая для всех сёл - её меняет тренер');
+  if(bySelo && VIEW==='all') throw new Error('выберите площадку вверху страницы - в общем виде эти вкладки не правят');
+  if(!bySelo && ROLE==='teacher') throw new Error('эта вкладка общая для всех площадок - её меняет тренер');
   const r=await fetch(SCRIPT_URL,{method:'POST', body:JSON.stringify(bySelo ? {op:'seloRows', key:pin, selo:VIEW, sheet, rows} : {key:pin, sheet, rows})});
   const res=await r.json();
   if(!res.ok){ if(/Неверный PIN/i.test(res.error||'')) logout(true); throw new Error(res.error||'ошибка'); }
@@ -1552,7 +1552,7 @@ function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0, sx=0, sy=0,
   el.addEventListener('click',()=>{ if(mv) return; const now=Date.now(); n = now-last<600 ? n+1 : 1; last=now; if(n>=5){ n=0; fn(); } });
   el.addEventListener('contextmenu',e=>e.preventDefault()); }
 function openLogin(){
-  $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Педагог села - пилотов, заезды, расписание и новости своего села. Помощник - только записывать заезды: ФИО, трассу и время.</p>
+  $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Педагог площадки - пилотов, заезды, расписание и новости своей площадки. Помощник - только записывать заезды: ФИО, трассу и время.</p>
     <form id="lgForm" class="addlap" autocomplete="off"><label>PIN<input id="lgPin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" style="width:140px"></label>
     <button class="btn primary" id="lgBtn">Войти</button></form><p class="muted" id="lgErr" style="color:#ff7a7a;min-height:18px;margin-top:8px"></p>`;
   $('pmodal').classList.add('open'); setTimeout(()=>$('lgPin').focus(),50);
@@ -1585,8 +1585,8 @@ function hlRow(l){ l=l||{}; const fm=l['Формат']||trackFmt(l['Трасса
   <input class="hl-time" placeholder="49.3 или 1:05.3" value="${esc(l['Время круга']||'')}"><select class="hl-fmt">${['Квадросим','Ворон','реал'].map(x=>`<option value="${x}" ${x===fm?'selected':''}>${simLbl(x)}</option>`).join('')}</select>${droneField('hl-drone', l['Дрон']||'', 'hlDrones', '')}<label class="hl-cl" title="Аварии">💥<input class="hl-crash" type="number" min="0" value="${esc(l['Аварии']||'0')}" inputmode="numeric" aria-label="Аварии"></label><button class="btn hl-del" title="Убрать строку">✕</button></div>`; }
 const dkey=v=>{const m=String(v||'').trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})/);return m?m[1].padStart(2,'0')+'.'+m[2].padStart(2,'0')+'.'+(m[3].length===2?'20'+m[3]:m[3]):''};
 function openHelper(){
-  if(VIEW==='all') return toast('Выберите село вверху страницы','bad');
-  if(MY_SELO && VIEW!==MY_SELO) return toast('Записывать заезды можно только в своём селе: '+seloName(MY_SELO),'bad');
+  if(VIEW==='all') return toast('Выберите площадку вверху страницы','bad');
+  if(MY_SELO && VIEW!==MY_SELO) return toast('Записывать заезды можно только на своей площадке: '+seloName(MY_SELO),'bad');
   const td=todayStr(), mine=(data['Заезды']||[]).filter(l=>dkey(l['Дата'])===td);
   $('pbody').innerHTML = `<h2>Заезды сегодня, ${esc(td)}${SELA.length>1?' · '+esc(seloName(VIEW)):''}</h2><p class="sub">Впишите пилота, трассу, время лучшего круга, дрон и аварии. Сегодняшние строки можно исправить или убрать. Прошлые дни меняет только тренер.</p>
     <datalist id="hlPilots">${allPilots().map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
@@ -2057,7 +2057,7 @@ srDraw=function(anim){
   if(can&&SR_ALL){const keep=data;data=Object.assign({},data,{'Заезды':RAW['Заезды']||[],'Пилоты':RAW['Пилоты']||[]});try{_srDraw(anim)}finally{data=keep}}
   else _srDraw(anim);
   const box=q('sr');if(!box||!can)return;
-  box.insertAdjacentHTML('afterbegin',`<div class="sr-scope" role="group" aria-label="Чей рейтинг"><button type="button" class="${SR_ALL?'':'on'}" aria-pressed="${!SR_ALL}" data-sc="0">🏠 ${esc(seloName(VIEW))}</button><button type="button" class="${SR_ALL?'on':''}" aria-pressed="${SR_ALL}" data-sc="1">🌍 Все сёла</button></div>`);
+  box.insertAdjacentHTML('afterbegin',`<div class="sr-scope" role="group" aria-label="Чей рейтинг"><button type="button" class="${SR_ALL?'':'on'}" aria-pressed="${!SR_ALL}" data-sc="0">🏠 ${esc(seloName(VIEW))}</button><button type="button" class="${SR_ALL?'on':''}" aria-pressed="${SR_ALL}" data-sc="1">🌍 Все площадки</button></div>`);
   box.querySelectorAll('.sr-scope button').forEach(b=>b.onclick=()=>{const v=b.dataset.sc==='1';if(v===SR_ALL)return;SR_ALL=v;srDraw(1)});
 };
 document.head.insertAdjacentHTML('beforeend','<style>.sr-scope{display:flex;gap:6px;margin:0 0 10px}.sr-scope button{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--text);font:inherit;font-weight:700;cursor:pointer}.sr-scope button.on{background:var(--accent,#00d4ff);border-color:var(--accent,#00d4ff);color:#04121b}</style>');
