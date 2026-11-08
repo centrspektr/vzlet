@@ -853,14 +853,16 @@ let VIEW = (()=>{ const u=new URLSearchParams(location.search).get('selo'); if(u
   if(MY_SELO) return MY_SELO; try{ return localStorage.getItem('vzlet_view')||'irtysh'; }catch(e){ return 'irtysh'; } })();
 window.VZ_SELA_UI = true; window.VZ_VIEW = VIEW; window.VZ_SELA = SELA;
 const seloOf = v => String(v||'').trim().toLowerCase() || 'irtysh';
+/* 08.11: у каждого села свои вкладки (как на сервере VZ_SELO_SHEETS); остальные (Статус, Трассы, Ссылки, Правила...) общие */
+const SELO_SHEETS = ['Пилоты','Заезды','Расписание','События','Новости','Задачи','Показатели','Контакты'];
 const seloName = id => (SELA.find(s=>s.id===id)||{}).name || id;
 function applySelo(){
   if(!RAW) return;
-  if(data && data!==RAW) Object.keys(data).forEach(k=>{ if(k!=='Заезды' && k!=='Пилоты') RAW[k]=data[k]; });   // правки других вкладок
+  if(data && data!==RAW) Object.keys(data).forEach(k=>{ if(!SELO_SHEETS.includes(k)) RAW[k]=data[k]; });   // правки общих вкладок
   if(VIEW!=='all' && !SELA.some(s=>s.id===VIEW)) VIEW='irtysh';
   window.VZ_VIEW = VIEW; window.VZ_SELA = SELA;
   data = Object.assign({}, RAW);
-  if(VIEW!=='all') ['Заезды','Пилоты'].forEach(n=>{ data[n]=(RAW[n]||[]).filter(r=>seloOf(r['Село'])===VIEW); });
+  if(VIEW!=='all') SELO_SHEETS.forEach(n=>{ data[n]=(RAW[n]||[]).filter(r=>seloOf(r['Село'])===VIEW); });
   renderSelo();
 }
 function setView(v){
@@ -1395,7 +1397,7 @@ function applyMode(){
   } else {
     document.querySelectorAll('details[data-tab]').forEach(d=>{
       if(d.dataset.tab==='more') return;
-      if(ROLE==='teacher' && d.dataset.tab!=='Пилоты' && d.dataset.tab!=='Заезды') return;
+      if(ROLE==='teacher' && !SELO_SHEETS.includes(d.dataset.tab)) return;
       const b=document.createElement('button'); b.className='edit'; b.textContent='✎ Изменить';
       b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); d.open=true; openEditor(d, d.dataset.tab); };
       const sm=d.querySelector('summary'), cnt=sm.querySelector('.counter');
@@ -1403,7 +1405,7 @@ function applyMode(){
       b.style.marginRight='auto';
     });
     const more=document.querySelector('[data-tab="more"]');
-    if(ROLE==='teacher'){ $('moreChips').innerHTML='<span class="muted">Педагог села меняет только пилотов и заезды.</span>'; return; }
+    if(ROLE==='teacher'){ $('moreChips').innerHTML=['Показатели','Контакты'].map(n=>`<button class="chip" data-s="${n}">${n}</button>`).join('')+'<span class="muted"> Остальные вкладки общие - их меняет тренер.</span>'; $('moreChips').querySelectorAll('.chip').forEach(c=> c.onclick=()=>openEditor(more, c.dataset.s)); return; }
     $('moreChips').innerHTML = MORE.map(n=>`<button class="chip" data-s="${esc(n)}">${esc(n)}</button>`).join('');
     $('moreChips').querySelectorAll('.chip').forEach(c=> c.onclick=()=>openEditor(more, c.dataset.s));
   }
@@ -1490,9 +1492,9 @@ async function postSheet(sheet, rows){
   if(!SCRIPT_URL || SCRIPT_URL.startsWith('__')) throw new Error('сохранение ещё не подключено');
   const pin=ss_.get(PIN_KEY);
   if(!pin){ throw new Error('войдите по PIN (кнопка "Войти" вверху)'); }
-  const bySelo = sheet==='Пилоты' || sheet==='Заезды';   // пилоты и заезды - только своего села (op seloRows)
-  if(bySelo && VIEW==='all') throw new Error('выберите село вверху страницы - в общем виде пилотов и заезды не правят');
-  if(!bySelo && ROLE==='teacher') throw new Error('педагог села меняет только пилотов и заезды');
+  const bySelo = SELO_SHEETS.includes(sheet);   // вкладки села - только своего села (op seloRows)
+  if(bySelo && VIEW==='all') throw new Error('выберите село вверху страницы - в общем виде вкладки сёл не правят');
+  if(!bySelo && ROLE==='teacher') throw new Error('эта вкладка общая для всех сёл - её меняет тренер');
   const r=await fetch(SCRIPT_URL,{method:'POST', body:JSON.stringify(bySelo ? {op:'seloRows', key:pin, selo:VIEW, sheet, rows} : {key:pin, sheet, rows})});
   const res=await r.json();
   if(!res.ok){ if(/Неверный PIN/i.test(res.error||'')) logout(true); throw new Error(res.error||'ошибка'); }
@@ -1550,7 +1552,7 @@ function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0, sx=0, sy=0,
   el.addEventListener('click',()=>{ if(mv) return; const now=Date.now(); n = now-last<600 ? n+1 : 1; last=now; if(n>=5){ n=0; fn(); } });
   el.addEventListener('contextmenu',e=>e.preventDefault()); }
 function openLogin(){
-  $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Педагог села - пилотов и заезды своего села. Помощник - только записывать заезды: ФИО, трассу и время.</p>
+  $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Педагог села - пилотов, заезды, расписание и новости своего села. Помощник - только записывать заезды: ФИО, трассу и время.</p>
     <form id="lgForm" class="addlap" autocomplete="off"><label>PIN<input id="lgPin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" style="width:140px"></label>
     <button class="btn primary" id="lgBtn">Войти</button></form><p class="muted" id="lgErr" style="color:#ff7a7a;min-height:18px;margin-top:8px"></p>`;
   $('pmodal').classList.add('open'); setTimeout(()=>$('lgPin').focus(),50);
