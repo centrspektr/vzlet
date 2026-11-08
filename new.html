@@ -873,12 +873,13 @@ function renderSelo(){
   if(sub) sub.textContent = VIEW==='irtysh' ? 'FPV-тренировки · с. Иртыш · Черлакский район · Омская область'
     : VIEW==='all' ? 'FPV-тренировки · все сёла клуба · Омская область' : 'FPV-тренировки · '+seloName(VIEW)+' · Омская область';
   const bar=document.getElementById('selBar'); if(!bar) return;
-  if(SELA.length<2 && !MY_SELO){ bar.hidden=true; return; }
+  if(SELA.length<2 && !MY_SELO && !ADM){ bar.hidden=true; return; }
   bar.hidden=false;
+  const admBtn = ADM ? `<button class="btn" type="button" onclick="window.SPK_PANEL&&SPK_PANEL.openSela()" title="Добавить село, выдать или отозвать PIN педагога села">🏘 Сёла и педагоги</button>` : '';
   const opt=(v,t)=>`<option value="${esc(v)}" ${v===VIEW?'selected':''}>${esc(t)}</option>`;
   const mine=MY_SELO ? [opt(MY_SELO,'🏠 Моё село: '+seloName(MY_SELO))] : [];
   bar.innerHTML=`<label>📍 <select id="selSel" aria-label="Село">${mine.join('')}${SELA.filter(s=>s.id!==MY_SELO).map(s=>opt(s.id,(MY_SELO?'Другое: ':'')+s.name)).join('')}${opt('all','🌍 Общий (все сёла)')}</select></label>`+
-    (MY_SELO && VIEW!==MY_SELO ? `<span class="muted">просмотр - править можно только своё село</span>` : VIEW==='all' ? `<span class="muted">общий рейтинг всех сёл</span>` : '');
+    (MY_SELO && VIEW!==MY_SELO ? `<span class="muted">просмотр - править можно только своё село</span>` : VIEW==='all' ? `<span class="muted">общий рейтинг всех сёл</span>` : '') + admBtn;
   document.getElementById('selSel').onchange=e=>setView(e.target.value);
 }
 const SCRIPT_URL = 'https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b?s=vzlet';  // сервер клуба: данные и правки тренера
@@ -2046,6 +2047,18 @@ function srDraw(anim){const box=q('sr');if(!box)return;
   if(ROLE==='helper'||ROLE==='teacher')h+=`<div class="sr-coach"><button class="btn primary" onclick="openHelper()">✎ Заезды сегодня</button></div>`;
   if(coach)h+=`<div class="sr-coach">${TS.length?`<button class="btn primary" id="srTime">⏱ Вписать время</button>`:''}${ADM?`<button class="btn" id="srAdd">+ Трассы</button>${TS.length?`<button class="btn" id="srEd">✎ Трассы</button>`:''}`:''}</div>`;
   box.innerHTML=h;srBind(box)}
+/* 08.11: в рейтинге трасс села - переключатель "своё село / все сёла" (общий рейтинг всех сёл, не уходя со своей страницы) */
+let SR_ALL=false;
+const _srDraw=srDraw;
+srDraw=function(anim){
+  const can=VIEW!=='all'&&RAW&&SELA.length>1;
+  if(can&&SR_ALL){const keep=data;data=Object.assign({},data,{'Заезды':RAW['Заезды']||[],'Пилоты':RAW['Пилоты']||[]});try{_srDraw(anim)}finally{data=keep}}
+  else _srDraw(anim);
+  const box=q('sr');if(!box||!can)return;
+  box.insertAdjacentHTML('afterbegin',`<div class="sr-scope" role="group" aria-label="Чей рейтинг"><button type="button" class="${SR_ALL?'':'on'}" aria-pressed="${!SR_ALL}" data-sc="0">🏠 ${esc(seloName(VIEW))}</button><button type="button" class="${SR_ALL?'on':''}" aria-pressed="${SR_ALL}" data-sc="1">🌍 Все сёла</button></div>`);
+  box.querySelectorAll('.sr-scope button').forEach(b=>b.onclick=()=>{const v=b.dataset.sc==='1';if(v===SR_ALL)return;SR_ALL=v;srDraw(1)});
+};
+document.head.insertAdjacentHTML('beforeend','<style>.sr-scope{display:flex;gap:6px;margin:0 0 10px}.sr-scope button{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--text);font:inherit;font-weight:700;cursor:pointer}.sr-scope button.on{background:var(--accent,#00d4ff);border-color:var(--accent,#00d4ff);color:#04121b}</style>');
 function srBind(box){
   box.querySelectorAll('.sr-sims button').forEach(b=>b.onclick=()=>{if(SR.sim===b.dataset.m)return;SR.sim=b.dataset.m;SR.t='';SR.all=0;srSave();srDraw(1);srPeek()});
   const sel=q('srSel');if(sel)sel.onchange=()=>{SR.t=sel.value;SR.all=0;srSave();srDraw(1)};

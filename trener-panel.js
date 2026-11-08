@@ -264,6 +264,7 @@
   }
   function selaAdmin() {
     if (!selaOn() || ST.scope) return '';
+    if (SEL.open && !SEL.ed && !SEL.edErr && !SEL.busy) { SEL.busy = 1; setTimeout(function () { loadEd().then(function () { SEL.busy = 0; }); }, 0); }
     var h = '<details data-tp-sela' + (SEL.open ? ' open' : '') + '><summary>🏘 Сёла и педагоги (для администратора)</summary>';
     h += '<p class="tp-dim">Сёла клуба: ' + ST.sela.map(function (s) { return '<b>' + E(s.name) + '</b> <small>(' + E(s.id) + ')</small>'; }).join(', ') + '</p>';
     h += '<form class="tp-pin" data-tp-addselo autocomplete="off"><input name="sid" placeholder="id латиницей, напр. cherlak" maxlength="16" aria-label="id села"><input name="sname" placeholder="Название, напр. Черлак" maxlength="40" aria-label="Название села"><button class="tp-btn pri" type="submit">+ Село</button></form>';
@@ -415,6 +416,11 @@
     setInterval(function () { var t = !!tok(); if (t !== had) { had = t; if (t) { started = true; loadAll(); } else { ST = BG = null; paintBars(); } } }, 4000);
   }
 
-  window.SPK_PANEL = { open: open, close: close, refresh: function () { return tok() ? loadAll() : Promise.resolve(); }, _state: function () { return { ST: ST, BG: BG, tok: !!tok() }; } };
+  /* кнопка "🏘 Сёла и педагоги" на странице (08.11): открыть "Заявки" сразу с развёрнутым окном сёл, прокрутить к нему */
+  function openSela() {
+    SEL.open = true; open('req', { club: 'vzlet' });
+    var n = 0, t = setInterval(function () { var d = P.el && P.el.querySelector('[data-tp-sela]'); if (d || ++n > 40) { clearInterval(t); if (d) d.scrollIntoView({ block: 'start', behavior: 'smooth' }); } }, 250);
+  }
+  window.SPK_PANEL = { open: open, close: close, openSela: openSela, refresh: function () { return tok() ? loadAll() : Promise.resolve(); }, _state: function () { return { ST: ST, BG: BG, tok: !!tok() }; } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
