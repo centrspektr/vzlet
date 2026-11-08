@@ -224,7 +224,7 @@
     if (!L || L.length < 2) return '';
     var v = window.VZ_VIEW && window.VZ_VIEW !== 'all' ? window.VZ_VIEW : '';
     var E2 = function (x) { return String(x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-    return '<div class="spk-f"><label>Село<select name="selo"><option value="">- выбери -</option>' +
+    return '<div class="spk-f"><label>Площадка<select name="selo"><option value="">- выбери -</option>' +
       L.map(function (s) { return '<option value="' + E2(s.id) + '"' + (s.id === v ? ' selected' : '') + '>' + E2(s.name) + '</option>'; }).join('') + '</select></label></div>';
   }
   Box.prototype.act = function (a, btn) {
@@ -238,7 +238,7 @@
     if (a === 'send') {
       var q = { op: 'sapply', club: this.club, first: this.val('first'), cls: this.val('cls') };
       var sf = this.mine.querySelector('select[name="selo"]');
-      if (sf) { if (!sf.value) return this.msg('Выбери своё село'); q.selo = sf.value; }
+      if (sf) { if (!sf.value) return this.msg('Выбери свою площадку'); q.selo = sf.value; }
       if (q.first.length < 2) return this.msg('Напиши имя');
       if (!/^\d{1,2}\s*[а-яёa-z]?$/i.test(q.cls)) return this.msg('Класс - например 7Б');
       var c1 = this.mine.querySelector('input[name="pd1"]'), c2 = this.mine.querySelector('input[name="pd2"]');
