@@ -873,12 +873,13 @@ function renderSelo(){
   if(sub) sub.textContent = VIEW==='irtysh' ? 'FPV-тренировки · с. Иртыш · Черлакский район · Омская область'
     : VIEW==='all' ? 'FPV-тренировки · все сёла клуба · Омская область' : 'FPV-тренировки · '+seloName(VIEW)+' · Омская область';
   const bar=document.getElementById('selBar'); if(!bar) return;
-  if(SELA.length<2 && !MY_SELO){ bar.hidden=true; return; }
+  if(SELA.length<2 && !MY_SELO && !ADM){ bar.hidden=true; return; }
   bar.hidden=false;
+  const admBtn = ADM ? `<button class="btn" type="button" onclick="window.SPK_PANEL&&SPK_PANEL.openSela()" title="Добавить село, выдать или отозвать PIN педагога села">🏘 Сёла и педагоги</button>` : '';
   const opt=(v,t)=>`<option value="${esc(v)}" ${v===VIEW?'selected':''}>${esc(t)}</option>`;
   const mine=MY_SELO ? [opt(MY_SELO,'🏠 Моё село: '+seloName(MY_SELO))] : [];
   bar.innerHTML=`<label>📍 <select id="selSel" aria-label="Село">${mine.join('')}${SELA.filter(s=>s.id!==MY_SELO).map(s=>opt(s.id,(MY_SELO?'Другое: ':'')+s.name)).join('')}${opt('all','🌍 Общий (все сёла)')}</select></label>`+
-    (MY_SELO && VIEW!==MY_SELO ? `<span class="muted">просмотр - править можно только своё село</span>` : VIEW==='all' ? `<span class="muted">общий рейтинг всех сёл</span>` : '');
+    (MY_SELO && VIEW!==MY_SELO ? `<span class="muted">просмотр - править можно только своё село</span>` : VIEW==='all' ? `<span class="muted">общий рейтинг всех сёл</span>` : '') + admBtn;
   document.getElementById('selSel').onchange=e=>setView(e.target.value);
 }
 const SCRIPT_URL = 'https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b?s=vzlet';  // сервер клуба: данные и правки тренера
