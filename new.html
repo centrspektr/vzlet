@@ -733,7 +733,7 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.index
 </script>
 <div class="vtab" id="t-club">
 <div class="selbar" id="selBar" hidden></div>
-<style>.selbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px}.selbar label{display:flex;align-items:center;gap:6px;font-weight:700}.selbar select{font:inherit;font-weight:700;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--card,rgba(255,255,255,.06));color:var(--text)}.selbar .muted{font-size:13px}</style>
+<style>/* 08.11: раскрытый список выбора - в цветах сайта, а не белый */select{color-scheme:dark}select option,select optgroup{background:var(--panel,#161b22);color:var(--text,#e6edf3)}.selbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px}.selbar label{display:flex;align-items:center;gap:6px;font-weight:700}.selbar select{font:inherit;font-weight:700;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--card,rgba(255,255,255,.06));color:var(--text)}.selbar .muted{font-size:13px}</style>
 
 <div class="banner hidden coach-only" id="err"></div>
 
