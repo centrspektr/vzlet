@@ -870,9 +870,11 @@ function applySelo(){
   if(VIEW!=='all') SELO_SHEETS.forEach(n=>{ data[n]=(RAW[n]||[]).filter(r=>seloOf(r['Село'])===VIEW); });
   renderSelo();
 }
+/* 09.11: GitVerse не открывает адрес папки с ?параметрами (/vzlet/?selo=... -> "Страница не найдена"), поэтому с параметром - всегда .../index.html?selo=... */
+function selUrl(){ const u=new URL(location.href); if(/\/$/.test(u.pathname)) u.pathname+='index.html'; return u; }
 function setView(v){
   VIEW=v; try{ localStorage.setItem('vzlet_view', v); }catch(e){}
-  const u=new URL(location.href); if(v==='irtysh' && !MY_SELO) u.searchParams.delete('selo'); else u.searchParams.set('selo', v); history.replaceState(null,'',u);
+  const u=selUrl(); if(v==='irtysh' && !MY_SELO) u.searchParams.delete('selo'); else u.searchParams.set('selo', v); history.replaceState(null,'',u);
   applySelo(); renderAll();
 }
 function renderSelo(){
@@ -1568,7 +1570,7 @@ function openLogin(){
     try{ const r=await api({op:'login', key:pin});
       if(!r.ok) throw new Error(r.error||'ошибка');
       ss_.set(PIN_KEY,pin); ss_.set('vzlet_role',r.role); if(r.selo) ss_.set('vzlet_selo',r.selo); else ss_.del('vzlet_selo'); ls.set('vzlet_editor_dev','1');
-      if(r.selo){ const u=new URL(location.href); u.searchParams.set('selo', r.selo); location.replace(u); } else location.reload();
+      if(r.selo){ const u=selUrl(); u.searchParams.set('selo', r.selo); location.replace(u); } else location.reload();
     }catch(err){ $('lgErr').textContent=err.message; $('lgBtn').disabled=false; $('lgBtn').textContent='Войти'; }
   };
 }
