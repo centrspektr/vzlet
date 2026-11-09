@@ -733,7 +733,7 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.index
 </script>
 <div class="vtab" id="t-club">
 <div class="selbar" id="selBar" hidden></div>
-<style>.selbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px}.selbar label{display:flex;align-items:center;gap:6px;font-weight:700}.selbar select{font:inherit;font-weight:700;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--card,rgba(255,255,255,.06));color:var(--text)}.selbar .muted{font-size:13px}</style>
+<style>/* 08.11: раскрытый список выбора - в цветах сайта, а не белый */select{color-scheme:dark}select option,select optgroup{background:var(--panel,#161b22);color:var(--text,#e6edf3)}.selbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px}.selbar label{display:flex;align-items:center;gap:6px;font-weight:700}.selbar select{font:inherit;font-weight:700;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--card,rgba(255,255,255,.06));color:var(--text)}.selbar .muted{font-size:13px}</style>
 
 <div class="banner hidden coach-only" id="err"></div>
 
@@ -856,7 +856,12 @@ const seloOf = v => String(v||'').trim().toLowerCase() || 'irtysh';
 /* 08.11: у каждого села свои вкладки (как на сервере VZ_SELO_SHEETS); остальные (Статус, Трассы, Ссылки, Правила...) общие */
 const SELO_SHEETS = ['Пилоты','Заезды','Расписание','События','Новости','Задачи','Показатели','Контакты'];
 const seloName = id => (SELA.find(s=>s.id===id)||{}).name || id;
+/* 08.11: педагог/помощник на чужой площадке - только смотрит; педагог правит только пилотов, заезды и расписание своей площадки */
+const TEACH_SHEETS = ['Пилоты','Заезды','Расписание'];
+const selRO = () => !!ROLE && ROLE!=='admin' && !!MY_SELO && VIEW!==MY_SELO;
+document.head.insertAdjacentHTML('beforeend','<style>body.sel-ro .edit,body.sel-ro .sr-coach,body.sel-ro .editor,body.sel-ro .hlp-btn{display:none!important}</style>');
 function applySelo(){
+  document.body.classList.toggle('sel-ro', selRO());
   if(!RAW) return;
   if(data && data!==RAW) Object.keys(data).forEach(k=>{ if(!SELO_SHEETS.includes(k)) RAW[k]=data[k]; });   // правки общих вкладок
   if(VIEW!=='all' && !SELA.some(s=>s.id===VIEW)) VIEW='irtysh';
@@ -1397,7 +1402,7 @@ function applyMode(){
   } else {
     document.querySelectorAll('details[data-tab]').forEach(d=>{
       if(d.dataset.tab==='more') return;
-      if(ROLE==='teacher' && !SELO_SHEETS.includes(d.dataset.tab)) return;
+      if(ROLE==='teacher' && !TEACH_SHEETS.includes(d.dataset.tab)) return;
       const b=document.createElement('button'); b.className='edit'; b.textContent='✎ Изменить';
       b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); d.open=true; openEditor(d, d.dataset.tab); };
       const sm=d.querySelector('summary'), cnt=sm.querySelector('.counter');
@@ -1405,7 +1410,7 @@ function applyMode(){
       b.style.marginRight='auto';
     });
     const more=document.querySelector('[data-tab="more"]');
-    if(ROLE==='teacher'){ $('moreChips').innerHTML=['Показатели','Контакты'].map(n=>`<button class="chip" data-s="${n}">${n}</button>`).join('')+'<span class="muted"> Остальные вкладки общие - их меняет тренер.</span>'; $('moreChips').querySelectorAll('.chip').forEach(c=> c.onclick=()=>openEditor(more, c.dataset.s)); return; }
+    if(ROLE==='teacher'){ $('moreChips').innerHTML='<span class="muted">Педагог меняет пилотов, заезды и расписание своей площадки. Остальное меняет тренер.</span>'; return; }
     $('moreChips').innerHTML = MORE.map(n=>`<button class="chip" data-s="${esc(n)}">${esc(n)}</button>`).join('');
     $('moreChips').querySelectorAll('.chip').forEach(c=> c.onclick=()=>openEditor(more, c.dataset.s));
   }
@@ -1466,6 +1471,7 @@ function newRow(sheet){
 function closeEditor(card){ card.classList.remove('editing'); card.querySelector('.editor')?.remove(); card.querySelector('.edit')?.classList.remove('on'); }
 
 function openEditor(card, sheet){
+  if(selRO()) return toast('Это чужая площадка - здесь можно только смотреть','bad');
   closeEditor(card);
   card.classList.add('editing'); card.querySelector('.edit')?.classList.add('on');
   const ed=document.createElement('div'); ed.className='editor';
@@ -1494,7 +1500,8 @@ async function postSheet(sheet, rows){
   if(!pin){ throw new Error('войдите по PIN (кнопка "Войти" вверху)'); }
   const bySelo = SELO_SHEETS.includes(sheet);   // вкладки села - только своего села (op seloRows)
   if(bySelo && VIEW==='all') throw new Error('выберите площадку вверху страницы - в общем виде эти вкладки не правят');
-  if(!bySelo && ROLE==='teacher') throw new Error('эта вкладка общая для всех площадок - её меняет тренер');
+  if(ROLE==='teacher' && !TEACH_SHEETS.includes(sheet)) throw new Error('эту вкладку меняет тренер');
+  if(selRO()) throw new Error('это чужая площадка - здесь можно только смотреть');
   const r=await fetch(SCRIPT_URL,{method:'POST', body:JSON.stringify(bySelo ? {op:'seloRows', key:pin, selo:VIEW, sheet, rows} : {key:pin, sheet, rows})});
   const res=await r.json();
   if(!res.ok){ if(/Неверный PIN/i.test(res.error||'')) logout(true); throw new Error(res.error||'ошибка'); }
@@ -1552,7 +1559,7 @@ function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0, sx=0, sy=0,
   el.addEventListener('click',()=>{ if(mv) return; const now=Date.now(); n = now-last<600 ? n+1 : 1; last=now; if(n>=5){ n=0; fn(); } });
   el.addEventListener('contextmenu',e=>e.preventDefault()); }
 function openLogin(){
-  $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Педагог площадки - пилотов, заезды, расписание и новости своей площадки. Помощник - только записывать заезды: ФИО, трассу и время.</p>
+  $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Педагог площадки - пилотов, заезды и расписание своей площадки, принимает заявки. Помощник - только записывать заезды: ФИО, трассу и время.</p>
     <form id="lgForm" class="addlap" autocomplete="off"><label>PIN<input id="lgPin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" style="width:140px"></label>
     <button class="btn primary" id="lgBtn">Войти</button></form><p class="muted" id="lgErr" style="color:#ff7a7a;min-height:18px;margin-top:8px"></p>`;
   $('pmodal').classList.add('open'); setTimeout(()=>$('lgPin').focus(),50);
@@ -1574,7 +1581,7 @@ function initRole(){
   if(ROLE){ b.textContent=(ROLE==='admin'?'🔓 Тренер':ROLE==='teacher'?'🔓 Педагог':'🔓 Помощник')+' · выйти'; b.title='Выйти из режима редактирования'; }
   if(ROLE==='helper'||ROLE==='teacher'){
     const card=document.querySelector('details[data-tab="Пилоты"]'), chips=document.getElementById('sortChips');
-    if(chips) chips.insertAdjacentHTML('afterend','<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn primary" onclick="openHelper()">✎ Заезды сегодня</button></div>');
+    if(chips) chips.insertAdjacentHTML('afterend','<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn primary hlp-btn" onclick="openHelper()">✎ Заезды сегодня</button></div>');
   }
 }
 /* ---------- помощник: заезды только за сегодня ----------
@@ -2033,7 +2040,7 @@ function srTable(sim,t){const L=laps(),TS=t?[t]:srTracks(sim),out=[];TS.forEach(
 function srDraw(anim){const box=q('sr');if(!box)return;
   const sims=srSims();if(!sims.includes(SR.sim))SR.sim=sims[0];
   const TS=srTracks(SR.sim);if(SR.t&&!TS.includes(SR.t))SR.t='';
-  const coach=MODE==='coach';
+  const coach=MODE==='coach' && !selRO();
   let h=`<div class="sr-sims" role="tablist">${sims.map(m=>`<button role="tab" aria-selected="${m===SR.sim}" class="${m===SR.sim?'on':''}" data-m="${esc(m)}"><i>${SR_ICON[m]||'🏁'}</i>${esc(simLbl(m))}<small>${srTracks(m).length} ${plural(srTracks(m).length,'трасса','трассы','трасс')}</small></button>`).join('')}</div>`;
   if(!TS.length){
     h+=`<div class="sr-none"><b>${SR_ICON[SR.sim]||'🏁'} Трассы ${esc(simLbl(SR.sim))} скоро появятся</b><span>${coach?'Нажмите "+ Трассы" и впишите названия, потом "⏱ Вписать время".':'Тренер добавит трассы и запишет время пилотов.'}</span></div>`;
