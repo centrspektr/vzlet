@@ -609,8 +609,8 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
   <div class="logo">
     <div class="logo-badge vzb" id="vzb" title="Клуб Взлёт"><span class="vzo"></span><svg class="vzd" viewBox="6 6 88 88" aria-hidden="true"><g stroke="#5b7a96" stroke-width="7" stroke-linecap="round"><line x1="24" y1="24" x2="76" y2="76"/><line x1="76" y1="24" x2="24" y2="76"/></g><rect x="38" y="33" width="24" height="34" rx="8" fill="#0d2233" stroke="#00d4ff" stroke-width="2.5"/><circle cx="50" cy="39" r="4" fill="#a371f7"/><rect x="44" y="49" width="12" height="12" rx="3" fill="#ffb02e"/><circle cx="24" cy="24" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp" style="transform-origin:24px 24px"><ellipse cx="24" cy="24" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="24" cy="24" r="2.6" fill="#00d4ff"/></g><circle cx="76" cy="24" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp r" style="transform-origin:76px 24px"><ellipse cx="76" cy="24" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="76" cy="24" r="2.6" fill="#00d4ff"/></g><circle cx="24" cy="76" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp r" style="transform-origin:24px 76px"><ellipse cx="24" cy="76" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="24" cy="76" r="2.6" fill="#00d4ff"/></g><circle cx="76" cy="76" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp" style="transform-origin:76px 76px"><ellipse cx="76" cy="76" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="76" cy="76" r="2.6" fill="#00d4ff"/></g></svg></div>
     <div>
-      <h1>Клуб "Взлёт" <span class="grant-note">(при поддержке Росмолодёжь.Гранты)</span> <span class="coach-badge coach-only">тренер</span></h1>
-      <p>FPV-тренировки · с. Иртыш · Черлакский район · Омская область</p>
+      <h1>Клуб "Взлёт" <span class="grant-note">(при поддержке Росмолодёжь.Гранты)</span> <span class="coach-badge coach-only" id="coachBadge">тренер</span></h1>
+      <p id="vzSub">FPV-тренировки · с. Иртыш · Черлакский район · Омская область</p>
     </div>
     <!-- 26.10 владелец: кнопка "← Иртыш-портал" пока убрана. Вернуть: <div class="irtw"><a class="irt" href="https://glebbelov85.gitverse.site/irtysh.html" title="Иртыш-портал">← Иртыш-портал</a></div> -->
   </div>
@@ -625,13 +625,13 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
       <button class="btn tb-ic" data-fx-skin title="Сменить живой фон" aria-label="Сменить фон">🎨</button>
     </div>
     <div class="tb-main">
-      <button class="btn primary" id="zayBtn" onclick="openZay()" hidden>👋 Подать заявку</button>
+      <button class="btn primary" id="zayBtn" onclick="openZay()">👋 Подать заявку</button>
       <button class="btn tb-help" onclick="openModal()">📖 Справка</button>
     </div>
   </div>
 </header>
 
-<nav class="vtb" id="vtb" aria-label="Разделы клуба"><button class="tba l" type="button" aria-label="Предыдущий раздел">‹</button><div class="tbt" id="vt"><button data-t="club" class="on" style="--c:#00d4ff"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h11l-2.2 3.6L16 11H5"/></svg></span><b>Клуб</b></button><button data-t="kurs" style="--c:#38bdf8"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v5c1.6 1.6 3.4 2.4 5.5 2.4s3.9-.8 5.5-2.4v-5"/><path d="M21.5 9v5.5"/></svg></span><b>Курс</b></button><button data-t="put" style="--c:#22c55e"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg></span><b>Путь</b></button><button data-t="learn" style="--c:#facc15"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.6C5.6 4 8.6 4 12 6.2c3.4-2.2 6.4-2.2 9-.6V19c-2.6-1.5-5.6-1.5-9 .6-3.4-2.1-6.4-2.1-9-.6z"/><path d="M12 6.2v13.4"/></svg></span><b>Шпаргалки</b></button><button data-t="train" style="--c:#a78bfa"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.9 3.1l.9 4.3a2.6 2.6 0 0 1-4.7 2l-1.6-2.4H8.5l-1.6 2.4a2.6 2.6 0 0 1-4.7-2l.9-4.3A4 4 0 0 1 7 8z"/><path d="M8 10.5v3M6.5 12h3"/><circle cx="15.6" cy="11" r=".6"/><circle cx="17.6" cy="13" r=".6"/></svg></span><b>Тренировка</b></button><button data-t="quiz" style="--c:#ff2d8a"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.4 9.4a2.7 2.7 0 1 1 3.6 2.5c-.6.3-1 .8-1 1.5v.6"/><circle cx="12" cy="17" r=".7"/></svg></span><b>Тесты</b></button><button data-t="calc" style="--c:#22c55e"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.8" width="14" height="18.4" rx="2.6"/><path d="M8.4 6.6h7.2"/><path d="M8.6 11h.01M12 11h.01M15.4 11h.01M8.6 14.4h.01M12 14.4h.01M15.4 14.4h.01M8.6 17.8h.01M12 17.8h.01M15.4 17.8h.01" stroke-width="2.6"/></svg></span><b>Калькуляторы</b></button><button data-t="me" style="--c:#fb923c"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14.6" r="5.4"/><path d="M8.6 10.4 6 3h4l2 4.4L14 3h4l-2.6 7.4"/><path d="m12 12.4.8 1.6 1.7.2-1.3 1.2.4 1.7-1.6-.9-1.6.9.4-1.7-1.3-1.2 1.7-.2z"/></svg></span><b>Мои значки</b></button><button data-t="rate" style="--c:#fde047"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M16 5.6h3V7a3 3 0 0 1-3 3M8 5.6H5V7a3 3 0 0 0 3 3"/><path d="M12 13v3.6M9 20.6h6M9.8 16.6h4.4l.5 4h-5.4z"/></svg></span><b>Рейтинг</b></button></div><button class="tba r" type="button" aria-label="Следующий раздел">›</button></nav>
+<nav class="vtb" id="vtb" aria-label="Разделы клуба"><button class="tba l" type="button" aria-label="Предыдущий раздел">‹</button><div class="tbt" id="vt"><button data-t="club" class="on" style="--c:#00d4ff"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h11l-2.2 3.6L16 11H5"/></svg></span><b>Клуб</b></button><button data-t="kurs" style="--c:#38bdf8"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v5c1.6 1.6 3.4 2.4 5.5 2.4s3.9-.8 5.5-2.4v-5"/><path d="M21.5 9v5.5"/></svg></span><b>Курс</b></button><button data-t="put" style="--c:#22c55e"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg></span><b>Путь</b></button><button data-t="learn" style="--c:#facc15"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.6C5.6 4 8.6 4 12 6.2c3.4-2.2 6.4-2.2 9-.6V19c-2.6-1.5-5.6-1.5-9 .6-3.4-2.1-6.4-2.1-9-.6z"/><path d="M12 6.2v13.4"/></svg></span><b>Шпаргалки</b></button><button data-t="train" style="--c:#a78bfa"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.9 3.1l.9 4.3a2.6 2.6 0 0 1-4.7 2l-1.6-2.4H8.5l-1.6 2.4a2.6 2.6 0 0 1-4.7-2l.9-4.3A4 4 0 0 1 7 8z"/><path d="M8 10.5v3M6.5 12h3"/><circle cx="15.6" cy="11" r=".6"/><circle cx="17.6" cy="13" r=".6"/></svg></span><b>Тренировка</b></button><button data-t="quiz" style="--c:#ff2d8a"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.4 9.4a2.7 2.7 0 1 1 3.6 2.5c-.6.3-1 .8-1 1.5v.6"/><circle cx="12" cy="17" r=".7"/></svg></span><b>Тесты</b></button><button data-t="calc" style="--c:#22c55e"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.8" width="14" height="18.4" rx="2.6"/><path d="M8.4 6.6h7.2"/><path d="M8.6 11h.01M12 11h.01M15.4 11h.01M8.6 14.4h.01M12 14.4h.01M15.4 14.4h.01M8.6 17.8h.01M12 17.8h.01M15.4 17.8h.01" stroke-width="2.6"/></svg></span><b>Калькуляторы</b></button><button data-t="me" style="--c:#fb923c"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14.6" r="5.4"/><path d="M8.6 10.4 6 3h4l2 4.4L14 3h4l-2.6 7.4"/><path d="m12 12.4.8 1.6 1.7.2-1.3 1.2.4 1.7-1.6-.9-1.6.9.4-1.7-1.3-1.2 1.7-.2z"/></svg></span><b>Мои значки</b></button></div><button class="tba r" type="button" aria-label="Следующий раздел">›</button></nav>
 <section class="ahero" id="ahero" hidden>
   <div class="ah-ph"><img src="drone.webp" alt=""></div><div class="ah-scan"></div>
   <div class="ah-osd"><span id="osdV">16.8V</span><span>⏱ <b id="osdT">00:00</b></span><span>📶 <b id="osdL">99</b></span><span class="rec">● REC</span></div>
@@ -714,26 +714,26 @@ window.KURS_ONLY_LINK = true;
 </div>
 
 <div class="vtab" id="t-me" hidden>
-  <div class="card"><h3>🎖 Мои значки</h3><p class="muted">Прогресс хранится на этом устройстве. Чтобы он попадал в общий рейтинг клуба, подключись к группе во вкладке <a href="#rate" onclick="event.preventDefault();document.querySelector('#vt [data-t=rate]').click()">🏆 Рейтинг</a>.</p><div class="bdg" id="bdg"></div></div>
+  <div class="card"><h3>🎖 Мои значки</h3><p class="muted">Прогресс хранится на этом устройстве.</p><div class="bdg" id="bdg"></div></div>
 </div>
 
-<div class="vtab" id="t-rate" hidden>
-  <div data-spk-club="vzlet"></div>
-</div>
+<!-- 05.11: вкладка "Рейтинг" убрана - рейтинг учеников теперь в курсе FPV. Заявка и личный код - в окне "Подать заявку". -->
 
 <!-- Замочки на вкладках. Какие вкладки закрыты, решает тренер: кнопка над вкладкой в режиме тренера.
      Список хранится на сервере (лист "Статус", строка "_замок"). ZAK_DEF - список, пока тренер ничего не сохранял.
      Тренер видит все вкладки как обычно, замочек у него - только значок. -->
 <div id="zkbar" class="cbar" hidden></div>
-<div id="zag" hidden><div class="card zag-in"><img src="drone.webp" alt=""><h3>Раздел обновляется - скоро вернёмся!</h3><p class="muted" id="zagTx">А пока загляни в Клуб.</p><button class="btn" onclick="document.querySelector('#vt [data-t=club]').click()">Клуб</button><button class="btn" id="zagRate" onclick="document.querySelector('#vt [data-t=rate]').click()">🏆 Рейтинг</button></div></div>
+<div id="zag" hidden><div class="card zag-in"><img src="drone.webp" alt=""><h3>Раздел обновляется - скоро вернёмся!</h3><p class="muted" id="zagTx">А пока загляни в Клуб.</p><button class="btn" onclick="document.querySelector('#vt [data-t=club]').click()">Клуб</button></div></div>
 <script>
-window.ZAK_DEF = ['kurs', 'put', 'learn', 'train', 'quiz', 'calc', 'me', 'rate'];
+window.ZAK_DEF = ['kurs', 'put', 'learn', 'train', 'quiz', 'calc', 'me'];
 window.ZAKRYTO = ZAK_DEF.slice();
 window.zkCoach = (function () { try { return sessionStorage.getItem('vzlet_role') === 'admin'; } catch (e) { return false; } })();
 window.zk = function (t) { return !zkCoach && ZAKRYTO.indexOf(t) >= 0; };
 document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.indexOf(b.dataset.t) >= 0) b.classList.add('zk'); });
 </script>
 <div class="vtab" id="t-club">
+<div class="selbar" id="selBar" hidden></div>
+<style>/* 08.11: раскрытый список выбора - в цветах сайта, а не белый */select{color-scheme:dark}select option,select optgroup{background:var(--panel,#161b22);color:var(--text,#e6edf3)}.selbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px}.selbar label{display:flex;align-items:center;gap:6px;font-weight:700}.selbar select{font:inherit;font-weight:700;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--card,rgba(255,255,255,.06));color:var(--text)}.selbar .muted{font-size:13px}</style>
 
 <div class="banner hidden coach-only" id="err"></div>
 
@@ -806,7 +806,7 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.index
 </div>
 
 <div class="modal" id="zmodal" onclick="if(event.target===this)closeZay()">
-  <div class="modal-card"><button class="close-x" onclick="closeZay()">✕</button><h2>👋 Заявка в клуб "Взлёт"</h2><div id="zayBody"></div></div>
+  <div class="modal-card"><button class="close-x" onclick="closeZay()">✕</button><h2>👋 Заявка в клуб "Взлёт"</h2><div id="zayBody"><div data-spk-club="vzlet" data-spk-norate></div></div></div>
 </div>
 
 <div class="modal" id="imodal" role="dialog" aria-modal="true" aria-label="Установить Взлёт на телефон" onclick="if(event.target===this)this.classList.remove('open')">
@@ -841,8 +841,54 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.index
 </div>
 
 <script>
-const ROLE = (()=>{ try{ return sessionStorage.getItem('vzlet_role')||''; }catch(e){ return ''; } })();  // admin | helper | ''
-const MODE = ROLE==='admin' ? 'coach' : 'public';
+const ROLE = (()=>{ try{ return sessionStorage.getItem('vzlet_role')||''; }catch(e){ return ''; } })();  // admin | teacher | helper | ''
+const MODE = (ROLE==='admin'||ROLE==='teacher') ? 'coach' : 'public';   // педагог села правит пилотов и заезды своего села
+const ADM = ROLE==='admin';   // остальное (блоки, вопрос дня, старт, трассы и дроны) - только тренер
+/* ---------- сёла (06.11): один сайт на все сёла клуба ----------
+   ?selo=cherlak - открыть село, ?selo=all - общий вид. Список сёл приходит с сервера (op=data -> sela).
+   Заезды и пилоты фильтруются по столбцу "Село" (пусто = Иртыш). Педагог и помощник села правят только своё село. */
+const MY_SELO = (()=>{ try{ return sessionStorage.getItem('vzlet_selo')||''; }catch(e){ return ''; } })();
+let SELA = [{id:'irtysh', name:'Иртыш'}], RAW = null;
+let VIEW = (()=>{ const u=new URLSearchParams(location.search).get('selo'); if(u && /^([a-z][a-z0-9]{1,15}|all)$/.test(u)) return u;
+  if(MY_SELO) return MY_SELO; try{ return localStorage.getItem('vzlet_view')||'irtysh'; }catch(e){ return 'irtysh'; } })();
+window.VZ_SELA_UI = true; window.VZ_VIEW = VIEW; window.VZ_SELA = SELA;
+const seloOf = v => String(v||'').trim().toLowerCase() || 'irtysh';
+/* 08.11: у каждого села свои вкладки (как на сервере VZ_SELO_SHEETS); остальные (Статус, Трассы, Ссылки, Правила...) общие */
+const SELO_SHEETS = ['Пилоты','Заезды','Расписание','События','Новости','Задачи','Показатели','Контакты'];
+const seloName = id => (SELA.find(s=>s.id===id)||{}).name || id;
+/* 08.11: педагог/помощник на чужой площадке - только смотрит; педагог правит только пилотов, заезды и расписание своей площадки */
+const TEACH_SHEETS = ['Пилоты','Заезды','Расписание'];
+const selRO = () => !!ROLE && ROLE!=='admin' && !!MY_SELO && VIEW!==MY_SELO;
+document.head.insertAdjacentHTML('beforeend','<style>body.sel-ro .edit,body.sel-ro .sr-coach,body.sel-ro .editor,body.sel-ro .hlp-btn{display:none!important}</style>');
+function applySelo(){
+  document.body.classList.toggle('sel-ro', selRO());
+  if(!RAW) return;
+  if(data && data!==RAW) Object.keys(data).forEach(k=>{ if(!SELO_SHEETS.includes(k)) RAW[k]=data[k]; });   // правки общих вкладок
+  if(VIEW!=='all' && !SELA.some(s=>s.id===VIEW)) VIEW='irtysh';
+  window.VZ_VIEW = VIEW; window.VZ_SELA = SELA;
+  data = Object.assign({}, RAW);
+  if(VIEW!=='all') SELO_SHEETS.forEach(n=>{ data[n]=(RAW[n]||[]).filter(r=>seloOf(r['Село'])===VIEW); });
+  renderSelo();
+}
+function setView(v){
+  VIEW=v; try{ localStorage.setItem('vzlet_view', v); }catch(e){}
+  const u=new URL(location.href); if(v==='irtysh' && !MY_SELO) u.searchParams.delete('selo'); else u.searchParams.set('selo', v); history.replaceState(null,'',u);
+  applySelo(); renderAll();
+}
+function renderSelo(){
+  const sub=document.getElementById('vzSub');
+  if(sub) sub.textContent = VIEW==='irtysh' ? 'FPV-тренировки · с. Иртыш · Черлакский район · Омская область'
+    : VIEW==='all' ? 'FPV-тренировки · все площадки клуба · Омская область' : 'FPV-тренировки · '+seloName(VIEW)+' · Омская область';
+  const bar=document.getElementById('selBar'); if(!bar) return;
+  if(SELA.length<2 && !MY_SELO && !ADM){ bar.hidden=true; return; }
+  bar.hidden=false;
+  const admBtn = ADM ? `<button class="btn" type="button" onclick="window.SPK_PANEL&&SPK_PANEL.openSela()" title="Добавить площадку, выдать или отозвать PIN педагога">🏘 Площадки и педагоги</button>` : '';
+  const opt=(v,t)=>`<option value="${esc(v)}" ${v===VIEW?'selected':''}>${esc(t)}</option>`;
+  const mine=MY_SELO ? [opt(MY_SELO,'🏠 Моя площадка: '+seloName(MY_SELO))] : [];
+  bar.innerHTML=`<label>📍 <select id="selSel" aria-label="Площадка">${mine.join('')}${SELA.filter(s=>s.id!==MY_SELO).map(s=>opt(s.id,(MY_SELO?'Другое: ':'')+s.name)).join('')}${opt('all','🌍 Общий (все площадки)')}</select></label>`+
+    (MY_SELO && VIEW!==MY_SELO ? `<span class="muted">просмотр - править можно только свою площадку</span>` : VIEW==='all' ? `<span class="muted">общий рейтинг всех площадок</span>` : '') + admBtn;
+  document.getElementById('selSel').onchange=e=>setView(e.target.value);
+}
 const SCRIPT_URL = 'https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b?s=vzlet';  // сервер клуба: данные и правки тренера
 
 const REFRESH_MIN = 5;            // автообновление, минут
@@ -894,16 +940,18 @@ async function loadData(manual){
     data = {}; SHEETS.forEach((n,i)=> data[n] = parts[i] || []);
     const missing = SHEETS.filter((n,i)=>parts[i]===null);
     source = 'live';
-    ls.set(CACHE_KEY, JSON.stringify({t:Date.now(), id, data}));
+    if(Array.isArray(rj.sela) && rj.sela.length) SELA = rj.sela;
+    ls.set(CACHE_KEY, JSON.stringify({t:Date.now(), id, data, sela:SELA}));
+    RAW = data; applySelo();
     $('err').classList.add('hidden');
     if(missing.length){ $('err').innerHTML = `Не найдены вкладки: <b>${missing.map(esc).join(', ')}</b>. Сообщите о них.`; $('err').classList.remove('hidden'); }
     renderAll();
     setStatus('ok','обновлено ' + new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));
   }catch(e){
     const c = JSON.parse(ls.get(CACHE_KEY) || 'null');
-    if(c && c.id===id){ data=c.data; source='cache'; renderAll();
+    if(c && c.id===id){ data=RAW=c.data; if(c.sela) SELA=c.sela; applySelo(); source='cache'; renderAll();
       setStatus('warn','нет связи · данные от '+new Date(c.t).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}));
-    } else { data=FALLBACK; source='sample'; renderAll(); setStatus('warn','нет связи · образец'); }
+    } else { data=RAW=FALLBACK; applySelo(); source='sample'; renderAll(); setStatus('warn','нет связи · образец'); }
     $('err').innerHTML = `Не удалось загрузить данные (${esc(e.message)}). Проверьте интернет.`;
     $('err').classList.remove('hidden');
   }
@@ -961,11 +1009,30 @@ function renderTasks(){
 /* Время круга: 00:49.3 · 49.3 · 1:02,4 → секунды */
 /* имя для всех: "Имя Ф."; тренер видит полностью */
 function pnm(s){s=String(s||'').trim();if(MODE==='coach'||/\(.+\)$/.test(s))return s;const w=s.split(/\s+/);return w.length>1?w[0]+' '+w[1][0].toUpperCase()+'.':s}
-function lapSec(s){
-  s=String(s||'').trim().replace(',','.'); if(!s || s==='-' || s==='\u2014') return null;
-  const p=s.split(':').map(Number); if(p.some(isNaN)) return null;
-  return p.reduce((a,x)=>a*60+x,0) || null;
+/* 05.11: время можно писать по-разному - всё понимается как минуты и секунды:
+   65.3 · 1:05.3 · 1:05:30 (как в Квадросиме) · 1 05.3 · 1.05.3 · 1,05,3 · 1м 5.3с · 1 мин 5 сек */
+function lapParse(s){
+  s=String(s||'').trim().toLowerCase().replace(/,/g,'.'); if(!s || s==='-' || s==='\u2014') return null;
+  let m=s.match(/^(\d+)\s*(?:м|мин|m|min)\.?\s*(\d+(?:\.\d+)?)?\s*(?:с|сек|s|sec)?\.?$/);
+  if(m){ const sec=+(m[2]||0); if(sec>=60) return null; const d=(m[2]||'').split('.')[1]; return {sec:+m[1]*60+sec, dec:d?Math.min(3,d.length):0}; }
+  m=s.match(/^(\d+(?:\.\d+)?)\s*(?:с|сек|s|sec)\.?$/); if(m) s=m[1];
+  s=s.replace(/[\s'"′″;]+/g,':').replace(/:+/g,':').replace(/^:|:$/g,'');
+  if(s.indexOf(':')<0 && (s.match(/\./g)||[]).length>=2) s=s.replace('.',':');
+  let p=s.split(':');
+  if(p.length===3){ if(!/^\d{1,3}$/.test(p[2]) || p[1].indexOf('.')>=0) return null; p=[p[0], p[1]+'.'+p[2]]; }
+  if(p.length>2 || p.some(x=>!/^\d+(\.\d+)?$/.test(x))) return null;
+  const d=p[p.length-1].split('.')[1], dec=d?Math.min(3,d.length):0;
+  if(p.length===2){ if(p[0].indexOf('.')>=0 || +p[1]>=60) return null; return {sec:+p[0]*60+(+p[1]), dec}; }
+  return {sec:+p[0], dec};
 }
+function lapSec(s){ const r=lapParse(s); return r&&r.sec>0 ? r.sec : null; }
+/* как записать в таблицу: просто секунды оставляем как есть, остальное - мм:сс.д (сервер понимает оба вида) */
+function lapStore(s){ const t=String(s||'').trim().replace(/,/g,'.'); if(/^\d{1,3}(\.\d{1,3})?$/.test(t)) return t;
+  const r=lapParse(t); if(!r||!(r.sec>0)) return t; const m=Math.floor(r.sec/60+1e-9), x=r.sec-m*60;
+  return String(m).padStart(2,'0')+':'+x.toFixed(r.dec).padStart(r.dec?3+r.dec:2,'0'); }
+/* поле времени: после ввода показываем, как поняли (1 05.3 -> 01:05.3), непонятное - красной рамкой */
+document.addEventListener('change',e=>{ const i=e.target; if(!i.matches||!i.matches('.ss-time,.hl-time,#al-time')) return;
+  const v=i.value.trim(); if(!v){ i.style.borderColor=''; return; } if(lapSec(v)){ i.value=lapStore(v); i.style.borderColor=''; } else i.style.borderColor='#ff4d6d'; });
 function fmtLap(sec){ const m=Math.floor(sec/60), r=(sec-m*60).toFixed(1).padStart(4,'0'); return `${String(m).padStart(2,'0')}:${r}`; }
 const normName = s => String(s||'').trim().toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ');
 let curTrack = '';
@@ -988,22 +1055,25 @@ const SIM_ORDER=['Квадросим','Ворон','Симулятор','Реа�
 function simOfFmt(f){ f=String(f||'').trim().toLowerCase(); if(!f) return ''; if(/квадро|quadro|kvadro/.test(f)) return 'Квадросим'; if(/ворон|voron/.test(f)) return 'Ворон'; if(/^реал/.test(f)) return 'Реал'; return 'Ворон'; }
 function simOf(t){ return simOfFmt(trackFmt(t)) || simOfFmt((laps().find(l=>l.track===t)||{}).fmt) || 'Ворон'; }
 function simSort(a){ return [...a].sort((x,y)=>(SIM_ORDER.indexOf(x)+1||9)-(SIM_ORDER.indexOf(y)+1||9)); }
-function simTag(t){ const m=simOf(t); return `<span class="tag ${m==='Реал'?'real':'sim'}">${esc(m)}</span>`; }
+const SIM_LBL={'Ворон':'Velocidrone (Ворон)'}, simLbl=m=>SIM_LBL[m]||m;
+function simTag(t){ const m=simOf(t); return `<span class="tag ${m==='Реал'?'real':'sim'}">${esc(simLbl(m))}</span>`; }
 /* пилоты: лист "Пилоты" + ученики, принятые по заявке в рейтинг клуба ("Имя (класс)") + все, у кого есть заезды */
 let SPK_PIL=[];
 function loadSpkPilots(){
   fetch('https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b',{method:'POST',body:JSON.stringify({op:'srate',club:'vzlet'})})
-    .then(r=>r.json()).then(j=>{ if(!j||!j.ok) return; SPK_PIL=(j.top||[]).map(x=>({'Пилот':`${x.n} (${x.c})`,'Класс':x.c,_spk:1})); if(data) renderAll(); }).catch(()=>{});
+    .then(r=>r.json()).then(j=>{ if(!j||!j.ok) return; SPK_PIL=(j.top||[]).map(x=>({'Пилот':`${x.n} (${x.c})`,'Класс':x.c,_spk:1,_s:x.s||''})); if(data) renderAll(); }).catch(()=>{});
 }
 function allPilots(){
   const m=new Map(), add=p=>{ const k=normName(p['Пилот']); if(k && !m.has(k)) m.set(k,p); };
-  (data['Пилоты']||[]).forEach(add); SPK_PIL.forEach(add); laps().forEach(l=>add({'Пилот':String(l.pilot||'').trim()}));
+  (data['Пилоты']||[]).forEach(add); SPK_PIL.filter(p=>VIEW==='all'||!p._s||p._s===VIEW).forEach(add); laps().forEach(l=>add({'Пилот':String(l.pilot||'').trim()}));
   return [...m.values()];
 }
 /* Рейтинг: в каждом заезде (дата + трасса) самый быстрый получает 100 очков,
    остальные - 100 × (лучшее время ÷ своё время); минус 5 очков за каждую аварию.
    Рейтинг пилота = среднее за его последние 5 заездов. */
-function sessions(){ const S={}; laps().forEach(l=>{ const k=(l.date||'')+'|'+l.track; (S[k]=S[k]||[]).push(l); }); return Object.values(S); }
+/* 06.11: в рейтинг идут только заезды на симуляторах Квадросим и Velocidrone (Ворон). Живые полёты - только часы налёта, места вживую - на соревнованиях. */
+const isSimLap = l => { const m=simOf(l.track); return m==='Квадросим' || m==='Ворон'; };
+function sessions(){ const S={}; laps().filter(isSimLap).forEach(l=>{ const k=(l.date||'')+'|'+l.track; (S[k]=S[k]||[]).push(l); }); return Object.values(S); }
 function ratingOf(name){
   const pts=[];
   sessions().forEach(ls=>{
@@ -1102,7 +1172,7 @@ function openPilot(name){
     html += `<h3 style="margin-top:16px">Добавить заезд</h3>
       <div class="addlap"><label>Дата<input id="al-date" value="${todayStr()}"></label>
         <label>Трасса${trackSelect('al-track', curTrack||best?.track||'')}</label>
-        <label>Время круга<input id="al-time" placeholder="00:49.3"></label>
+        <label>Время круга<input id="al-time" placeholder="49.3 или 1:05.3"></label>
         <label>Аварии<input id="al-crash" type="number" min="0" value="0"></label>
         <button class="btn primary" id="al-save">+ Добавить</button></div>`;
   }
@@ -1116,8 +1186,8 @@ function closePilot(){ $('pmodal').classList.remove('open'); openPilotName=''; }
 
 async function addLap(name, btn){
   const t=$('al-track').value.trim(), tm=$('al-time').value.trim();
-  if(!t || !lapSec(tm)){ toast('Укажите трассу и время, например 00:49.3','bad'); return; }
-  const rows=[...(data['Заезды']||[]), {'Дата':$('al-date').value.trim(),'Пилот':name,'Трасса':t,'Время круга':tm,'Формат':trackFmt(t),'Аварии':String(Math.max(0,parseInt($('al-crash').value)||0))}];
+  if(!t || !lapSec(tm)){ toast('Укажите трассу и время, например 49.3 или 1:05.3','bad'); return; }
+  const rows=[...(data['Заезды']||[]), {'Дата':$('al-date').value.trim(),'Пилот':name,'Трасса':t,'Время круга':lapStore(tm),'Формат':trackFmt(t),'Аварии':String(Math.max(0,parseInt($('al-crash').value)||0))}];
   btn.disabled=true; btn.textContent='Сохраняю…';
   try{ await postSheet('Заезды', rows); renderAll(); openPilot(name); toast('Заезд добавлен ✓','ok'); }
   catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='+ Добавить'; }
@@ -1193,7 +1263,7 @@ function openSession(trk){
       <button class="btn" onclick="editTracks()">✎ Список трасс</button></div>
     <div class="tscroll"><table><thead><tr><th>Пилот</th><th>Сейчас лучший</th><th>Новое время</th><th>Аварии</th><th>Дрон</th></tr></thead><tbody>
     ${ps.map((p,i)=>`<tr><td>${esc(p['Пилот'])}</td><td class="ss-best" data-i="${i}">-</td>
-      <td><input class="ss-time" data-i="${i}" placeholder="00:49.3" inputmode="decimal" style="width:84px"></td>
+      <td><input class="ss-time" data-i="${i}" placeholder="49.3 или 1:05.3" style="width:84px"></td>
       <td><input class="ss-crash" data-i="${i}" type="number" min="0" value="0" inputmode="numeric" style="width:50px"></td>
       <td>${droneField('ss-drone', lastDrone(p['Пилот']), 'ssDrones', `data-i="${i}" style="width:110px"`)}</td></tr>`).join('')}
     </tbody></table></div><datalist id="ssDrones">${drones().map(d=>`<option value="${esc(d)}">`).join('')}</datalist>
@@ -1212,9 +1282,9 @@ function openSession(trk){
       if(!lapSec(tm)){ bad.push(p['Пилот']); return; }
       const cr=Math.max(0,parseInt($('pbody').querySelector(`.ss-crash[data-i="${i}"]`).value)||0);
       const dr=$('pbody').querySelector(`.ss-drone[data-i="${i}"]`).value.trim().slice(0,40);
-      add.push({'Дата':d,'Пилот':p['Пилот'],'Трасса':t,'Время круга':tm,'Формат':trackFmt(t),'Аварии':String(cr),'Дрон':dr});
+      add.push({'Дата':d,'Пилот':p['Пилот'],'Трасса':t,'Время круга':lapStore(tm),'Формат':trackFmt(t),'Аварии':String(cr),'Дрон':dr});
     });
-    if(bad.length){ toast('Проверьте время: '+bad.join(', ')+' (пример 00:49.3)','bad'); return; }
+    if(bad.length){ toast('Проверьте время: '+bad.join(', ')+' (пример 49.3 или 1:05.3)','bad'); return; }
     if(!add.length){ toast('Не вписано ни одного времени','bad'); return; }
     btn.disabled=true; btn.textContent='Сохраняю…';
     try{ await postSheet('Заезды',[...(data['Заезды']||[]),...add]); curTrack=t; curSort='leaders'; closePilot(); renderAll(); toast(`Заезд сохранён: ${add.length} пилот(ов) ✓`,'ok'); }
@@ -1265,9 +1335,9 @@ const SCHED_FORM = `<div class="sform"><p class="lead">🗓 Расписание
   <div class="stl"><div><b>0-5'</b><span>Брифинг: цель занятия, разминка для пальцев</span></div>
   <div><b>5-30'</b><span>🎮 Тройка А - на симуляторах (трасса дня)<br>📚 Тройка Б - Академия: шпаргалка, тест, тренажёр стиков, вопрос дня</span></div>
   <div class="sw"><b>30-55'</b><span>🔄 Меняемся местами</span></div>
-  <div><b>55-60'</b><span>Разбор: лучшие круги идут в рейтинг клуба</span></div></div>
-  <p class="note">Каждый пилот за занятие: 25 минут в симуляторе + 25 минут теории и тестов. Подключиться к группе можно во вкладке 🏆 Рейтинг.</p>
-  <div><button class="btn primary" onclick="zk('rate')?openZay():document.querySelector('#vt [data-t=rate]').click()">👋 Подключиться</button></div></div>`;
+  <div><b>55-60'</b><span>Разбор: лучшие круги идут в рейтинг пилотов</span></div></div>
+  <p class="note">Каждый пилот за занятие: 25 минут в симуляторе + 25 минут теории и тестов. Подключиться к группе - кнопка "👋 Подать заявку".</p>
+  <div><button class="btn primary" onclick="openZay()">👋 Подключиться</button></div></div>`;
 function renderSchedule(){
   const list = data['Расписание']||[];
   if(MODE==='public' && !SCHED_OPEN && !list.length){ $('c-schedule').textContent=''; $('schedule').innerHTML=SCHED_FORM; return; }
@@ -1278,7 +1348,7 @@ function renderSchedule(){
       <div class="sched-day"><span class="d">${esc(s['День'])}</span><span class="t">${esc(s['Время'])}</span></div>
       <div class="sched-body"><b>${esc(s['Занятие'])}</b><br><span style="color:var(--dim);font-size:12px">${esc(s['Примечание'])}</span></div>
     </div>`).join('') || '<p class="empty">Расписание пусто</p>';
-  if(MODE==='coach' && !SCHED_OPEN && !list.length) $('schedule').insertAdjacentHTML('afterbegin','<p class="muted" style="margin-bottom:10px">👁 Гости пока видят "Расписание сформируется по итогам набора" и план занятия. Строки ниже видите только вы.</p>');
+  if(ADM && !SCHED_OPEN && !list.length) $('schedule').insertAdjacentHTML('afterbegin','<p class="muted" style="margin-bottom:10px">👁 Гости пока видят "Расписание сформируется по итогам набора" и план занятия. Строки ниже видите только вы.</p>');
 }
 
 function safeUrl(u){ u=String(u||'').trim(); return /^https?:\/\//i.test(u) ? u : ''; }
@@ -1332,6 +1402,7 @@ function applyMode(){
   } else {
     document.querySelectorAll('details[data-tab]').forEach(d=>{
       if(d.dataset.tab==='more') return;
+      if(ROLE==='teacher' && !TEACH_SHEETS.includes(d.dataset.tab)) return;
       const b=document.createElement('button'); b.className='edit'; b.textContent='✎ Изменить';
       b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); d.open=true; openEditor(d, d.dataset.tab); };
       const sm=d.querySelector('summary'), cnt=sm.querySelector('.counter');
@@ -1339,6 +1410,7 @@ function applyMode(){
       b.style.marginRight='auto';
     });
     const more=document.querySelector('[data-tab="more"]');
+    if(ROLE==='teacher'){ $('moreChips').innerHTML='<span class="muted">Педагог меняет пилотов, заезды и расписание своей площадки. Остальное меняет тренер.</span>'; return; }
     $('moreChips').innerHTML = MORE.map(n=>`<button class="chip" data-s="${esc(n)}">${esc(n)}</button>`).join('');
     $('moreChips').querySelectorAll('.chip').forEach(c=> c.onclick=()=>openEditor(more, c.dataset.s));
   }
@@ -1399,6 +1471,7 @@ function newRow(sheet){
 function closeEditor(card){ card.classList.remove('editing'); card.querySelector('.editor')?.remove(); card.querySelector('.edit')?.classList.remove('on'); }
 
 function openEditor(card, sheet){
+  if(selRO()) return toast('Это чужая площадка - здесь можно только смотреть','bad');
   closeEditor(card);
   card.classList.add('editing'); card.querySelector('.edit')?.classList.add('on');
   const ed=document.createElement('div'); ed.className='editor';
@@ -1425,10 +1498,16 @@ async function postSheet(sheet, rows){
   if(!SCRIPT_URL || SCRIPT_URL.startsWith('__')) throw new Error('сохранение ещё не подключено');
   const pin=ss_.get(PIN_KEY);
   if(!pin){ throw new Error('войдите по PIN (кнопка "Войти" вверху)'); }
-  const r=await fetch(SCRIPT_URL,{method:'POST', body:JSON.stringify({key:pin, sheet, rows})});
+  const bySelo = SELO_SHEETS.includes(sheet);   // вкладки села - только своего села (op seloRows)
+  if(bySelo && VIEW==='all') throw new Error('выберите площадку вверху страницы - в общем виде эти вкладки не правят');
+  if(ROLE==='teacher' && !TEACH_SHEETS.includes(sheet)) throw new Error('эту вкладку меняет тренер');
+  if(selRO()) throw new Error('это чужая площадка - здесь можно только смотреть');
+  const r=await fetch(SCRIPT_URL,{method:'POST', body:JSON.stringify(bySelo ? {op:'seloRows', key:pin, selo:VIEW, sheet, rows} : {key:pin, sheet, rows})});
   const res=await r.json();
   if(!res.ok){ if(/Неверный PIN/i.test(res.error||'')) logout(true); throw new Error(res.error||'ошибка'); }
-  data[sheet]=rows; ls.set(CACHE_KEY, JSON.stringify({t:Date.now(), id:sheetId(), data}));
+  if(bySelo){ const sc=VIEW==='irtysh'?'':VIEW; RAW[sheet]=[...(RAW[sheet]||[]).filter(x=>seloOf(x['Село'])!==VIEW), ...rows.map(x=>Object.assign({},x,{'Село':sc}))]; }
+  else { data[sheet]=rows; RAW[sheet]=rows; }
+  applySelo(); ls.set(CACHE_KEY, JSON.stringify({t:Date.now(), id:sheetId(), data:RAW, sela:SELA}));
 }
 
 async function saveEditor(card, sheet, list, btn){
@@ -1452,7 +1531,7 @@ async function api(body){
 }
 function lockClick(){ ROLE ? openLogout() : openLogin(); }
 function openLogout(){
-  $('pbody').innerHTML = `<h2>${ROLE==='admin'?'Тренер':'Помощник'}</h2><p class="sub">Вы в режиме редактирования.</p>
+  $('pbody').innerHTML = `<h2>${ROLE==='admin'?'Тренер':ROLE==='teacher'?'Педагог':'Помощник'}${MY_SELO?' · '+esc(seloName(MY_SELO)):''}</h2><p class="sub">Вы в режиме редактирования.</p>
     ${ROLE==='admin'?`<details style="margin:4px 0 14px"><summary style="cursor:pointer">🔑 Новый PIN помощника</summary>
     <p class="muted" style="margin:8px 0">Придумайте PIN из 4-8 цифр и скажите его помощнику. Старый PIN помощника сразу перестанет работать. Посмотреть PIN потом нельзя - только задать новый.</p>
     <form id="hpForm" class="addlap" autocomplete="off"><label>Новый PIN<input id="hpPin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" style="width:120px"></label>
@@ -1471,7 +1550,7 @@ function openLogout(){
     }catch(err){ m.textContent='Не сохранилось: '+err.message; }
     btn.disabled=false; btn.textContent='Сохранить'; };
 }
-function logout(silent, hide){ ss_.del(PIN_KEY); ss_.del('vzlet_role'); if(hide) ls.del('vzlet_editor_dev'); if(!silent) location.reload(); }
+function logout(silent, hide){ ss_.del(PIN_KEY); ss_.del('vzlet_role'); ss_.del('vzlet_selo'); if(hide) ls.del('vzlet_editor_dev'); if(!silent) location.reload(); }
 function trustedDev(){ return ls.get('vzlet_editor_dev')==='1'; }
 function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0, sx=0, sy=0, mv=false;
   el.addEventListener('pointerdown',e=>{ sx=e.clientX; sy=e.clientY; mv=false; clearTimeout(t); t=setTimeout(()=>{ t=null; if(!mv) fn(); },900); });
@@ -1480,7 +1559,7 @@ function secretTap(el, fn){ if(!el) return; let t=null, n=0, last=0, sx=0, sy=0,
   el.addEventListener('click',()=>{ if(mv) return; const now=Date.now(); n = now-last<600 ? n+1 : 1; last=now; if(n>=5){ n=0; fn(); } });
   el.addEventListener('contextmenu',e=>e.preventDefault()); }
 function openLogin(){
-  $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Помощник - только записывать заезды: ФИО, трассу и время.</p>
+  $('pbody').innerHTML = `<h2>Вход для редактирования</h2><p class="sub">Тренер может менять всё. Педагог площадки - пилотов, заезды и расписание своей площадки, принимает заявки. Помощник - только записывать заезды: ФИО, трассу и время.</p>
     <form id="lgForm" class="addlap" autocomplete="off"><label>PIN<input id="lgPin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" style="width:140px"></label>
     <button class="btn primary" id="lgBtn">Войти</button></form><p class="muted" id="lgErr" style="color:#ff7a7a;min-height:18px;margin-top:8px"></p>`;
   $('pmodal').classList.add('open'); setTimeout(()=>$('lgPin').focus(),50);
@@ -1488,7 +1567,8 @@ function openLogin(){
     $('lgBtn').disabled=true; $('lgBtn').textContent='Проверяю…';
     try{ const r=await api({op:'login', key:pin});
       if(!r.ok) throw new Error(r.error||'ошибка');
-      ss_.set(PIN_KEY,pin); ss_.set('vzlet_role',r.role); ls.set('vzlet_editor_dev','1'); location.reload();
+      ss_.set(PIN_KEY,pin); ss_.set('vzlet_role',r.role); if(r.selo) ss_.set('vzlet_selo',r.selo); else ss_.del('vzlet_selo'); ls.set('vzlet_editor_dev','1');
+      if(r.selo){ const u=new URL(location.href); u.searchParams.set('selo', r.selo); location.replace(u); } else location.reload();
     }catch(err){ $('lgErr').textContent=err.message; $('lgBtn').disabled=false; $('lgBtn').textContent='Войти'; }
   };
 }
@@ -1497,10 +1577,11 @@ function initRole(){
   if(ROLE || trustedDev()) b.style.display='';
   secretTap(document.querySelector('.logo-badge'), ()=>{ if(!ROLE) openLogin(); });
   const vh=()=>{ if(location.hash==='#vhod'){ history.replaceState(null,'',location.pathname+location.search); if(!ROLE) setTimeout(openLogin,300); } }; vh(); addEventListener('hashchange',vh);
-  if(ROLE){ b.textContent=(ROLE==='admin'?'🔓 Тренер':'🔓 Помощник')+' · выйти'; b.title='Выйти из режима редактирования'; }
-  if(ROLE==='helper'){
+  if(ROLE==='teacher'){ const cb=document.getElementById('coachBadge'); if(cb) cb.textContent='педагог'; }
+  if(ROLE){ b.textContent=(ROLE==='admin'?'🔓 Тренер':ROLE==='teacher'?'🔓 Педагог':'🔓 Помощник')+' · выйти'; b.title='Выйти из режима редактирования'; }
+  if(ROLE==='helper'||ROLE==='teacher'){
     const card=document.querySelector('details[data-tab="Пилоты"]'), chips=document.getElementById('sortChips');
-    if(chips) chips.insertAdjacentHTML('afterend','<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn primary" onclick="openHelper()">✎ Заезды сегодня</button></div>');
+    if(chips) chips.insertAdjacentHTML('afterend','<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn primary hlp-btn" onclick="openHelper()">✎ Заезды сегодня</button></div>');
   }
 }
 /* ---------- помощник: заезды только за сегодня ----------
@@ -1508,11 +1589,13 @@ function initRole(){
    (это проверяет и сервер: op "todayLaps", файл pomoshnik.gs). */
 function hlRow(l){ l=l||{}; const fm=l['Формат']||trackFmt(l['Трасса']||curTrack||'')||(window.SR_SIM&&SR_SIM())||'Квадросим';
   return `<div class="hlrow"><input class="hl-name" list="hlPilots" placeholder="ФИО или имя (класс)" value="${esc(l['Пилот']||'')}"><input class="hl-track" list="hlTracks" value="${esc(l['Трасса']||curTrack||'')}" placeholder="Трасса">
-  <input class="hl-time" placeholder="00:49.3" inputmode="decimal" value="${esc(l['Время круга']||'')}"><select class="hl-fmt">${['Квадросим','Ворон','реал'].map(x=>`<option ${x===fm?'selected':''}>${x}</option>`).join('')}</select>${droneField('hl-drone', l['Дрон']||'', 'hlDrones', '')}<label class="hl-cl" title="Аварии">💥<input class="hl-crash" type="number" min="0" value="${esc(l['Аварии']||'0')}" inputmode="numeric" aria-label="Аварии"></label><button class="btn hl-del" title="Убрать строку">✕</button></div>`; }
+  <input class="hl-time" placeholder="49.3 или 1:05.3" value="${esc(l['Время круга']||'')}"><select class="hl-fmt">${['Квадросим','Ворон','реал'].map(x=>`<option value="${x}" ${x===fm?'selected':''}>${simLbl(x)}</option>`).join('')}</select>${droneField('hl-drone', l['Дрон']||'', 'hlDrones', '')}<label class="hl-cl" title="Аварии">💥<input class="hl-crash" type="number" min="0" value="${esc(l['Аварии']||'0')}" inputmode="numeric" aria-label="Аварии"></label><button class="btn hl-del" title="Убрать строку">✕</button></div>`; }
 const dkey=v=>{const m=String(v||'').trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})/);return m?m[1].padStart(2,'0')+'.'+m[2].padStart(2,'0')+'.'+(m[3].length===2?'20'+m[3]:m[3]):''};
 function openHelper(){
+  if(VIEW==='all') return toast('Выберите площадку вверху страницы','bad');
+  if(MY_SELO && VIEW!==MY_SELO) return toast('Записывать заезды можно только на своей площадке: '+seloName(MY_SELO),'bad');
   const td=todayStr(), mine=(data['Заезды']||[]).filter(l=>dkey(l['Дата'])===td);
-  $('pbody').innerHTML = `<h2>Заезды сегодня, ${esc(td)}</h2><p class="sub">Впишите пилота, трассу, время лучшего круга, дрон и аварии. Сегодняшние строки можно исправить или убрать. Прошлые дни меняет только тренер.</p>
+  $('pbody').innerHTML = `<h2>Заезды сегодня, ${esc(td)}${SELA.length>1?' · '+esc(seloName(VIEW)):''}</h2><p class="sub">Впишите пилота, трассу, время лучшего круга, дрон и аварии. Сегодняшние строки можно исправить или убрать. Прошлые дни меняет только тренер.</p>
     <datalist id="hlPilots">${allPilots().map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
     <datalist id="hlTracks">${allTracks().map(t=>`<option value="${esc(t)}">`).join('')}</datalist>
     <datalist id="hlDrones">${drones().map(d=>`<option value="${esc(d)}">`).join('')}</datalist>
@@ -1531,15 +1614,15 @@ function openHelper(){
       const n=tr.querySelector('.hl-name').value.trim(), t=tr.querySelector('.hl-track').value.trim(), tm=tr.querySelector('.hl-time').value.trim().replace(',','.');
       if(!n && !tm) continue;
       if(!n || !t){ toast('Укажите пилота и трассу в каждой строке','bad'); return; }
-      if(!lapSec(tm)){ toast(`Проверьте время у "${n}" - пример 00:49.3`,'bad'); return; }
-      out.push({'Пилот':n,'Трасса':t,'Время круга':tm,'Формат':tr.querySelector('.hl-fmt').value,'Аварии':String(Math.max(0,parseInt(tr.querySelector('.hl-crash').value)||0)),'Дрон':tr.querySelector('.hl-drone').value.trim().slice(0,40)});
+      if(!lapSec(tm)){ toast(`Проверьте время у "${n}" - пример 49.3 или 1:05.3`,'bad'); return; }
+      out.push({'Пилот':n,'Трасса':t,'Время круга':lapStore(tm),'Формат':tr.querySelector('.hl-fmt').value,'Аварии':String(Math.max(0,parseInt(tr.querySelector('.hl-crash').value)||0)),'Дрон':tr.querySelector('.hl-drone').value.trim().slice(0,40)});
     }
     if(!out.length && !mine.length){ toast('Нечего сохранять','bad'); return; }
     const btn=$('hlSave'); btn.disabled=true; btn.textContent='Сохраняю…';
-    try{ const r=await api({op:'todayLaps', key:ss_.get(PIN_KEY), laps:out});
+    try{ const r=await api({op:'todayLaps', key:ss_.get(PIN_KEY), selo:VIEW, laps:out});
       if(!r.ok){ if(/Неверный PIN/i.test(r.error||'')) logout(true); if(/только записывать заезды|Нет вкладки/i.test(r.error||'')) throw new Error('сервер Взлёта ещё не обновлён (файл pomoshnik.gs)'); throw new Error(r.error||'ошибка'); }
-      data['Заезды']=r.laps; data['Пилоты']=[...(data['Пилоты']||[]),...(r.pilots||[])]; data['Трассы']=[...(data['Трассы']||[]),...(r.tracks||[])];
-      ls.set(CACHE_KEY, JSON.stringify({t:Date.now(), id:sheetId(), data}));
+      RAW['Заезды']=r.laps; RAW['Пилоты']=[...(RAW['Пилоты']||[]),...(r.pilots||[])]; data['Трассы']=[...(data['Трассы']||[]),...(r.tracks||[])];
+      applySelo(); ls.set(CACHE_KEY, JSON.stringify({t:Date.now(), id:sheetId(), data:RAW, sela:SELA}));
       if(out.length) curTrack=out[out.length-1]['Трасса']; closePilot(); renderAll(); toast(`Сохранено за сегодня: ${out.length} ✓`,'ok');
     }catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='Сохранить'; }
   };
@@ -1760,7 +1843,7 @@ function checkBadges(){Object.keys(QUIZ).forEach(k=>{if((A.best[k]||0)>=8)award(
 function renderBadges(){$('#bdg').innerHTML=BADGES.map(b=>`<div class="bd1 ${A.badges.includes(b[0])?'got':''}"><span class="e">${b[1]}</span><b>${b[2]}</b><small>${b[3]}</small></div>`).join('')}
 function confetti(){if(RED)return;const C=['#00d4ff','#3fb950','#d29922','#f85149','#a371f7','#fff'];for(let i=0;i<70;i++){const d=document.createElement('i'),x=innerWidth/2,y=innerHeight*.25,a=Math.random()*6.28,v=120+Math.random()*320;d.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:${6+Math.random()*6}px;height:${4+Math.random()*5}px;background:${C[i%6]};z-index:10000;pointer-events:none;border-radius:2px`;document.body.appendChild(d);d.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:`translate(${Math.cos(a)*v}px,${Math.sin(a)*v+260}px) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:1300+Math.random()*700,easing:'cubic-bezier(.2,.7,.4,1)'}).onfinish=()=>d.remove()}}
 /* ---------- вкладки ---------- */
-const HERO={kurs:['Курс пилота','Модули по шагам: материал, тренажёры, полёты и проверки. Следующий модуль открывает тренер.'],put:['Путь новичка','Семь шагов от первого взлёта до аса. Очки идут в рейтинг.'],learn:['Шпаргалки','Всё главное о дронах - коротко и по делу.'],train:['Тренировка','Проверка перед полётом, сборка дрона, аккумуляторы и стики.'],quiz:['Тесты','Шесть уровней. Новые тесты и задания открывает тренер.'],calc:['Калькуляторы','Время полёта, аккумуляторы, тяга, частоты.'],me:['Мои значки','Собери все значки и стань асом теории.'],rate:['Рейтинг','Тесты, значки и задания - в общий зачёт клуба.']};
+const HERO={kurs:['Курс пилота','Модули по шагам: материал, тренажёры, полёты и проверки. Следующий модуль открывает тренер.'],put:['Путь новичка','Семь шагов от первого взлёта до аса.'],learn:['Шпаргалки','Всё главное о дронах - коротко и по делу.'],train:['Тренировка','Проверка перед полётом, сборка дрона, аккумуляторы и стики.'],quiz:['Тесты','Шесть уровней. Новые тесты и задания открывает тренер.'],calc:['Калькуляторы','Время полёта, аккумуляторы, тяга, частоты.'],me:['Мои значки','Собери все значки и стань асом теории.']};
 let TAB='club';
 const TBT=$('#vt');let tbInit=false,tbProg=0;
 function moveVti(){const b=$('#vt button.on');if(!b)return;const x=b.offsetLeft+b.offsetWidth/2-TBT.clientWidth/2;tbProg=Date.now();TBT.scrollTo({left:x,behavior:tbInit&&!RED?'smooth':'auto'});tbInit=true;if(window.tbFx)tbFx()}
@@ -1859,7 +1942,7 @@ function loop(ts){raf=requestAnimationFrame(loop);if(TAB!=='train'||document.hid
 /* ---------- тесты ---------- */
 function renderLevels(){const ks=Object.keys(QUIZ),co=typeof MODE!=='undefined'&&MODE==='coach',me=window.vzMe?window.vzMe():null,E=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const head=co?`<div class="qhead"><button class="btn primary" onclick="vzAccOpen()">🔓 Доступ учеников</button><small>Вы тренер: видите все тесты и задания. Ученики видят только то, что вы им открыли.</small></div>`
-  :`<div class="qhead"><small>${me?'👤 '+E(me)+' · новые тесты и задания открывает тренер, когда ты готов.':'Первый тест открыт всем. Остальные откроет тренер. Чтобы увидеть свои, войди по коду во вкладке 🏆 Рейтинг.'}</small></div>`;
+  :`<div class="qhead"><small>${me?'👤 '+E(me)+' · новые тесты и задания открывает тренер, когда ты готов.':'Первый тест открыт всем. Остальные откроет тренер. Чтобы увидеть свои, войди по личному коду: кнопка "👋 Подать заявку" вверху.'}</small></div>`;
  $('#qlv').innerHTML=head+ks.map((k,i)=>{const q=QUIZ[k],b=A.best[k],st=co?2:(window.vzAcc?window.vzAcc(k,i):(i?0:1)),lk=st<1,t=QTASK[k];
   const task=t?`<div class="qt ${co||st===2?'on':st>=3?'done':'lock'}"><b>${co?'📝 Задание':st>=3?'✅ Задание выполнено':st===2?'📝 Задание открыто':'🔒 Задание'}</b><span>${co||st>=2?E(t):'Откроется, когда тренер увидит, что тест пройден.'}</span></div>`:'';
   return `<div class="qcell"><button class="ql ${lk?'lock':''}" data-k="${k}" style="--lc:${q.c}"><span class="e">${lk?'🔒':q.e}</span><b>${q.n}</b><small>${lk?'Откроет тренер':q.q.length+' вопросов'+(b!=null?' · лучший результат '+b+'/10':'')}</small><div class="st">${stars(b)}</div></button>${task}</div>`}).join('');
@@ -1871,7 +1954,7 @@ function startQuiz(k){const L=QUIZ[k];Q={k,i:0,ok:0,list:shuf(L.q).map(([q,ans,c
 function renderQ(){const L=QUIZ[Q.k],it=Q.list[Q.i];$('#qbox').innerHTML=`<div class="qtop"><span>${L.e} ${L.n} · вопрос ${Q.i+1} из ${Q.list.length}</span><span>✔ ${Q.ok}</span></div><div class="qprog"><i style="width:${Q.i/Q.list.length*100}%"></i></div><div class="qq">${it.q}</div><div class="qa">${it.o.map((o,i)=>`<button data-i="${i}"><i>${'АБВГ'[i]}</i>${o.a}</button>`).join('')}</div>`;
   $$('.qa button').forEach(b=>b.onclick=()=>{const o=it.o[+b.dataset.i];$$('.qa button').forEach(x=>{x.disabled=true;if(it.o[+x.dataset.i].ok)x.classList.add('ok')});if(o.ok)Q.ok++;else b.classList.add('no');setTimeout(()=>{Q.i++;Q.i<Q.list.length?renderQ():endQuiz()},o.ok?800:1500)})}
 function endQuiz(){const L=QUIZ[Q.k],s=Q.ok,prev=A.best[Q.k];if(prev==null||s>prev)A.best[Q.k]=s;A.qn=A.qn||{};A.qn[Q.k]=(A.qn[Q.k]||(prev==null?0:1))+1;save();
-  const me=window.vzMe?window.vzMe():null,tw=QTASK[Q.k]?(me?' Тренер увидит результат и откроет задание.':' Войди по коду во вкладке 🏆 Рейтинг, чтобы тренер увидел результат и открыл задание.'):'';
+  const me=window.vzMe?window.vzMe():null,tw=QTASK[Q.k]?(me?' Тренер увидит результат и откроет задание.':' Войди по личному коду (кнопка "👋 Подать заявку" вверху), чтобы тренер увидел результат и открыл задание.'):'';
   const msg=s===10?'Идеально! Ты настоящий ас.'+tw:s>=8?'Отлично! Уровень пройден.'+tw:s>=5?'Неплохо! Загляни в шпаргалки и попробуй ещё.':'Есть над чем поработать. Шпаргалки помогут!';
   $('#qbox').innerHTML=`<div class="qend"><div class="stars">${stars(s).replace(/★/g,'<span>★</span>')}</div><div class="big">${s}/10</div><p>${msg}</p><div style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="btn primary" id="qAgain">↻ Ещё раз</button><button class="btn" id="qBack">← Все уровни</button>${s<8?'<button class="btn" id="qLearn">📚 Шпаргалки</button>':''}</div></div>`;
   if(s>=8)confetti();$('#qAgain').onclick=()=>startQuiz(Q.k);$('#qBack').onclick=()=>{$('#qbox').hidden=true;$('#qlv').hidden=false;renderLevels()};if($('#qLearn'))$('#qLearn').onclick=()=>show('learn',true);checkBadges();renderXP()}
@@ -1909,7 +1992,6 @@ setTimeout(moveVti,300);document.fonts&&document.fonts.ready.then(moveVti);
 (function(){
 const q=id=>document.getElementById(id), RED=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const st={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const toRate=()=>{const b=document.querySelector('#vt button[data-t="rate"]');if(b)b.click()};
 /* ---- обратный отсчёт до ближайшего события ---- */
 let evT=null,evTimer=0;
 const DRONE=`<span class="drone" aria-hidden="true"><svg viewBox="0 0 120 90" width="78" height="58"><g stroke="#8be9ff" stroke-width="5" stroke-linecap="round"><line x1="30" y1="28" x2="90" y2="62"/><line x1="90" y1="28" x2="30" y2="62"/></g><rect x="44" y="34" width="32" height="22" rx="7" fill="#0d2233" stroke="#00d4ff" stroke-width="2.5"/><circle cx="60" cy="45" r="5" fill="#00d4ff"/><circle cx="60" cy="45" r="2" fill="#fff"/>${[[30,28],[90,28],[30,62],[90,62]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="5" fill="#a371f7"/><g class="prop" style="transform-origin:${x}px ${y}px;animation-delay:-${i*.07}s"><ellipse cx="${x}" cy="${y}" rx="19" ry="3.2" fill="rgba(180,240,255,.55)"/><ellipse cx="${x}" cy="${y}" rx="3.2" ry="19" fill="rgba(180,240,255,.35)"/></g>`).join('')}<circle cx="44" cy="58" r="2.5" fill="#3fb950"/><circle cx="76" cy="58" r="2.5" fill="#f85149"/></svg></span>`;
@@ -1927,7 +2009,7 @@ function openSoon(){const T=sGet('_скоро')||{};
   q('snDef').onclick=()=>{q('snH').value=SOON_H;q('snP').value=SOON_P}}
 window.openSoon=openSoon;
 function renderEv(){const ev=(typeof upcomingEvents==='function'?upcomingEvents():[]).find(e=>e._d);const el=q('plEv');
-  if(!ev){const T=sGet('_скоро')||{};el.innerHTML=DRONE+`<h3>Ближайший старт</h3><div class="nm">${esc(T.h||SOON_H)}</div><p class="pl-place">${esc(T.p||SOON_P)}</p>`+(MODE==='coach'?'<div class="cedit"><button class="btn" type="button" onclick="openSoon()">✎ Изменить текст</button></div>':'');evT=null;return}
+  if(!ev){const T=sGet('_скоро')||{};el.innerHTML=DRONE+`<h3>Ближайший старт</h3><div class="nm">${esc(T.h||SOON_H)}</div><p class="pl-place">${esc(T.p||SOON_P)}</p>`+(ADM?'<div class="cedit"><button class="btn" type="button" onclick="openSoon()">✎ Изменить текст</button></div>':'');evT=null;return}
   evT=+ev._d;el.innerHTML=DRONE+`<h3>Ближайший старт <b>${ev['Тип']?esc(ev['Тип']):''}</b></h3><div class="nm">${esc(ev['Название'])}</div><p class="pl-place">📍 ${esc(ev['Место']||'')} · ${esc(ev['Дата']||'')}</p>
    <div class="cd"><div><b id="cdD">0</b><small>дней</small></div><div><b id="cdH">0</b><small>часов</small></div><div><b id="cdM">0</b><small>минут</small></div><div><b id="cdS">0</b><small>секунд</small></div></div>`;tick()}
 function setN(id,v){const b=q(id);if(!b)return;v=String(v);if(b.textContent!==v){b.textContent=v;if(!RED){b.classList.remove('tick');void b.offsetWidth;b.classList.add('tick')}}}
@@ -1958,10 +2040,10 @@ function srTable(sim,t){const L=laps(),TS=t?[t]:srTracks(sim),out=[];TS.forEach(
 function srDraw(anim){const box=q('sr');if(!box)return;
   const sims=srSims();if(!sims.includes(SR.sim))SR.sim=sims[0];
   const TS=srTracks(SR.sim);if(SR.t&&!TS.includes(SR.t))SR.t='';
-  const coach=MODE==='coach';
-  let h=`<div class="sr-sims" role="tablist">${sims.map(m=>`<button role="tab" aria-selected="${m===SR.sim}" class="${m===SR.sim?'on':''}" data-m="${esc(m)}"><i>${SR_ICON[m]||'🏁'}</i>${esc(m)}<small>${srTracks(m).length} ${plural(srTracks(m).length,'трасса','трассы','трасс')}</small></button>`).join('')}</div>`;
+  const coach=MODE==='coach' && !selRO();
+  let h=`<div class="sr-sims" role="tablist">${sims.map(m=>`<button role="tab" aria-selected="${m===SR.sim}" class="${m===SR.sim?'on':''}" data-m="${esc(m)}"><i>${SR_ICON[m]||'🏁'}</i>${esc(simLbl(m))}<small>${srTracks(m).length} ${plural(srTracks(m).length,'трасса','трассы','трасс')}</small></button>`).join('')}</div>`;
   if(!TS.length){
-    h+=`<div class="sr-none"><b>${SR_ICON[SR.sim]||'🏁'} Трассы ${esc(SR.sim)} скоро появятся</b><span>${coach?'Нажмите "+ Трассы" и впишите названия, потом "⏱ Вписать время".':'Тренер добавит трассы и запишет время пилотов.'}</span></div>`;
+    h+=`<div class="sr-none"><b>${SR_ICON[SR.sim]||'🏁'} Трассы ${esc(simLbl(SR.sim))} скоро появятся</b><span>${coach?'Нажмите "+ Трассы" и впишите названия, потом "⏱ Вписать время".':'Тренер добавит трассы и запишет время пилотов.'}</span></div>`;
   }else{
     if(TS.length>1)h+=`<div class="sr-trk"><select id="srSel" aria-label="Трасса">${[`<option value="">Все трассы (${TS.length})</option>`,...TS.map(t=>`<option value="${esc(t)}" ${t===SR.t?'selected':''}>${esc(t)}</option>`)].join('')}</select></div>`;
     const rows=srTable(SR.sim,SR.t);
@@ -1971,9 +2053,21 @@ function srDraw(anim){const box=q('sr');if(!box)return;
       if(rows.length>15)h+=`<div class="plcta"><button class="btn" id="srAll">${SR.all?'Свернуть':'Показать все ('+rows.length+')'}</button></div>`}
   }
   if(SR.sim==='Ворон'&&TS.length)h+=`<div class="sr-coach"><button class="btn" id="srVb">📊 Трассы и дроны</button></div>`;
-  if(ROLE==='helper')h+=`<div class="sr-coach"><button class="btn primary" onclick="openHelper()">✎ Заезды сегодня</button></div>`;
-  if(coach)h+=`<div class="sr-coach">${TS.length?`<button class="btn primary" id="srTime">⏱ Вписать время</button>`:''}<button class="btn" id="srAdd">+ Трассы</button>${TS.length?`<button class="btn" id="srEd">✎ Трассы</button>`:''}</div>`;
+  if(ROLE==='helper'||ROLE==='teacher')h+=`<div class="sr-coach"><button class="btn primary" onclick="openHelper()">✎ Заезды сегодня</button></div>`;
+  if(coach)h+=`<div class="sr-coach">${TS.length?`<button class="btn primary" id="srTime">⏱ Вписать время</button>`:''}${ADM?`<button class="btn" id="srAdd">+ Трассы</button>${TS.length?`<button class="btn" id="srEd">✎ Трассы</button>`:''}`:''}</div>`;
   box.innerHTML=h;srBind(box)}
+/* 08.11: в рейтинге трасс села - переключатель "своё село / все сёла" (общий рейтинг всех сёл, не уходя со своей страницы) */
+let SR_ALL=false;
+const _srDraw=srDraw;
+srDraw=function(anim){
+  const can=VIEW!=='all'&&RAW&&SELA.length>1;
+  if(can&&SR_ALL){const keep=data;data=Object.assign({},data,{'Заезды':RAW['Заезды']||[],'Пилоты':RAW['Пилоты']||[]});try{_srDraw(anim)}finally{data=keep}}
+  else _srDraw(anim);
+  const box=q('sr');if(!box||!can)return;
+  box.insertAdjacentHTML('afterbegin',`<div class="sr-scope" role="group" aria-label="Чей рейтинг"><button type="button" class="${SR_ALL?'':'on'}" aria-pressed="${!SR_ALL}" data-sc="0">🏠 ${esc(seloName(VIEW))}</button><button type="button" class="${SR_ALL?'on':''}" aria-pressed="${SR_ALL}" data-sc="1">🌍 Все площадки</button></div>`);
+  box.querySelectorAll('.sr-scope button').forEach(b=>b.onclick=()=>{const v=b.dataset.sc==='1';if(v===SR_ALL)return;SR_ALL=v;srDraw(1)});
+};
+document.head.insertAdjacentHTML('beforeend','<style>.sr-scope{display:flex;gap:6px;margin:0 0 10px}.sr-scope button{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--text);font:inherit;font-weight:700;cursor:pointer}.sr-scope button.on{background:var(--accent,#00d4ff);border-color:var(--accent,#00d4ff);color:#04121b}</style>');
 function srBind(box){
   box.querySelectorAll('.sr-sims button').forEach(b=>b.onclick=()=>{if(SR.sim===b.dataset.m)return;SR.sim=b.dataset.m;SR.t='';SR.all=0;srSave();srDraw(1);srPeek()});
   const sel=q('srSel');if(sel)sel.onchange=()=>{SR.t=sel.value;SR.all=0;srSave();srDraw(1)};
@@ -1991,7 +2085,7 @@ function vbEdit(){const sim='Ворон',TS=srTracks(sim),L=laps(),DL=droneList(
   const tr=(t,f)=>`<div class="vb-er" data-o="${esc(t)}"><input class="e-n" maxlength="14" placeholder="Коротко" value="${esc(t)}"><input class="e-f" placeholder="Полное название" value="${esc(f)}"><small>${t?nT(t):0}</small><button type="button" class="e-x" title="Удалить">🗑</button></div>`;
   const dr=d=>`<div class="vb-er dr" data-o="${esc(d)}"><input class="e-n" maxlength="30" placeholder="Название дрона" value="${esc(d)}"><small>${d?nD(d):0}</small><button type="button" class="e-x" title="Удалить">🗑</button></div>`;
   $('pbody').innerHTML=`<h2>✎ Трассы и дроны</h2><p class="sub">Цифра справа - сколько заездов. Переименуете - заезды перейдут на новое имя. Назовёте дрон так же, как другой, - их заезды объединятся (так исправляется опечатка). Удалите дрон - его заезды останутся без дрона. Удалите трассу - удалятся и её заезды.</p>
-   <div class="vb-l">Трассы Ворона</div><div id="vbTe">${TS.map(t=>tr(t,trkFull(t))).join('')}</div><div class="sr-coach" style="margin:6px 0 14px"><button class="btn" id="vbTa">+ Трасса</button></div>
+   <div class="vb-l">Трассы Velocidrone (Ворон)</div><div id="vbTe">${TS.map(t=>tr(t,trkFull(t))).join('')}</div><div class="sr-coach" style="margin:6px 0 14px"><button class="btn" id="vbTa">+ Трасса</button></div>
    <div class="vb-l">Дроны (до ${DMAX})</div><div id="vbDe">${DL.map(dr).join('')}</div><div class="sr-coach" style="margin:6px 0 14px"><button class="btn" id="vbDa">+ Дрон</button></div>
    <div class="ebar"><span class="sp"></span><button class="btn" id="vbNo">Отмена</button><button class="btn primary" id="vbOk">Сохранить</button></div>`;
   const b=$('pbody'),live=()=>b.querySelectorAll('#vbDe .vb-er:not(.del)').length,lim=()=>{q('vbDa').disabled=live()>=DMAX};
@@ -2030,13 +2124,13 @@ function vbEdit(){const sim='Ворон',TS=srTracks(sim),L=laps(),DL=droneList(
     catch(e){toast('Не сохранилось: '+e.message,'bad');ok.disabled=false;ok.textContent='Сохранить'}}}
 const VB=st.get('vzlet_vb',{t:'',d:''});
 function vbOpen(t){if(t)VB.t=t;VB.ed=0;vbDraw();$('pmodal').classList.add('open')}
-function vbDraw(){if(VB.ed&&MODE==='coach')return vbEdit();const sim='Ворон',TS=srTracks(sim);if(!TS.includes(VB.t))VB.t=TS[0]||'';
+function vbDraw(){if(VB.ed&&ADM)return vbEdit();const sim='Ворон',TS=srTracks(sim);if(!TS.includes(VB.t))VB.t=TS[0]||'';
   const L=laps().filter(l=>simOf(l.track)===sim),DL=droneList(),DR=[...new Set([...(DL||[]),...L.map(l=>l.drone).filter(Boolean)])];if(!DL)DR.sort((a,b)=>a.localeCompare(b,'ru'));
   if(VB.d&&!DR.includes(VB.d))VB.d='';
   const onT=new Set(L.filter(l=>l.track===VB.t).map(l=>l.drone));
   const m={};L.forEach(l=>{if(l.track!==VB.t||(VB.d&&l.drone!==VB.d))return;const k=normName(l.pilot);if(!m[k]||l.sec<m[k].sec)m[k]=l});
   const rows=Object.values(m).sort((a,b)=>a.sec-b.sec),top=rows.length?rows[0].sec:0,full=trkFull(VB.t);
-  $('pbody').innerHTML=`<h2>${SR_ICON[sim]} Ворон: лучшее время</h2><p class="sub">Выбери трассу и дрон. Полоска показывает, насколько пилот близок к лидеру.</p>${MODE==='coach'?'<div class="sr-coach" style="margin:0 0 12px"><button class="btn" id="vbEd">✎ Править трассы и дроны</button></div>':''}
+  $('pbody').innerHTML=`<h2>${SR_ICON[sim]} Velocidrone (Ворон): лучшее время</h2><p class="sub">Выбери трассу и дрон. Полоска показывает, насколько пилот близок к лидеру.</p>${ADM?'<div class="sr-coach" style="margin:0 0 12px"><button class="btn" id="vbEd">✎ Править трассы и дроны</button></div>':''}
    <div class="vb-l">Трасса</div><div class="vb-ch" id="vbT">${TS.map(t=>`<button class="${t===VB.t?'on':''}" data-t="${esc(t)}" title="${esc(trkFull(t)||t)}">${esc(t)}</button>`).join('')}</div>
    ${full?`<div class="vb-full">📍 <b>${esc(full)}</b></div>`:''}
    ${DR.length?`<div class="vb-l">Дрон</div><div class="vb-ch dr" id="vbD"><button class="${VB.d?'':'on'}" data-d="">Любой дрон</button>${DR.map(d=>`<button class="${d===VB.d?'on':''}${onT.has(d)?'':' no'}" data-d="${esc(d)}">${esc(d)}</button>`).join('')}</div>`:''}
@@ -2049,7 +2143,7 @@ function vbDraw(){if(VB.ed&&MODE==='coach')return vbEdit();const sim='Ворон
   const ed=q('vbEd');if(ed)ed.onclick=()=>{VB.ed=1;vbDraw()};
   const on=b.querySelector('#vbT .on');if(on)on.scrollIntoView({block:'nearest',inline:'center'});const od=b.querySelector('#vbD .on');if(od)od.scrollIntoView({block:'nearest',inline:'center'})}
 window.SR_SIM=()=>SR.sim;window.SR_RENAMED=(a,b)=>{if(SR.t===a){SR.t=b;srSave()}};
-function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=SR.sim+': '+(L?'быстрее всех - '+pnm(L.p['Пилот']):'ждём первых заездов')}
+function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=simLbl(SR.sim)+': '+(L?'быстрее всех - '+pnm(L.p['Пилот']):'ждём первых заездов')}
 /* ---- вопрос дня ---- */
 /* банк: 30 вопросов из тестов + 38 вопросов только для "вопроса дня" = 68 дней без повторов */
 const DAILY=[
@@ -2099,12 +2193,12 @@ function dqAll(D){return[...D.own.map(o=>({k:'o:'+o.id,q:[o.q,o.a,o.c],own:o})),
 function dqToday(D){D=D||dqCfg();const n=dayN(),A=dqAll(D),P=A.filter(x=>!D.off.includes(x.k));
   if(D.pin&&D.pin.d===n){const x=A.find(z=>z.k===D.pin.k);if(x)return x}
   return P.length?P[(n*7919)%P.length]:null}
-function renderDay(){const el=q('plDay');const T=dqToday();if(!T){el.innerHTML='<h3>🧠 Вопрос дня</h3><p class="q">Вопросов пока нет.</p>'+(MODE==='coach'?'<div class="cedit"><button class="btn" type="button" onclick="openDq()">✎ Вопросы дня</button></div>':'');return}
+function renderDay(){const el=q('plDay');const T=dqToday();if(!T){el.innerHTML='<h3>🧠 Вопрос дня</h3><p class="q">Вопросов пока нет.</p>'+(ADM?'<div class="cedit"><button class="btn" type="button" onclick="openDq()">✎ Вопросы дня</button></div>':'');return}
   const n=dayN(),qq=T.q,S=st.get('vzlet_daily',{d:0,ok:null,pick:-1,streak:0,best:0});
   const order=qq[1].map((t,i)=>i).sort((a,b)=>((a*31+n)%7)-((b*31+n)%7));const done=S.d===n&&(!S.k||S.k===T.k);
   el.innerHTML=`<h3>🧠 Вопрос дня <span class="streak">🔥 ${S.d>=n-1?S.streak:0} ${['день','дня','дней'][(S.streak%10===1&&S.streak%100!==11)?0:(S.streak%10>=2&&S.streak%10<=4&&(S.streak%100<10||S.streak%100>=20))?1:2]} подряд</span></h3><p class="q">${esc(qq[0])}</p>
    <div class="opts">${order.map(i=>`<button class="qopt ${done?(i===qq[2]?'ok':i===S.pick?'no':''):''}" data-i="${i}" ${done?'disabled':''}>${esc(qq[1][i])}</button>`).join('')}</div>
-   <div class="res">${done?(S.ok?'✅ Верно! Новый вопрос завтра.':'❌ Не угадал. Завтра будет новый вопрос - серия начнётся заново.')+(S.best>1?` Рекорд серии: ${S.best}.`:''):'Ответь правильно каждый день, чтобы держать серию.'}</div>`+(MODE==='coach'?'<div class="cedit"><button class="btn" type="button" onclick="openDq()">✎ Вопросы дня</button></div>':'');
+   <div class="res">${done?(S.ok?'✅ Верно! Новый вопрос завтра.':'❌ Не угадал. Завтра будет новый вопрос - серия начнётся заново.')+(S.best>1?` Рекорд серии: ${S.best}.`:''):'Ответь правильно каждый день, чтобы держать серию.'}</div>`+(ADM?'<div class="cedit"><button class="btn" type="button" onclick="openDq()">✎ Вопросы дня</button></div>':'');
   if(!done)el.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i===qq[2];const streak=ok?((S.d===n-1&&S.ok)?S.streak+1:1):0;
     st.set('vzlet_daily',{d:n,k:T.k,ok,pick:i,streak:S.d===n?S.streak:streak,best:Math.max(S.best||0,streak)});if(ok&&navigator.vibrate)navigator.vibrate(30);renderDay()})}
 function openDq(){let D=JSON.parse(JSON.stringify(dqCfg())),ed=null,find='';
@@ -2167,7 +2261,7 @@ function fold(el,peek){const h=el.querySelector(':scope>h3');if(!h)return;const 
   h.onclick=e=>{if(e.target.closest('button:not(.fh),a'))return;const c=!el.classList.contains('closed');el.classList.toggle('closed',c);fsave(k,c)};
   h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();h.click()}}}
 const _ev=renderEv;renderEv=function(){_ev();const ev=evT?Math.max(0,Math.ceil((evT-Date.now())/864e5)):null;fold(q('plEv'),ev===null?'скоро объявим':ev===0?'сегодня!':'через '+ev+' дн.')};
-const _pd=renderPod;renderPod=function(){_pd();const L=srLeader(SR.sim);fold(q('plPod'),SR.sim+': '+(L?'быстрее всех - '+pnm(L.p['Пилот']):'ждём первых заездов'))};
+const _pd=renderPod;renderPod=function(){_pd();const L=srLeader(SR.sim);fold(q('plPod'),simLbl(SR.sim)+': '+(L?'быстрее всех - '+pnm(L.p['Пилот']):'ждём первых заездов'))};
 const _dy=renderDay;renderDay=function(){_dy();const S=st.get('vzlet_daily',{});fold(q('plDay'),(S.d===dayN()?(S.ok?'✅ отвечено':'❌ завтра новый вопрос'):'ждёт ответа')+(S.streak&&S.d>=dayN()-1?' · 🔥 '+S.streak:''))};
 const _ck=renderChk;renderChk=function(){_ck();fold(q('plChk'),CS.length===CK.length?'✅ готов к взлёту':'отмечено '+CS.length+' из '+CK.length)};
 /* карточки-раскрывашки (details): плавная высота */
@@ -2205,7 +2299,7 @@ const HIDE_DEF=['Пилоты','Заезды'];
 const blkEl=k=>k.startsWith('pl')?q(k):k==='kpi'?q('kpiBox'):k==='fgd'?q('fgd-card'):document.querySelector(`#t-club details[data-tab="${k}"]`);
 function hideList(){const r=(data&&data['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_скрыто');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):HIDE_DEF}
 function applyHide(){const H=hideList();BLK.forEach(([k])=>{const el=blkEl(k);if(!el)return;const h=H.includes(k);
-  if(MODE==='coach'){el.hidden=false;el.classList.toggle('hid4all',h);el.classList.add('vblk');
+  if(ADM){el.hidden=false;el.classList.toggle('hid4all',h);el.classList.add('vblk');
     const host=el.tagName==='DETAILS'?el.querySelector(':scope>summary'):el;if(!host)return;
     let b=host.querySelector(':scope>.vbtn');if(!b){b=document.createElement('button');b.type='button';b.className='vbtn';b.dataset.vk=k;host.prepend(b);
       b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();visToggle(k)});
@@ -2231,11 +2325,11 @@ function openVis(){const H=hideList();
     try{await postSheet('Статус',[...S,{'Параметр':'_скрыто','Значение':nh.join(', ')}]);closePilot();renderAll();toast('Сохранено ✓','ok')}
     catch(e){toast('Не сохранилось: '+e.message,'bad');b.disabled=false;b.textContent='Сохранить'}}}
 window.openVis=openVis;
-if(MODE==='coach'){const p=q('plTop')||q('pult');if(p)p.insertAdjacentHTML('beforebegin','<div class="cbar"><span class="muted">Кнопка над каждым блоком: 👁 видят все или 🙈 скрыто от всех. Скрытые блоки видите только вы.</span></div>')}
+if(ADM){const p=q('plTop')||q('pult');if(p)p.insertAdjacentHTML('beforebegin','<div class="cbar"><span class="muted">Кнопка над каждым блоком: 👁 видят все или 🙈 скрыто от всех. Скрытые блоки видите только вы.</span></div>')}
 /* ---- главный блок: 1-2 фото и текст. Хранится в листе "Статус", строка _блок (JSON: h, p, f - фото) ---- */
 const PT_IMG=/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/;
 function ptData(){const T=sGet('_блок')||{};return{h:String(T.h||'').slice(0,80),p:String(T.p||'').slice(0,700),f:(Array.isArray(T.f)?T.f:[]).filter(x=>PT_IMG.test(String(x))).slice(0,2)}}
-function renderTop(){const el=q('plTop');if(!el)return;const T=ptData(),co=MODE==='coach';
+function renderTop(){const el=q('plTop');if(!el)return;const T=ptData(),co=ADM;
   el.classList.remove('f1','f2');if(T.f.length)el.classList.add('f'+T.f.length);
   if(!T.h&&!T.p&&!T.f.length){el.innerHTML=co?'<div class="pt-tx"><h2>Главный блок</h2><p class="pt-emp">Пусто - гости его не видят. Добавьте 1-2 фото и текст: они встанут первым блоком клуба.</p><div class="cedit"><button class="btn" type="button" onclick="openTop()">✎ Добавить фото и текст</button></div></div>':'';return}
   el.innerHTML=(T.f.length?`<div class="pt-ph">${T.f.map((u,i)=>`<button type="button" aria-label="Открыть фото ${i+1}" onclick="ptZoom(${i})"><img src="${u}" alt="${esc(T.h||'Фото клуба')}" decoding="async"></button>`).join('')}</div>`:'')+
@@ -2272,9 +2366,11 @@ if(typeof data==='object'&&data){if(DEMO)renderAll();else{renderPult();applyHide
 <script>
 /* ---- замочки на вкладках: тренер закрывает вкладку для всех; список в листе "Статус", строка "_замок" ---- */
 (function(){
-const vt=document.getElementById('vt'),rate=document.getElementById('t-rate'),box=document.querySelector('#t-rate [data-spk-club]'),zb=document.getElementById('zayBody'),bar=document.getElementById('zkbar');
+const vt=document.getElementById('vt'),bar=document.getElementById('zkbar');
 const NM={};vt.querySelectorAll('button').forEach(b=>NM[b.dataset.t]=b.querySelector('b').textContent);
-function zkList(){const r=(data&&data['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_замок');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):ZAK_DEF.slice()}
+/* 28.10: пока сервер не ответил, берём список замков из прошлой загрузки (кэш), чтобы вкладки и кнопки не "прыгали" */
+function zkSrc(){if(data)return data;try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');return c&&c.data||null}catch(e){return null}}
+function zkList(){const d=zkSrc(),r=(d&&d['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_замок');return r?String(r['Значение']||'').split(',').map(s=>s.trim()).filter(Boolean):ZAK_DEF.slice()}
 const cur=()=>{const b=vt.querySelector('button.on');return b?b.dataset.t:'club'};
 window.openZay=()=>document.getElementById('zmodal').classList.add('open');
 window.closeZay=()=>document.getElementById('zmodal').classList.remove('open');
@@ -2283,9 +2379,7 @@ window.zakBar=function(t){if(!zkCoach||t==='club'){bar.hidden=true;return}const 
   bar.querySelector('button').onclick=()=>zkToggle(t)};
 window.zakApply=function(){ZAKRYTO=zkList();
   vt.querySelectorAll('button').forEach(b=>b.classList.toggle('zk',ZAKRYTO.includes(b.dataset.t)));
-  const rl=zk('rate');document.getElementById('zayBtn').hidden=!rl;document.getElementById('zagRate').hidden=rl;
-  document.getElementById('zagTx').textContent=rl?'А пока загляни в Клуб.':'А пока загляни в Клуб или Рейтинг.';
-  if(box){if(rl&&box.parentNode!==zb)zb.appendChild(box);else if(!rl&&box.parentNode!==rate)rate.appendChild(box)}
+  document.getElementById('zayBtn').hidden=false;
   if(window.vzShow){const t=cur(),stub=!document.getElementById('zag').hidden;if(zk(t)!==stub)vzShow(t,false);else zakBar(t)}};
 let busy=false;
 async function zkToggle(t){if(busy)return;busy=true;const was=ZAKRYTO.includes(t),nl=was?ZAKRYTO.filter(x=>x!==t):[...ZAKRYTO,t];
