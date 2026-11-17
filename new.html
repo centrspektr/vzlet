@@ -1459,14 +1459,15 @@ function renderNews(){
   $('c-news').textContent = list.length;
   $('news').innerHTML = list.map(n=>{ const u=safeUrl(n['Ссылка']);
     return `<div class="news-item"><span class="nd">${esc(n['Дата'])}</span>
-      <span>${esc(n['Текст'])}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener">открыть</a>`:''}</span></div>`;}).join('') || '<p class="empty">Новостей нет</p>';
+      <span>${esc(unent(n['Текст']))}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener">открыть</a>`:''}</span></div>`;}).join('') || '<p class="empty">Новостей нет</p>';
 }
 
+const unent=t=>String(t||'').replace(/&#(\d+);/g,(m,c)=>String.fromCharCode(+c)).replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
 function renderFgd(){
   const list=(data['Новости ФГД']||[]).slice(0,6);
   $('c-fgd').textContent = list.length||'';
   $('fgd').innerHTML = list.map(n=>{ const u=safeUrl(n['Ссылка']);
-    return `<div class="news-item"><span class="nd">${esc(n['Дата'])}</span><span>${esc(n['Текст'])}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener">читать</a>`:''}</span></div>`;}).join('') || '<p class="empty">Лента загружается - появится после первого обновления</p>';
+    return `<div class="news-item"><span class="nd">${esc(n['Дата'])}</span><span>${esc(unent(n['Текст']))}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener">читать</a>`:''}</span></div>`;}).join('') || '<p class="empty">Лента загружается - появится после первого обновления</p>';
 }
 
 function renderStatus(){
