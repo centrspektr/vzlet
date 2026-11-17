@@ -25,10 +25,9 @@
     return [t, h ? '#' + h : ''].filter(Boolean).join(' ') || 'главная';
   }
 
-  var css = '.spkbug{position:fixed;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:9000;width:30px;height:30px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(20,14,36,.7);color:#e9e4ff;font:800 15px system-ui,sans-serif;cursor:pointer;opacity:.5;transition:opacity .2s;-webkit-tap-highlight-color:transparent}'
-    + '.spkbug:hover,.spkbug:focus{opacity:1}'
-    + '.spkbp{position:fixed;right:10px;bottom:calc(48px + env(safe-area-inset-bottom,0px));z-index:9000;width:min(240px,calc(100vw - 20px));padding:12px;border-radius:14px;background:#211a3d;border:1px solid rgba(255,255,255,.14);color:#f1edff;font:13.5px/1.4 system-ui,sans-serif;box-shadow:0 14px 34px -10px rgba(0,0,0,.7)}.spkbp[hidden]{display:none}.spkbp p{margin:0 0 10px}'
-    + '.spkbp button{width:100%;height:38px;border:none;border-radius:10px;background:linear-gradient(110deg,#f59e0b,#ec4899);color:#fff;font:800 13.5px system-ui,sans-serif;cursor:pointer}'
+  var css = '.spkbug{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:9000;display:flex;align-items:center;gap:8px;padding:5px 5px 5px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(20,14,36,.8);color:#e9e4ff;font:700 12px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 22px -8px rgba(0,0,0,.6);transition:transform .25s,box-shadow .25s;-webkit-tap-highlight-color:transparent;animation:spkbugIn .6s .8s cubic-bezier(.2,1.4,.4,1) both}'
+    + '.spkbug b{padding:5px 11px;border-radius:999px;background:linear-gradient(110deg,#f59e0b,#ec4899);color:#fff;font-weight:800;font-size:12px;letter-spacing:.2px}'
+    + '.spkbug:hover{transform:translateY(-2px);box-shadow:0 10px 26px -8px rgba(0,0,0,.6),0 0 0 4px rgba(255,190,60,.18)}'
     + '@keyframes spkbugIn{from{opacity:0;transform:translateY(20px) scale(.7)}}'
     + '.spkbm{position:fixed;inset:0;z-index:9001;display:flex;align-items:flex-end;justify-content:center;padding:12px;background:rgba(6,3,16,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .25s}.spkbm.on{opacity:1}'
     + '@media(min-width:600px){.spkbm{align-items:center}}'
@@ -43,7 +42,7 @@
     + '.spkbm .br .go{border:none;background:linear-gradient(110deg,#f59e0b,#ec4899);min-width:150px}.spkbm .br .go:disabled{opacity:.6}'
     + '.spkbm .ok{text-align:center;padding:20px 6px 8px}.spkbm .ok i{display:block;font-style:normal;font-size:46px;animation:spkbugIn .6s cubic-bezier(.2,1.6,.4,1)}'
     + '.spkbm .er{color:#fca5a5;font-size:13.5px;margin:-6px 0 10px;min-height:1px}'
-    + '@media (prefers-reduced-motion: reduce){.spkbm .bx,.spkbm .ok i{animation:none!important;transition:none!important}}';
+    + '@media (prefers-reduced-motion: reduce){.spkbug,.spkbm .bx,.spkbm .ok i{animation:none!important;transition:none!important}}';
 
   function el(t, c, h) { var e = document.createElement(t); if (c) e.className = c; if (h != null) e.innerHTML = h; return e; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -86,14 +85,9 @@
 
   function mount() {
     var st = el('style'); st.textContent = css; document.head.appendChild(st);
-    var b = el('button', 'spkbug', '?');
-    b.type = 'button'; b.title = 'Нашёл ошибку?'; b.setAttribute('aria-label', 'Нашёл ошибку?'); b.setAttribute('aria-expanded', 'false');
-    var pop = el('div', 'spkbp', '<p>Нашёл ошибку? Расскажи нам - мы проверим и исправим.</p><button type="button">⚠ Сообщить об ошибке</button>');
-    pop.hidden = true;
-    b.onclick = function (e) { e.stopPropagation(); pop.hidden = !pop.hidden; b.setAttribute('aria-expanded', String(!pop.hidden)); };
-    pop.querySelector('button').onclick = function () { pop.hidden = true; b.setAttribute('aria-expanded', 'false'); open(); };
-    document.addEventListener('click', function (e) { if (!pop.hidden && !pop.contains(e.target)) { pop.hidden = true; b.setAttribute('aria-expanded', 'false'); } });
-    document.body.appendChild(pop); document.body.appendChild(b);
+    var b = el('button', 'spkbug', '<span>Нашёл ошибку?</span><b>Жми</b>');
+    b.type = 'button'; b.title = 'Сообщить об ошибке'; b.setAttribute('aria-label', 'Сообщить об ошибке');
+    b.onclick = open; document.body.appendChild(b);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
