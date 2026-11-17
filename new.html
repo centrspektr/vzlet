@@ -602,6 +602,20 @@ details.card>summary::after{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
 .drone .prop{animation:prop .18s linear infinite}@keyframes prop{to{transform:rotate(360deg)}}
 @media(max-width:600px){.plev .drone svg{width:60px;height:45px}}
 </style>
+<style>/* 17.11: трасса + дрон */
+details[data-tab="Пилоты"]{display:none!important}
+.sr-how{font-size:13px;line-height:1.45;color:var(--dim);margin:0 0 10px}.sr-how b{color:var(--text)}
+.sr-dr{display:flex;gap:8px;margin:0 0 10px}.sr-dr button{flex:1;min-height:48px;display:grid;justify-items:center;align-content:center;gap:1px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--text);font:800 15px var(--fh,inherit);cursor:pointer}.sr-dr button small{font:600 11px Manrope,system-ui,sans-serif;opacity:.7}.sr-dr button.on{background:linear-gradient(135deg,#a371f7,#00d4ff);border-color:transparent;color:#04121b}
+.sr-warn{display:block;width:100%;text-align:left;margin:0 0 10px;padding:10px 12px;border-radius:12px;border:1px solid #f0883e;background:rgba(240,136,62,.12);color:#ffb784;font:700 13.5px Manrope,system-ui,sans-serif;cursor:pointer}
+.ss-dt{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;max-width:160px}
+.ss-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:200px;overflow:auto;margin:0 0 8px}.ss-chips button{border:1px solid var(--line);background:var(--panel2,rgba(255,255,255,.05));color:var(--text);font:700 13px Manrope,system-ui,sans-serif;padding:8px 12px;border-radius:99px;cursor:pointer;min-height:38px}.ss-chips button.on{background:var(--accent,#00d4ff);color:#04121b;border-color:transparent}
+.ss-q{width:100%;margin:0 0 8px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--text);font:600 15px Manrope,system-ui,sans-serif}
+.ss-sum{padding:10px 12px;margin:2px 0 8px;border-radius:12px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);font-size:14px}.ss-sum .bad{color:#ff7b72;font-weight:700}
+.nd-g{margin:0 0 14px}.nd-h{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}.nd-h .btn{padding:5px 9px;font-size:12px;margin-left:4px}
+.nd-r{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}.nd-i small{display:block;color:var(--dim);font-size:12px;margin-top:2px}.nd-b{display:flex;gap:6px;flex:0 0 auto}.nd-b button{min-height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--text);font:700 13px Manrope,system-ui,sans-serif;cursor:pointer}.nd-b button.on{background:linear-gradient(135deg,#a371f7,#00d4ff);color:#04121b;border-color:transparent}
+.kpi-ed{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12.5px}
+.kp-r{display:grid;grid-template-columns:1fr 90px;gap:8px;margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid var(--line)}.kp-r label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--dim);text-transform:uppercase}.kp-r .kp-s,.kp-r .kp-h{grid-column:1/-1}.kp-h{font-size:13px;color:var(--dim)}.kp-h .btn{padding:5px 9px;font-size:12px}
+@media(max-width:520px){.nd-r{flex-direction:column;align-items:stretch}.nd-b button{flex:1}}</style>
 </head>
 <body>
 
@@ -981,6 +995,26 @@ function renderKPI(){
   $('kpi-grid').innerHTML = tiles.map(k=>`
     <div class="card col-3 kpi"><span class="label">${esc(k.label)}</span>
     <span class="num">${esc(k.value)}</span><small>${esc(k.sub)}</small></div>`).join('');
+  if(ADM) $('kpi-grid').insertAdjacentHTML('beforeend',`<div class="kpi-ed"><button class="btn" type="button" onclick="openKpi()">✎ Изменить цифры</button><span class="muted">Эти цифры вписываются вручную и сами не считаются (кроме "Ближайшего события" - оно берётся из блока "События").</span></div>`);
+}
+function openKpi(){
+  const kp=(data['Показатели']||[]).slice(0,3), N=allPilots().length;
+  const D=['Пилотов в клубе','Тренировок в неделю','Дронов в строю'], row=i=>kp[i]||{'Показатель':D[i],'Значение':'','Подпись':''};
+  $('pbody').innerHTML=`<h2>📊 Клуб в цифрах</h2><p class="sub">Впишите значения от руки - на сайте покажется ровно то, что здесь написано. Ноль у пилотов - это значение из таблицы, а не подсчёт.</p>
+   ${[0,1,2].map(i=>{const r=row(i);return `<div class="kp-r" data-i="${i}"><label>Название<input class="kp-l" maxlength="40" value="${esc(r['Показатель'])}"></label><label>Число<input class="kp-v" maxlength="12" inputmode="numeric" value="${esc(r['Значение'])}"></label><label class="kp-s">Подпись<input class="kp-t" maxlength="60" value="${esc(r['Подпись'])}"></label>
+     ${i===0?`<div class="kp-h">В таблице пилотов сейчас: <b>${N}</b> <button type="button" class="btn" id="kpN">Поставить ${N}</button> <span class="muted">(или впишите число заявок)</span></div>`:''}
+     ${i===2?`<div class="kp-h">Помощник: всего дронов <input id="kpA" type="number" min="0" style="width:64px"> из них в ремонте <input id="kpB" type="number" min="0" style="width:64px"> <button type="button" class="btn" id="kpD">Заполнить</button></div>`:''}</div>`}).join('')}
+   <p class="muted">4-я плитка "Ближайшее событие" считается сама по блоку "События".</p>
+   <div class="ebar"><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="kpSave">Сохранить</button></div>`;
+  const b=$('pbody');b.querySelectorAll('input').forEach(i=>i.style.cssText+=';font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%');
+  b.querySelectorAll('#kpA,#kpB').forEach(i=>i.style.width='64px');
+  $('pmodal').classList.add('open');
+  $('kpN').onclick=()=>{b.querySelector('.kp-r[data-i="0"] .kp-v').value=N};
+  $('kpD').onclick=()=>{const a=parseInt($('kpA').value),r=parseInt($('kpB').value)||0;if(!(a>=0)||r>a)return toast('Проверьте числа: в ремонте не больше, чем всего','bad');const w=b.querySelector('.kp-r[data-i="2"]');w.querySelector('.kp-v').value=a-r;w.querySelector('.kp-t').value='из '+a+(r?' ('+r+' в ремонте)':'')};
+  $('kpSave').onclick=async()=>{const rows=[0,1,2].map(i=>{const w=b.querySelector(`.kp-r[data-i="${i}"]`);return{'Показатель':w.querySelector('.kp-l').value.trim(),'Значение':w.querySelector('.kp-v').value.trim(),'Подпись':w.querySelector('.kp-t').value.trim()}});
+    if(rows.some(r=>!r['Показатель']||r['Значение']===''))return toast('Заполните название и число в каждой плитке','bad');
+    const bt=$('kpSave');bt.disabled=true;bt.textContent='Сохраняю…';
+    try{await postSheet('Показатели',[...rows,...(data['Показатели']||[]).slice(3)]);closePilot();renderAll();toast('Цифры сохранены ✓','ok')}catch(e){toast('Не сохранилось: '+e.message,'bad');bt.disabled=false;bt.textContent='Сохранить'}};
 }
 
 function renderEvents(){
@@ -1045,8 +1079,11 @@ let _dc=null,_dcSrc=null;
 function droneCanon(raw){ const Z=data['Заезды']||[]; if(_dcSrc!==Z){ _dcSrc=Z; const n={}; Z.forEach(l=>{ const d=String(l['Дрон']||'').trim().replace(/\s+/g,' '); if(!d) return; const k=droneKey(d); (n[k]=n[k]||{})[d]=(n[k][d]||0)+1; });
   _dc={}; Object.keys(n).forEach(k=>{ _dc[k]=Object.keys(n[k]).sort((a,b)=>n[k][b]-n[k][a])[0]; }); }
   const d=String(raw||'').trim().replace(/\s+/g,' '); return d?(_dc[droneKey(d)]||d):''; }
+/* дрон - только два типа. Заезд без типа (или с непонятным названием) в рейтинг не идёт, пока тренер его не отнесёт (окно "Заезды без дрона") */
+const DTYPES=['Микро','Фристайл'];
+function dType(raw){ const k=droneKey(raw); if(!k) return ''; if(/mikr|micr|vup|hoop/.test(k)) return 'Микро'; if(/fris|frees/.test(k)) return 'Фристайл'; return ''; }
 function laps(){
-  return (data['Заезды']||[]).map((l,_i)=>({_i, pilot:l['Пилот'], track:String(l['Трасса']||'').trim()||'Без названия', sec:lapSec(l['Время круга']), date:l['Дата'], fmt:l['Формат'], crash:Math.max(0,Math.round(num(l['Аварии']))), drone:droneCanon(l['Дрон'])})).filter(l=>l.sec);
+  return (data['Заезды']||[]).map((l,_i)=>({_i, pilot:l['Пилот'], track:String(l['Трасса']||'').trim()||'Без названия', sec:lapSec(l['Время круга']), date:l['Дата'], fmt:l['Формат'], crash:Math.max(0,Math.round(num(l['Аварии']))), drone:dType(l['Дрон']), droneRaw:String(l['Дрон']||'').trim()})).filter(l=>l.sec);
 }
 function trackList(){ return (data['Трассы']||[]).map(t=>String(t['Название']||'').trim()).filter(Boolean); }
 function trackFmt(t){ const r=(data['Трассы']||[]).find(x=>String(x['Название']).trim()===t); return r?r['Формат']:''; }
@@ -1163,7 +1200,7 @@ function openPilot(name){
     const bst=Math.min(...ls.map(l=>l.sec)), first=ls[0].sec, f=String(ls[0].fmt||'').toLowerCase();
     const gain=first-bst;
     const rows=ls.map((l,i)=>{ const d=i?l.sec-ls[i-1].sec:null;
-      return `<tr><td>${esc(l.date||'-')}</td><td class="${l.sec===bst?'best':''}">${fmtLap(l.sec)}${l.sec===bst?' 🏆':''}</td>
+      return `<tr><td>${esc(l.date||'-')}${l.drone?` <small class="muted">· ${esc(l.drone)}</small>`:' <small class="dslow">· без дрона</small>'}</td><td class="${l.sec===bst?'best':''}">${fmtLap(l.sec)}${l.sec===bst?' 🏆':''}</td>
         <td class="${d===null?'':d<0?'dfast':d>0?'dslow':''}">${d===null?'-':(d<0?'▼ ':d>0?'▲ +':'')+(d<0?'−'+Math.abs(d).toFixed(1):d.toFixed(1))+' с'}</td><td class="${l.crash?'dslow':''}">${l.crash}${MODE==='coach'?` <button class="lapdel" data-i="${l._i}" title="Удалить этот заезд">✕</button>`:''}</td></tr>`; }).reverse().join('');
     return `<div class="ptrack"><h4>${esc(t)} ${simTag(t)}</h4>
       <div class="prog">Заездов: ${ls.length} · первый ${fmtLap(first)} → лучший ${fmtLap(bst)}${gain>0?` · <b>быстрее на ${gain.toFixed(1)} с</b>`:''}</div>
@@ -1175,6 +1212,7 @@ function openPilot(name){
       <div class="addlap"><label>Дата<input id="al-date" value="${todayStr()}"></label>
         <label>Трасса${trackSelect('al-track', curTrack||best?.track||'')}</label>
         <label>Время круга<input id="al-time" placeholder="49.3 или 1:05.3"></label>
+        <label>Дрон${droneField('al-drone', lastDrone(name), '', '')}</label>
         <label>Аварии<input id="al-crash" type="number" min="0" value="0"></label>
         <button class="btn primary" id="al-save">+ Добавить</button></div>`;
   }
@@ -1189,7 +1227,8 @@ function closePilot(){ $('pmodal').classList.remove('open'); openPilotName=''; }
 async function addLap(name, btn){
   const t=$('al-track').value.trim(), tm=$('al-time').value.trim();
   if(!t || !lapSec(tm)){ toast('Укажите трассу и время, например 49.3 или 1:05.3','bad'); return; }
-  const rows=[...(data['Заезды']||[]), {'Дата':$('al-date').value.trim(),'Пилот':name,'Трасса':t,'Время круга':lapStore(tm),'Формат':trackFmt(t),'Аварии':String(Math.max(0,parseInt($('al-crash').value)||0))}];
+  const dr=$('al-drone').value; if(!dr){ toast('Выберите дрон: Микро или Фристайл','bad'); return; }
+  const rows=[...(data['Заезды']||[]), {'Дата':$('al-date').value.trim(),'Пилот':name,'Трасса':t,'Время круга':lapStore(tm),'Формат':trackFmt(t),'Аварии':String(Math.max(0,parseInt($('al-crash').value)||0)),'Дрон':dr}];
   btn.disabled=true; btn.textContent='Сохраняю…';
   try{ await postSheet('Заезды', rows); renderAll(); openPilot(name); toast('Заезд добавлен ✓','ok'); }
   catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='+ Добавить'; }
@@ -1249,49 +1288,91 @@ async function trkDel(t){
 }
 /* ---------- заезд группы: одна трасса, время и аварии для всех пилотов ---------- */
 /* список дронов задаёт тренер (лист "Статус", строка "_дроны", до 5); пока не задан - берём из заездов */
-function droneList(){ const r=(data['Статус']||[]).find(x=>String(x['Параметр']||'').trim()==='_дроны'); return r?String(r['Значение']||'').split(',').map(x=>x.trim()).filter(Boolean):null; }
-function drones(){ return droneList() || [...new Set(laps().map(l=>l.drone).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru')); }
+function droneList(){ return DTYPES; }
+function drones(){ return DTYPES; }
 /* поле "дрон": если список задан - выбор из списка (без опечаток), иначе ввод с подсказками */
-function droneField(cls, val, list, attrs){ const L=droneList(); val=droneCanon(val);
-  if(!L) return `<input class="${cls}" ${attrs||''} list="${list}" value="${esc(val)}" placeholder="модель">`;
-  return `<select class="${cls}" ${attrs||''}><option value="">-</option>${[...L,...(val&&!L.includes(val)?[val]:[])].map(d=>`<option ${d===val?'selected':''}>${esc(d)}</option>`).join('')}</select>`; }
+function droneField(cls, val, list, attrs){ val=dType(val);
+  return `<select class="${cls}" ${attrs||''}><option value="">- дрон -</option>${DTYPES.map(d=>`<option ${d===val?'selected':''}>${esc(d)}</option>`).join('')}</select>`; }
 function lastDrone(name){ const k=normName(name), L=laps().filter(l=>l.drone&&normName(l.pilot)===k); return L.length?L[L.length-1].drone:''; }
-function openSession(trk){
+function openSession(trk,drn){
+  const {srSims,srTracks,SR,SR_ICON,simLbl,srSave}=window.SRX;
   if(typeof trk!=='string') trk=curTrack;
   const ps=allPilots().sort((a,b)=>String(a['Пилот']).localeCompare(String(b['Пилот']),'ru'));
-  $('pbody').innerHTML = `<h2>Заезд группы</h2><p class="sub">Выберите трассу и впишите время лучшего круга, аварии и дрон. Кто не летал - оставьте время пустым.</p>
-    <div class="addlap" style="margin-bottom:14px"><label>Дата<input id="ss-date" value="${todayStr()}"></label>
-      <label>Трасса${trackSelect('ss-track', trk)}</label>
-      <button class="btn" onclick="editTracks()">✎ Список трасс</button></div>
-    <div class="tscroll"><table><thead><tr><th>Пилот</th><th>Сейчас лучший</th><th>Новое время</th><th>Аварии</th><th>Дрон</th></tr></thead><tbody>
+  const sims=srSims(), L0=laps();
+  let T=trk||'', D=DTYPES.includes(drn)?drn:'', sim=T?simOf(T):(sims.includes(SR.sim)?SR.sim:sims[0]), qs='';
+  const recent=[]; L0.slice().reverse().forEach(l=>{ if(!recent.includes(l.track)&&recent.length<4) recent.push(l.track); });
+  $('pbody').innerHTML = `<h2>Заезд группы</h2><p class="sub">Три шага: 1) трасса, 2) дрон (один на всю группу, обязательно), 3) время и аварии каждого пилота. Кто не летал - оставьте время пустым.</p>
+    <label class="ss-dt">Дата<input id="ss-date" value="${todayStr()}"></label>
+    <div class="vb-l">1. Трасса</div><div class="sr-sims" id="ssSims">${sims.map(m=>`<button type="button" data-m="${esc(m)}"><i>${SR_ICON[m]||'🏁'}</i>${esc(simLbl(m))}</button>`).join('')}</div>
+    <div id="ssSrch"></div><div class="ss-chips" id="ssTr"></div>
+    ${ADM?'<button class="btn" type="button" id="ssEdT" style="margin:2px 0 10px">✎ Список трасс</button>':''}
+    <div class="vb-l">2. Дрон</div><div class="sr-dr" id="ssDr">${DTYPES.map(d=>`<button type="button" data-d="${esc(d)}">${d==='Микро'?'🐝':'🦅'} ${esc(d)}</button>`).join('')}</div>
+    <div class="ss-sum" id="ssSum"></div>
+    <div class="vb-l">3. Время пилотов</div>
+    <div class="tscroll"><table><thead><tr><th>Пилот</th><th>Сейчас лучший</th><th>Новое время</th><th>Аварии</th></tr></thead><tbody>
     ${ps.map((p,i)=>`<tr><td>${esc(p['Пилот'])}</td><td class="ss-best" data-i="${i}">-</td>
       <td><input class="ss-time" data-i="${i}" placeholder="49.3 или 1:05.3" style="width:84px"></td>
-      <td><input class="ss-crash" data-i="${i}" type="number" min="0" value="0" inputmode="numeric" style="width:50px"></td>
-      <td>${droneField('ss-drone', lastDrone(p['Пилот']), 'ssDrones', `data-i="${i}" style="width:110px"`)}</td></tr>`).join('')}
-    </tbody></table></div><datalist id="ssDrones">${drones().map(d=>`<option value="${esc(d)}">`).join('')}</datalist>
+      <td><input class="ss-crash" data-i="${i}" type="number" min="0" value="0" inputmode="numeric" style="width:50px"></td></tr>`).join('')}
+    </tbody></table></div>
     <div class="ebar" style="margin-top:12px"><span class="sp"></span><button class="btn" onclick="closePilot()">Отмена</button><button class="btn primary" id="ss-save">Сохранить заезд</button></div>`;
   $('pbody').querySelectorAll('input').forEach(i=>i.style.cssText+=';font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px');
   $('pmodal').classList.add('open');
-  const ssBest=()=>{ const t=document.getElementById('ss-track').value; ps.forEach((p,i)=>{ const b=bestFor(p['Пилот'],t), c=$('pbody').querySelector(`.ss-best[data-i="${i}"]`); if(c) c.textContent=b?fmtLap(b.sec):'-'; }); };
-  document.getElementById('ss-track').onchange=ssBest; ssBest();
+  const draw=()=>{
+    $('ssSims').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===sim));
+    const all=srTracks(sim), rc=recent.filter(t=>all.includes(t)), rest=all.filter(t=>!rc.includes(t));
+    $('ssSrch').innerHTML=all.length>6?`<input id="ssQ" class="ss-q" type="search" placeholder="Найти трассу (${all.length})" value="${esc(qs)}">`:'';
+    const f=t=>!qs||normName(t).includes(normName(qs))||String(trkFull(t)||'').toLowerCase().includes(qs.toLowerCase());
+    const chip=(t,star)=>`<button type="button" data-t="${esc(t)}" class="${t===T?'on':''}" title="${esc(trkFull(t)||t)}">${star?'★ ':''}${esc(t)}</button>`;
+    $('ssTr').innerHTML=(all.length?[...rc.filter(f).map(t=>chip(t,1)),...rest.filter(f).map(t=>chip(t,0))].join('')||'<span class="muted">Ничего не найдено</span>':'<span class="muted">В этом симуляторе нет трасс.'+(ADM?' Нажмите "Список трасс".':' Попросите тренера добавить.')+'</span>');
+    $('ssTr').querySelectorAll('button').forEach(b=>b.onclick=()=>{T=b.dataset.t;draw()});
+    const qi=$('ssQ');if(qi){qi.oninput=()=>{qs=qi.value;const pos=qi.selectionStart;draw();const n=$('ssQ');n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}}
+    $('ssDr').querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.d===D);b.onclick=()=>{D=b.dataset.d;draw()}});
+    $('ssSum').innerHTML=T&&D?`🏁 <b>${esc(T)}</b> · ${D==='Микро'?'🐝':'🦅'} <b>${esc(D)}</b>`:`<span class="bad">Выберите ${T?'':'трассу'}${!T&&!D?' и ':''}${D?'':'дрон'}</span>`;
+    const full=T&&trkFull(T);if(full&&T&&D)$('ssSum').innerHTML+=` <small class="muted">${esc(full)}</small>`;
+    ps.forEach((p,i)=>{const c=$('pbody').querySelector(`.ss-best[data-i="${i}"]`);if(!c)return;const k=normName(p['Пилот']);let b=null;if(T&&D)L0.forEach(l=>{if(l.track===T&&l.drone===D&&normName(l.pilot)===k&&(!b||l.sec<b.sec))b=l});c.textContent=b?fmtLap(b.sec):'-'});
+  };
+  $('ssSims').querySelectorAll('button').forEach(b=>b.onclick=()=>{sim=b.dataset.m;if(T&&simOf(T)!==sim)T='';qs='';draw()});
+  const et=$('ssEdT');if(et)et.onclick=()=>editTracks();
+  draw();
   document.getElementById('ss-save').onclick=async ()=>{
-    const btn=document.getElementById('ss-save');
-    const t=document.getElementById('ss-track').value, d=document.getElementById('ss-date').value.trim();
-    if(!t){ toast('Сначала добавьте трассу в список','bad'); return; }
+    const btn=document.getElementById('ss-save'), d=document.getElementById('ss-date').value.trim();
+    if(!T){ toast('Выберите трассу','bad'); return; }
+    if(!D){ toast('Выберите дрон: Микро или Фристайл','bad'); return; }
     const add=[], bad=[];
     ps.forEach((p,i)=>{
       const tm=$('pbody').querySelector(`.ss-time[data-i="${i}"]`).value.trim(); if(!tm) return;
       if(!lapSec(tm)){ bad.push(p['Пилот']); return; }
       const cr=Math.max(0,parseInt($('pbody').querySelector(`.ss-crash[data-i="${i}"]`).value)||0);
-      const dr=$('pbody').querySelector(`.ss-drone[data-i="${i}"]`).value.trim().slice(0,40);
-      add.push({'Дата':d,'Пилот':p['Пилот'],'Трасса':t,'Время круга':lapStore(tm),'Формат':trackFmt(t),'Аварии':String(cr),'Дрон':dr});
+      add.push({'Дата':d,'Пилот':p['Пилот'],'Трасса':T,'Время круга':lapStore(tm),'Формат':trackFmt(T),'Аварии':String(cr),'Дрон':D});
     });
     if(bad.length){ toast('Проверьте время: '+bad.join(', ')+' (пример 49.3 или 1:05.3)','bad'); return; }
     if(!add.length){ toast('Не вписано ни одного времени','bad'); return; }
     btn.disabled=true; btn.textContent='Сохраняю…';
-    try{ await postSheet('Заезды',[...(data['Заезды']||[]),...add]); curTrack=t; curSort='leaders'; closePilot(); renderAll(); toast(`Заезд сохранён: ${add.length} пилот(ов) ✓`,'ok'); }
+    try{ await postSheet('Заезды',[...(data['Заезды']||[]),...add]); curTrack=T; curSort='leaders'; SR.sim=simOf(T); SR.t=T; SR.d=D; srSave(); closePilot(); renderAll(); toast(`Заезд сохранён: ${add.length} пилот(ов), ${T}, ${D} ✓`,'ok'); }
     catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='Сохранить заезд'; }
   };
+}
+
+/* ---------- заезды без дрона: тренер сам относит каждый к Микро или Фристайлу (ничего не угадываем) ---------- */
+function openNoDrone(){
+  if(!ADM) return;
+  const L=laps().filter(l=>!l.drone), all=laps(), ch={};
+  const byT={};L.forEach(l=>(byT[l.track]=byT[l.track]||[]).push(l));
+  const tr=Object.keys(byT);
+  $('pbody').innerHTML=`<h2>Заезды без дрона (${L.length})</h2><p class="sub">Эти заезды записаны без выбора дрона, поэтому в рейтинг не попадают. Нажмите Микро или Фристайл у каждого - сохранятся только те, что вы отметили. Подсказка серым - на чём в тот же день на той же трассе летали другие.</p>
+   ${L.length?'':'<p class="empty">Всё в порядке: у всех заездов есть дрон ✓</p>'}
+   ${tr.map(t=>`<div class="nd-g"><div class="nd-h"><b>${esc(t)}</b><span><button type="button" class="btn nd-all" data-t="${esc(t)}" data-d="Микро">Все → Микро</button><button type="button" class="btn nd-all" data-t="${esc(t)}" data-d="Фристайл">Все → Фристайл</button></span></div>
+     ${byT[t].map(l=>{const sd=[...new Set(all.filter(x=>x.track===t&&x.drone&&String(x.date)===String(l.date)).map(x=>x.drone))];
+       return `<div class="nd-r" data-i="${l._i}"><div class="nd-i"><b>${esc(pnm(l.pilot))}</b> · ${fmtLap(l.sec)}<small>${esc(l.date||'')}${l.droneRaw?' · в таблице: «'+esc(l.droneRaw)+'»':''}${sd.length?' · в этот день другие: '+esc(sd.join(', ')):''}</small></div>
+       <div class="nd-b">${DTYPES.map(d=>`<button type="button" data-d="${esc(d)}">${esc(d)}</button>`).join('')}</div></div>`}).join('')}</div>`).join('')}
+   <div class="ebar"><span class="sp" id="ndCnt">Отмечено: 0 из ${L.length}</span><button class="btn" onclick="closePilot()">Закрыть</button><button class="btn primary" id="ndSave" disabled>Сохранить</button></div>`;
+  $('pmodal').classList.add('open');
+  const b=$('pbody'),upd=()=>{b.querySelectorAll('.nd-r').forEach(r=>r.querySelectorAll('.nd-b button').forEach(x=>x.classList.toggle('on',ch[r.dataset.i]===x.dataset.d)));const n=Object.keys(ch).length;$('ndCnt').textContent='Отмечено: '+n+' из '+L.length;$('ndSave').disabled=!n};
+  b.querySelectorAll('.nd-r .nd-b button').forEach(x=>x.onclick=()=>{const i=x.closest('.nd-r').dataset.i;if(ch[i]===x.dataset.d)delete ch[i];else ch[i]=x.dataset.d;upd()});
+  b.querySelectorAll('.nd-all').forEach(x=>x.onclick=()=>{(byT[x.dataset.t]||[]).forEach(l=>ch[l._i]=x.dataset.d);upd()});
+  $('ndSave').onclick=async()=>{const bt=$('ndSave');bt.disabled=true;bt.textContent='Сохраняю…';
+    try{const Z=(data['Заезды']||[]).map((l,i)=>ch[i]?Object.assign({},l,{'Дрон':ch[i]}):l);await postSheet('Заезды',Z);closePilot();renderAll();toast('Сохранено: '+Object.keys(ch).length+' ✓','ok')}
+    catch(e){toast('Не сохранилось: '+e.message,'bad');bt.disabled=false;bt.textContent='Сохранить'}};
 }
 
 function lapCell(p){
@@ -1597,7 +1678,7 @@ function openHelper(){
   if(VIEW==='all') return toast('Выберите площадку вверху страницы','bad');
   if(MY_SELO && VIEW!==MY_SELO) return toast('Записывать заезды можно только на своей площадке: '+seloName(MY_SELO),'bad');
   const td=todayStr(), mine=(data['Заезды']||[]).filter(l=>dkey(l['Дата'])===td);
-  $('pbody').innerHTML = `<h2>Заезды сегодня, ${esc(td)}${SELA.length>1?' · '+esc(seloName(VIEW)):''}</h2><p class="sub">Впишите пилота, трассу, время лучшего круга, дрон и аварии. Сегодняшние строки можно исправить или убрать. Прошлые дни меняет только тренер.</p>
+  $('pbody').innerHTML = `<h2>Заезды сегодня, ${esc(td)}${SELA.length>1?' · '+esc(seloName(VIEW)):''}</h2><p class="sub">Впишите пилота, трассу, время лучшего круга, дрон (Микро или Фристайл - обязательно) и аварии. Сегодняшние строки можно исправить или убрать. Прошлые дни меняет только тренер.</p>
     <datalist id="hlPilots">${allPilots().map(p=>`<option value="${esc(p['Пилот'])}">`).join('')}</datalist>
     <datalist id="hlTracks">${allTracks().map(t=>`<option value="${esc(t)}">`).join('')}</datalist>
     <datalist id="hlDrones">${drones().map(d=>`<option value="${esc(d)}">`).join('')}</datalist>
@@ -1617,6 +1698,7 @@ function openHelper(){
       if(!n && !tm) continue;
       if(!n || !t){ toast('Укажите пилота и трассу в каждой строке','bad'); return; }
       if(!lapSec(tm)){ toast(`Проверьте время у "${n}" - пример 49.3 или 1:05.3`,'bad'); return; }
+      if(!tr.querySelector('.hl-drone').value){ toast(`Выберите дрон у "${n}": Микро или Фристайл`,'bad'); return; }
       out.push({'Пилот':n,'Трасса':t,'Время круга':lapStore(tm),'Формат':tr.querySelector('.hl-fmt').value,'Аварии':String(Math.max(0,parseInt(tr.querySelector('.hl-crash').value)||0)),'Дрон':tr.querySelector('.hl-drone').value.trim().slice(0,40)});
     }
     if(!out.length && !mine.length){ toast('Нечего сохранять','bad'); return; }
@@ -2022,7 +2104,7 @@ evTimer=setInterval(()=>{if(!document.hidden&&!q('t-club').hidden)tick()},1000);
    Общий зачёт симулятора: на каждой трассе лидер получает 100, остальные 100 × (время лидера ÷ своё),
    очки по трассам складываются. Кто не летал - прочерк внизу списка. */
 const SR_ICON={'Квадросим':'🎮','Ворон':'🦅','Симулятор':'🕹','Реал':'🛸'};
-let SR=st.get('vzlet_simrate',{sim:'Квадросим',t:'',all:0});
+let SR=st.get('vzlet_simrate',{sim:'Квадросим',t:'',all:0,d:'Микро'});if(!DTYPES.includes(SR.d))SR.d='Микро';
 const srSave=()=>st.set('vzlet_simrate',SR);
 function srSims(){return ['Квадросим','Ворон']}
 function srTracks(sim){return allTracks().filter(t=>simOf(t)===sim)}
@@ -2034,22 +2116,26 @@ function srRows(sim,t){const P=allPilots(),L=laps(),key=p=>normName(p['Пило�
   const TS=srTracks(sim),M=TS.map(x=>srBest(L,x)),B=M.map(m=>Math.min(...Object.values(m).map(l=>l.sec)));
   const r=P.map(p=>{let pts=0,n=0;M.forEach((m,i)=>{const b=m[key(p)];if(b){pts+=Math.round(100*B[i]/b.sec);n++}});return{p,has:n>0,pts,n,of:TS.length}});
   r.sort((a,b)=>b.pts-a.pts||b.n-a.n||String(a.p['Пилот']).localeCompare(String(b.p['Пилот']),'ru'));return r}
-function srLeader(sim){const w={};srTable(sim,'').forEach(r=>{if(r.place===0)w[r.l.pilot]=(w[r.l.pilot]||0)+1});const k=Object.keys(w).sort((a,b)=>w[b]-w[a])[0];return k?{p:{'Пилот':k}}:null}
+function srLeader(sim){const w={};srTable(sim,'',SR.d).forEach(r=>{if(r.place===0)w[r.l.pilot]=(w[r.l.pilot]||0)+1});const k=Object.keys(w).sort((a,b)=>w[b]-w[a])[0];return k?{p:{'Пилот':k}}:null}
 function renderPod(){const el=q('plPod');
   el.innerHTML=`<h3>🏆 Рейтинг пилотов</h3><div class="sr" id="sr"></div>`;srDraw()}
 /* таблица: лучший круг каждого пилота на каждой трассе симулятора; по трассам, внутри - по времени */
-function srTable(sim,t){const L=laps(),TS=t?[t]:srTracks(sim),out=[];TS.forEach(x=>{Object.values(srBest(L,x)).sort((a,b)=>a.sec-b.sec).forEach((l,i)=>out.push({l,t:x,place:i}))});return out}
+function srTable(sim,t,d){d=d||SR.d;const L=laps().filter(l=>l.drone===d),TS=t?[t]:srTracks(sim),out=[];TS.forEach(x=>{Object.values(srBest(L,x)).sort((a,b)=>a.sec-b.sec).forEach((l,i)=>out.push({l,t:x,place:i}))});return out}
 function srDraw(anim){const box=q('sr');if(!box)return;
   const sims=srSims();if(!sims.includes(SR.sim))SR.sim=sims[0];
   const TS=srTracks(SR.sim);if(SR.t&&!TS.includes(SR.t))SR.t='';
   const coach=MODE==='coach' && !selRO();
   let h=`<div class="sr-sims" role="tablist">${sims.map(m=>`<button role="tab" aria-selected="${m===SR.sim}" class="${m===SR.sim?'on':''}" data-m="${esc(m)}"><i>${SR_ICON[m]||'🏁'}</i>${esc(simLbl(m))}<small>${srTracks(m).length} ${plural(srTracks(m).length,'трасса','трассы','трасс')}</small></button>`).join('')}</div>`;
+  const LS=laps().filter(l=>simOf(l.track)===SR.sim),nD=d=>new Set(LS.filter(l=>l.drone===d).map(l=>normName(l.pilot)+'|'+l.track)).size,noD=LS.filter(l=>!l.drone).length;
+  h+=`<div class="sr-how"><b>Как читать:</b> 1) симулятор, 2) дрон, 3) трасса. Места считаются отдельно для каждой пары <b>трасса + дрон</b>: на Микро и на Фристайле - свой список.${coach?'<br><b>Как внести:</b> ⏱ Вписать время - трасса - дрон - время каждого пилота.':''}</div>`;
+  h+=`<div class="sr-dr" role="group" aria-label="Дрон">${DTYPES.map(d=>`<button type="button" class="${d===SR.d?'on':''}" aria-pressed="${d===SR.d}" data-d="${esc(d)}">${d==='Микро'?'🐝':'🦅'} ${esc(d)}<small>${nD(d)} ${plural(nD(d),'результат','результата','результатов')}</small></button>`).join('')}</div>`;
+  if(ADM&&noD)h+=`<button type="button" class="sr-warn" id="srNoD">⚠ ${noD} ${plural(noD,'заезд','заезда','заездов')} без дрона - в рейтинг не попадают. Нажмите, чтобы отнести</button>`;
   if(!TS.length){
     h+=`<div class="sr-none"><b>${SR_ICON[SR.sim]||'🏁'} Трассы ${esc(simLbl(SR.sim))} скоро появятся</b><span>${coach?'Нажмите "+ Трассы" и впишите названия, потом "⏱ Вписать время".':'Тренер добавит трассы и запишет время пилотов.'}</span></div>`;
   }else{
-    if(TS.length>1)h+=`<div class="sr-trk"><select id="srSel" aria-label="Трасса">${[`<option value="">Все трассы (${TS.length})</option>`,...TS.map(t=>`<option value="${esc(t)}" ${t===SR.t?'selected':''}>${esc(t)}</option>`)].join('')}</select></div>`;
+    if(TS.length>1)h+=`<div class="sr-trk"><select id="srSel" aria-label="Трасса">${[`<option value="">Все трассы (${TS.length})</option>`,...TS.map(t=>{const n=new Set(LS.filter(l=>l.track===t&&l.drone===SR.d).map(l=>normName(l.pilot))).size;return `<option value="${esc(t)}" ${t===SR.t?'selected':''}>${esc(t)} (${n})</option>`})].join('')}</select></div>`;
     const rows=srTable(SR.sim,SR.t);
-    if(!rows.length)h+=`<div class="sr-none"><b>Заездов пока нет</b><span>${coach?'После заезда нажмите "⏱ Вписать время".':'Время записывает тренер после заезда.'}</span></div>`;
+    if(!rows.length)h+=`<div class="sr-none"><b>На дроне "${esc(SR.d)}" заездов пока нет</b><span>${coach?'Выберите другой дрон или нажмите "⏱ Вписать время".':'Выберите другой дрон. Время записывает тренер после заезда.'}</span></div>`;
     else{const lim=SR.all?rows.length:15;
       h+=`<div class="sr-tb${anim?' an':''}"><div class="sr-th"><span>Пилот</span><span>Трасса</span><span>Время</span><span>Дрон</span><span>Аварии</span></div>${rows.slice(0,lim).map((r,i)=>`<div class="sr-tr${r.place===0?' top':''}" data-p="${esc(r.l.pilot)}" style="--d:${Math.min(i,12)*35}ms"><span class="c-p"><i>${r.place<3?['🥇','🥈','🥉'][r.place]:r.place+1}</i><b>${esc(pnm(r.l.pilot))}</b></span><span class="c-t">${esc(r.t)}</span><span class="c-v">${fmtLap(r.l.sec)}</span><span class="c-d${r.l.drone?'':' no'}">${esc(r.l.drone||'-')}</span><span class="c-c">${r.l.crash?'💥 '+r.l.crash:'0'}</span></div>`).join('')}</div>`;
       if(rows.length>15)h+=`<div class="plcta"><button class="btn" id="srAll">${SR.all?'Свернуть':'Показать все ('+rows.length+')'}</button></div>`}
@@ -2076,66 +2162,55 @@ function srBind(box){
   box.querySelectorAll('.sr-tr').forEach(li=>li.onclick=()=>openPilot(li.dataset.p));
   const a=q('srAll');if(a)a.onclick=()=>{SR.all=SR.all?0:1;srSave();srDraw()};
   const ad=q('srAdd');if(ad)ad.onclick=()=>trkAdd(SR.sim);
-  const tm=q('srTime');if(tm)tm.onclick=()=>openSession(SR.t||srTracks(SR.sim)[0]||'');
+  const tm=q('srTime');if(tm)tm.onclick=()=>openSession(SR.t||'',SR.d);
+  box.querySelectorAll('.sr-dr button').forEach(b=>b.onclick=()=>{if(SR.d===b.dataset.d)return;SR.d=b.dataset.d;SR.all=0;srSave();srDraw(1);srPeek()});
+  const nd=q('srNoD');if(nd)nd.onclick=()=>openNoDrone();
   const ed=q('srEd');if(ed)ed.onclick=()=>editTracks();
   const vb=q('srVb');if(vb)vb.onclick=()=>vbOpen(SR.t)}
 /* ---- окно "Трассы и дроны" (Ворон): трасса + дрон -> места пилотов ---- */
 /* режим правки (тренер): трассы Ворона и дроны (до 5). Переименование дрона переносит заезды, одинаковые имена сливаются */
-const DMAX=5;
-function vbEdit(){const sim='Ворон',TS=srTracks(sim),L=laps(),DL=droneList()||[...new Set(L.map(l=>l.drone).filter(Boolean))];
-  const nT=t=>L.filter(l=>l.track===t).length,nD=d=>L.filter(l=>l.drone===d).length;
+function vbEdit(){const sim='Ворон',TS=srTracks(sim),L=laps();
+  const nT=t=>L.filter(l=>l.track===t).length;
   const tr=(t,f)=>`<div class="vb-er" data-o="${esc(t)}"><input class="e-n" maxlength="14" placeholder="Коротко" value="${esc(t)}"><input class="e-f" placeholder="Полное название" value="${esc(f)}"><small>${t?nT(t):0}</small><button type="button" class="e-x" title="Удалить">🗑</button></div>`;
-  const dr=d=>`<div class="vb-er dr" data-o="${esc(d)}"><input class="e-n" maxlength="30" placeholder="Название дрона" value="${esc(d)}"><small>${d?nD(d):0}</small><button type="button" class="e-x" title="Удалить">🗑</button></div>`;
-  $('pbody').innerHTML=`<h2>✎ Трассы и дроны</h2><p class="sub">Цифра справа - сколько заездов. Переименуете - заезды перейдут на новое имя. Назовёте дрон так же, как другой, - их заезды объединятся (так исправляется опечатка). Удалите дрон - его заезды останутся без дрона. Удалите трассу - удалятся и её заезды.</p>
-   <div class="vb-l">Трассы Velocidrone (Ворон)</div><div id="vbTe">${TS.map(t=>tr(t,trkFull(t))).join('')}</div><div class="sr-coach" style="margin:6px 0 14px"><button class="btn" id="vbTa">+ Трасса</button></div>
-   <div class="vb-l">Дроны (до ${DMAX})</div><div id="vbDe">${DL.map(dr).join('')}</div><div class="sr-coach" style="margin:6px 0 14px"><button class="btn" id="vbDa">+ Дрон</button></div>
+  $('pbody').innerHTML=`<h2>✎ Трассы Velocidrone (Ворон)</h2><p class="sub">Цифра справа - сколько заездов. Переименуете - заезды перейдут на новое имя. Дронов всего два типа - Микро и Фристайл, их менять не нужно: тип выбирается при записи заезда.</p>
+   <div id="vbTe">${TS.map(t=>tr(t,trkFull(t))).join('')}</div><div class="sr-coach" style="margin:6px 0 14px"><button class="btn" id="vbTa">+ Трасса</button></div>
    <div class="ebar"><span class="sp"></span><button class="btn" id="vbNo">Отмена</button><button class="btn primary" id="vbOk">Сохранить</button></div>`;
-  const b=$('pbody'),live=()=>b.querySelectorAll('#vbDe .vb-er:not(.del)').length,lim=()=>{q('vbDa').disabled=live()>=DMAX};
-  const bindX=r=>r.querySelector('.e-x').onclick=()=>{if(r.classList.contains('del')&&r.classList.contains('dr')&&live()>=DMAX)return toast('Дронов не больше '+DMAX,'bad');r.classList.toggle('del');r.querySelectorAll('input').forEach(i=>i.disabled=r.classList.contains('del'));lim()};
-  b.querySelectorAll('.vb-er').forEach(bindX);lim();
+  const b=$('pbody'),bindX=r=>r.querySelector('.e-x').onclick=()=>{r.classList.toggle('del');r.querySelectorAll('input').forEach(i=>i.disabled=r.classList.contains('del'))};
+  b.querySelectorAll('.vb-er').forEach(bindX);
   q('vbTa').onclick=()=>{q('vbTe').insertAdjacentHTML('beforeend',tr('',''));const r=q('vbTe').lastElementChild;bindX(r);r.querySelector('input').focus()};
-  q('vbDa').onclick=()=>{if(live()>=DMAX)return;q('vbDe').insertAdjacentHTML('beforeend',dr(''));const r=q('vbDe').lastElementChild;bindX(r);r.querySelector('input').focus();lim()};
   q('vbNo').onclick=()=>{VB.ed=0;vbDraw()};
   q('vbOk').onclick=async()=>{const ok=q('vbOk');
     const cl=v=>v.trim().replace(/\s+/g,' ').replace(/,/g,' ');
     const T=[...b.querySelectorAll('#vbTe .vb-er')].map(r=>({o:r.dataset.o,n:cl(r.querySelector('.e-n').value),f:cl(r.querySelector('.e-f').value),del:r.classList.contains('del')})).filter(x=>x.o||(!x.del&&x.n));
-    const D=[...b.querySelectorAll('#vbDe .vb-er')].map(r=>({o:r.dataset.o,n:cl(r.querySelector('.e-n').value),del:r.classList.contains('del')})).filter(x=>x.o||(!x.del&&x.n));
     if(T.some(x=>!x.del&&!x.n))return toast('У трассы пустое название','bad');
-    if(D.some(x=>!x.del&&!x.n))return toast('У дрона пустое название','bad');
     const keepT=T.filter(x=>!x.del),seen=new Set();for(const x of keepT){const k=normName(x.n);if(seen.has(k))return toast('Две трассы с названием "'+x.n+'"','bad');seen.add(k)}
     const other=allTracks().filter(t=>simOf(t)!==sim).map(normName);if(keepT.some(x=>other.includes(normName(x.n))))return toast('Такое название уже есть у трассы Квадросима','bad');
-    const DN=[];D.filter(x=>!x.del).forEach(x=>{if(!DN.some(d=>droneKey(d)===droneKey(x.n)))DN.push(x.n)});
-    if(DN.length>DMAX)return toast('Дронов не больше '+DMAX,'bad');
-    const tMap={},tDel=new Set(T.filter(x=>x.del&&x.o).map(x=>x.o)),dMap={};T.filter(x=>x.o&&!x.del).forEach(x=>tMap[x.o]=x.n);
-    D.filter(x=>x.o).forEach(x=>{dMap[droneKey(x.o)]=x.del?'':(DN.find(d=>droneKey(d)===droneKey(x.n))||x.n)});
+    const tMap={},tDel=new Set(T.filter(x=>x.del&&x.o).map(x=>x.o));T.filter(x=>x.o&&!x.del).forEach(x=>tMap[x.o]=x.n);
     const nDelLaps=L.filter(l=>tDel.has(l.track)).length;
     if(tDel.size&&!confirm(`Удалить ${tDel.size} ${plural(tDel.size,'трассу','трассы','трасс')}${nDelLaps?' и '+nDelLaps+' '+plural(nDelLaps,'заезд','заезда','заездов')+' на них':''}?`))return;
     ok.disabled=true;ok.textContent='Сохраняю…';
     try{const Z=data['Заезды']||[];let ch=false;
       const Z2=Z.filter(l=>!tDel.has(String(l['Трасса']||'').trim())).map(l=>{const t=String(l['Трасса']||'').trim(),o=Object.assign({},l);
-        if(tMap[t]!==undefined&&tMap[t]!==t){o['Трасса']=tMap[t];ch=true}
-        const dc=droneCanon(l['Дрон']),k=droneKey(dc);if(dc&&dMap[k]!==undefined&&dMap[k]!==String(l['Дрон']||'').trim()){o['Дрон']=dMap[k];ch=true}return o});
+        if(tMap[t]!==undefined&&tMap[t]!==t){o['Трасса']=tMap[t];ch=true}return o});
       if(ch||Z2.length!==Z.length)await postSheet('Заезды',Z2);
       const TR=data['Трассы']||[],TR2=TR.filter(x=>!tDel.has(String(x['Название']).trim())).map(x=>{const t=String(x['Название']).trim(),y=T.find(z=>z.o===t&&!z.del);return y?Object.assign({},x,{'Название':y.n,'Описание':y.f}):x});
       T.filter(x=>!x.del&&(!x.o||!TR.some(r=>String(r['Название']).trim()===x.o))).forEach(x=>TR2.push({'Название':x.n,'Формат':sim,'Описание':x.f}));
       if(JSON.stringify(TR2)!==JSON.stringify(TR))await postSheet('Трассы',TR2);
-      const S=(data['Статус']||[]).filter(x=>String(x['Параметр']||'').trim()!=='_дроны');
-      await postSheet('Статус',[...S,{'Параметр':'_дроны','Значение':DN.join(', ')}]);
       Object.keys(tMap).forEach(a=>{if(tMap[a]!==a){if(VB.t===a)VB.t=tMap[a];if(window.SR_RENAMED)SR_RENAMED(a,tMap[a])}});
-      if(VB.d&&!DN.includes(VB.d))VB.d='';VB.ed=0;renderAll();vbDraw();toast('Сохранено ✓','ok')}
+      VB.ed=0;renderAll();vbDraw();toast('Сохранено ✓','ok')}
     catch(e){toast('Не сохранилось: '+e.message,'bad');ok.disabled=false;ok.textContent='Сохранить'}}}
-const VB=st.get('vzlet_vb',{t:'',d:''});
+const VB=st.get('vzlet_vb',{t:'',d:'Микро'});
 function vbOpen(t){if(t)VB.t=t;VB.ed=0;vbDraw();$('pmodal').classList.add('open')}
 function vbDraw(){if(VB.ed&&ADM)return vbEdit();const sim='Ворон',TS=srTracks(sim);if(!TS.includes(VB.t))VB.t=TS[0]||'';
-  const L=laps().filter(l=>simOf(l.track)===sim),DL=droneList(),DR=[...new Set([...(DL||[]),...L.map(l=>l.drone).filter(Boolean)])];if(!DL)DR.sort((a,b)=>a.localeCompare(b,'ru'));
-  if(VB.d&&!DR.includes(VB.d))VB.d='';
+  const L=laps().filter(l=>simOf(l.track)===sim),DR=DTYPES;
+  if(!DR.includes(VB.d))VB.d=DR[0];
   const onT=new Set(L.filter(l=>l.track===VB.t).map(l=>l.drone));
-  const m={};L.forEach(l=>{if(l.track!==VB.t||(VB.d&&l.drone!==VB.d))return;const k=normName(l.pilot);if(!m[k]||l.sec<m[k].sec)m[k]=l});
+  const m={};L.forEach(l=>{if(l.track!==VB.t||l.drone!==VB.d)return;const k=normName(l.pilot);if(!m[k]||l.sec<m[k].sec)m[k]=l});
   const rows=Object.values(m).sort((a,b)=>a.sec-b.sec),top=rows.length?rows[0].sec:0,full=trkFull(VB.t);
-  $('pbody').innerHTML=`<h2>${SR_ICON[sim]} Velocidrone (Ворон): лучшее время</h2><p class="sub">Выбери трассу и дрон. Полоска показывает, насколько пилот близок к лидеру.</p>${ADM?'<div class="sr-coach" style="margin:0 0 12px"><button class="btn" id="vbEd">✎ Править трассы и дроны</button></div>':''}
+  $('pbody').innerHTML=`<h2>${SR_ICON[sim]} Velocidrone (Ворон): лучшее время</h2><p class="sub">Выбери трассу и дрон. Полоска показывает, насколько пилот близок к лидеру.</p>${ADM?'<div class="sr-coach" style="margin:0 0 12px"><button class="btn" id="vbEd">✎ Править трассы</button></div>':''}
    <div class="vb-l">Трасса</div><div class="vb-ch" id="vbT">${TS.map(t=>`<button class="${t===VB.t?'on':''}" data-t="${esc(t)}" title="${esc(trkFull(t)||t)}">${esc(t)}</button>`).join('')}</div>
    ${full?`<div class="vb-full">📍 <b>${esc(full)}</b></div>`:''}
-   ${DR.length?`<div class="vb-l">Дрон</div><div class="vb-ch dr" id="vbD"><button class="${VB.d?'':'on'}" data-d="">Любой дрон</button>${DR.map(d=>`<button class="${d===VB.d?'on':''}${onT.has(d)?'':' no'}" data-d="${esc(d)}">${esc(d)}</button>`).join('')}</div>`:''}
+   ${DR.length?`<div class="vb-l">Дрон</div><div class="vb-ch dr" id="vbD">${DR.map(d=>`<button class="${d===VB.d?'on':''}${onT.has(d)?'':' no'}" data-d="${esc(d)}">${esc(d)}</button>`).join('')}</div>`:''}
    <div class="vb-lb">${rows.length?rows.map((r,i)=>`<button class="vb-r${i===0?' top':''}" data-p="${esc(r.pilot)}" style="--w:${(100*top/r.sec).toFixed(0)}%;--d:${Math.min(i,12)*35}ms"><i>${i<3?['🥇','🥈','🥉'][i]:i+1}</i><span><b>${esc(pnm(r.pilot))}</b><small>${r.drone?esc(r.drone)+' · ':''}${i?'+'+(r.sec-top).toFixed(1)+' с':'лидер'}${r.crash?' · 💥 '+r.crash:''}</small></span><em>${fmtLap(r.sec)}</em></button>`).join('')
      :`<div class="sr-none"><b>Заездов пока нет</b><span>${VB.d?'На этом дроне трассу ещё не летали. Выбери другой дрон.':'Время записывает тренер после заезда.'}</span></div>`}</div>`;
   const b=$('pbody');
@@ -2144,7 +2219,7 @@ function vbDraw(){if(VB.ed&&ADM)return vbEdit();const sim='Ворон',TS=srTrac
   b.querySelectorAll('.vb-r').forEach(x=>x.onclick=()=>openPilot(x.dataset.p));
   const ed=q('vbEd');if(ed)ed.onclick=()=>{VB.ed=1;vbDraw()};
   const on=b.querySelector('#vbT .on');if(on)on.scrollIntoView({block:'nearest',inline:'center'});const od=b.querySelector('#vbD .on');if(od)od.scrollIntoView({block:'nearest',inline:'center'})}
-window.SR_SIM=()=>SR.sim;window.SR_RENAMED=(a,b)=>{if(SR.t===a){SR.t=b;srSave()}};
+window.SRX={srSims,srTracks,SR,SR_ICON,simLbl,srSave};window.SR_SIM=()=>SR.sim;window.SR_RENAMED=(a,b)=>{if(SR.t===a){SR.t=b;srSave()}};
 function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=simLbl(SR.sim)+': '+(L?'быстрее всех - '+pnm(L.p['Пилот']):'ждём первых заездов')}
 /* ---- вопрос дня ---- */
 /* банк: 30 вопросов из тестов + 38 вопросов только для "вопроса дня" = 68 дней без повторов */
