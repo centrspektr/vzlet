@@ -1463,11 +1463,15 @@ function renderNews(){
 }
 
 const unent=t=>String(t||'').replace(/&#(\d+);/g,(m,c)=>String.fromCharCode(+c)).replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+// t.me/канал/N открывает страницу-переходник "Открыть в Telegram", которая у многих не грузится;
+// t.me/s/канал/N - обычная веб-страница с текстом поста, без приложения.
+function fgdUrl(u){ u=safeUrl(u); return u.replace(/^https?:\/\/(?:www\.)?t\.me\/(?!s\/)([A-Za-z0-9_]+\/\d+)/i,'https://t.me/s/$1'); }
+
 function renderFgd(){
   const list=(data['Новости ФГД']||[]).slice(0,6);
   $('c-fgd').textContent = list.length||'';
-  $('fgd').innerHTML = list.map(n=>{ const u=safeUrl(n['Ссылка']);
-    return `<div class="news-item"><span class="nd">${esc(n['Дата'])}</span><span>${esc(unent(n['Текст']))}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener">читать</a>`:''}</span></div>`;}).join('') || '<p class="empty">Лента загружается - появится после первого обновления</p>';
+  $('fgd').innerHTML = list.map(n=>{ const u=fgdUrl(n['Ссылка']);
+    return `<div class="news-item"><span class="nd">${esc(n['Дата'])}</span><span>${esc(unent(n['Текст']))}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener noreferrer">читать</a>`:''}</span></div>`;}).join('') || '<p class="empty">Лента загружается - появится после первого обновления</p>';
 }
 
 function renderStatus(){
