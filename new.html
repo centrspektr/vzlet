@@ -616,6 +616,9 @@ details[data-tab="Пилоты"]{display:none!important}
 .kpi-ed{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12.5px}
 .kp-r{display:grid;grid-template-columns:1fr 90px;gap:8px;margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid var(--line)}.kp-r label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--dim);text-transform:uppercase}.kp-r .kp-s,.kp-r .kp-h{grid-column:1/-1}.kp-h{font-size:13px;color:var(--dim)}.kp-h .btn{padding:5px 9px;font-size:12px}
 @media(max-width:520px){.nd-r{flex-direction:column;align-items:stretch}.nd-b button{flex:1}}</style>
+<style>/* 17.11: ровная раскладка на ПК - если слева в пульте нет блоков (скрыты), рейтинг на всю ширину; нижние блоки в две равные колонки */
+@media(min-width:861px){.pult:not(:has(.pl:not(#plPod):not(#plChk):not([hidden]))) #plPod{grid-column:1/-1;grid-row:auto}.pult:not(:has(.pl:not(#plPod):not(#plChk):not([hidden]))){grid-template-columns:1fr}}
+@media(min-width:981px){#t-club>.grid{grid-template-columns:repeat(2,minmax(0,1fr))}#t-club>.grid>.card{grid-column:span 1}}</style>
 </head>
 <body>
 
@@ -1456,9 +1459,10 @@ function renderNews(){
   $('c-news').textContent = list.length;
   $('news').innerHTML = list.map(n=>{ const u=safeUrl(n['Ссылка']);
     return `<div class="news-item"><span class="nd">${esc(n['Дата'])}</span>
-      <span>${esc(n['Текст'])}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener">открыть</a>`:''}</span></div>`;}).join('') || '<p class="empty">Новостей нет</p>';
+      <span>${esc(unent(n['Текст']))}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener">открыть</a>`:''}</span></div>`;}).join('') || '<p class="empty">Новостей нет</p>';
 }
 
+const unent=t=>String(t||'').replace(/&#(\d+);/g,(m,c)=>String.fromCharCode(+c)).replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
 // t.me/канал/N открывает страницу-переходник "Открыть в Telegram", которая у многих не грузится;
 // t.me/s/канал/N - обычная веб-страница с текстом поста, без приложения.
 function fgdUrl(u){ u=safeUrl(u); return u.replace(/^https?:\/\/(?:www\.)?t\.me\/(?!s\/)([A-Za-z0-9_]+\/\d+)/i,'https://t.me/s/$1'); }
@@ -1467,7 +1471,7 @@ function renderFgd(){
   const list=(data['Новости ФГД']||[]).slice(0,6);
   $('c-fgd').textContent = list.length||'';
   $('fgd').innerHTML = list.map(n=>{ const u=fgdUrl(n['Ссылка']);
-    return `<div class="news-item"><span class="nd">${esc(n['Дата'])}</span><span>${esc(n['Текст'])}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener noreferrer">читать</a>`:''}</span></div>`;}).join('') || '<p class="empty">Лента загружается - появится после первого обновления</p>';
+    return `<div class="news-item"><span class="nd">${esc(n['Дата'])}</span><span>${esc(unent(n['Текст']))}${u?` · <a href="${esc(u)}" target="_blank" rel="noopener noreferrer">читать</a>`:''}</span></div>`;}).join('') || '<p class="empty">Лента загружается - появится после первого обновления</p>';
 }
 
 function renderStatus(){
