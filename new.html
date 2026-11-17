@@ -1069,10 +1069,10 @@ function lapSec(s){ const r=lapParse(s); return r&&r.sec>0 ? r.sec : null; }
 function lapStore(s){ const t=String(s||'').trim().replace(/,/g,'.'); if(/^\d{1,3}(\.\d{1,3})?$/.test(t)) return t;
   const r=lapParse(t); if(!r||!(r.sec>0)) return t; const m=Math.floor(r.sec/60+1e-9), x=r.sec-m*60;
   return String(m).padStart(2,'0')+':'+x.toFixed(r.dec).padStart(r.dec?3+r.dec:2,'0'); }
-/* поле времени: после ввода показываем, как поняли (1 05.3 -> 01:05.3), непонятное - красной рамкой */
+/* поле времени: после ввода показываем, как поняли (1 05.30 -> 01:05.30), непонятное - красной рамкой */
 document.addEventListener('change',e=>{ const i=e.target; if(!i.matches||!i.matches('.ss-time,.hl-time,#al-time')) return;
   const v=i.value.trim(); if(!v){ i.style.borderColor=''; return; } if(lapSec(v)){ i.value=lapStore(v); i.style.borderColor=''; } else i.style.borderColor='#ff4d6d'; });
-function fmtLap(sec){ const m=Math.floor(sec/60), r=(sec-m*60).toFixed(1).padStart(4,'0'); return `${String(m).padStart(2,'0')}:${r}`; }
+function fmtLap(sec){ sec=Math.round(sec*100+1e-6)/100; const m=Math.floor(sec/60), r=(sec-m*60).toFixed(2).padStart(5,'0'); return `${String(m).padStart(2,'0')}:${r}`; }
 const normName = s => String(s||'').trim().toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ');
 let curTrack = '';
 /* дрон: "Mobula 6", "мобула6" и "MOBULA 6" - один дрон; показываем самое частое написание */
@@ -1208,12 +1208,12 @@ function openPilot(name){
   html += Object.entries(byTrack).map(([t,ls])=>{
     ls.sort((a,b)=>(parseDate(a.date)||0)-(parseDate(b.date)||0));
     const bst=Math.min(...ls.map(l=>l.sec)), first=ls[0].sec, f=String(ls[0].fmt||'').toLowerCase();
-    const gain=first-bst;
-    const rows=ls.map((l,i)=>{ const d=i?l.sec-ls[i-1].sec:null;
+    const gain=Math.round((first-bst)*100)/100;
+    const rows=ls.map((l,i)=>{ const d=i?Math.round((l.sec-ls[i-1].sec)*100)/100:null;
       return `<tr><td>${esc(l.date||'-')}${l.drone?` <small class="muted">· ${esc(l.drone)}</small>`:' <small class="dslow">· без дрона</small>'}</td><td class="${l.sec===bst?'best':''}">${fmtLap(l.sec)}${l.sec===bst?' 🏆':''}</td>
-        <td class="${d===null?'':d<0?'dfast':d>0?'dslow':''}">${d===null?'-':(d<0?'▼ ':d>0?'▲ +':'')+(d<0?'−'+Math.abs(d).toFixed(1):d.toFixed(1))+' с'}</td><td class="${l.crash?'dslow':''}">${l.crash}${MODE==='coach'?` <button class="lapdel" data-i="${l._i}" title="Удалить этот заезд">✕</button>`:''}</td></tr>`; }).reverse().join('');
+        <td class="${d===null?'':d<0?'dfast':d>0?'dslow':''}">${d===null?'-':(d<0?'▼ ':d>0?'▲ +':'')+(d<0?'−'+Math.abs(d).toFixed(2):d.toFixed(2))+' с'}</td><td class="${l.crash?'dslow':''}">${l.crash}${MODE==='coach'?` <button class="lapdel" data-i="${l._i}" title="Удалить этот заезд">✕</button>`:''}</td></tr>`; }).reverse().join('');
     return `<div class="ptrack"><h4>${esc(t)} ${simTag(t)}</h4>
-      <div class="prog">Заездов: ${ls.length} · первый ${fmtLap(first)} → лучший ${fmtLap(bst)}${gain>0?` · <b>быстрее на ${gain.toFixed(1)} с</b>`:''}</div>
+      <div class="prog">Заездов: ${ls.length} · первый ${fmtLap(first)} → лучший ${fmtLap(bst)}${gain>0?` · <b>быстрее на ${gain.toFixed(2)} с</b>`:''}</div>
       ${spark(ls)}
       <table><thead><tr><th>Дата</th><th>Время круга</th><th>К прошлому</th><th>Аварии</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }).join('') || '<p class="empty">Заездов пока нет.</p>';
@@ -1221,7 +1221,7 @@ function openPilot(name){
     html += `<h3 style="margin-top:16px">Добавить заезд</h3>
       <div class="addlap"><label>Дата<input id="al-date" value="${todayStr()}"></label>
         <label>Трасса${trackSelect('al-track', curTrack||best?.track||'')}</label>
-        <label>Время круга<input id="al-time" placeholder="49.3 или 1:05.3"></label>
+        <label>Время круга<input id="al-time" placeholder="49.35 или 1:05.32"></label>
         <label>Класс дрона${droneField('al-drone', lastDrone(name), '', '')}</label>
         <label>Модель (не обязательно)<input id="al-model" list="alModels" maxlength="30"></label><datalist id="alModels">${Object.values(DMODELS).flat().map(m=>`<option value="${esc(m)}">`).join('')}</datalist>
         <label>Аварии<input id="al-crash" type="number" min="0" value="0"></label>
@@ -1237,7 +1237,7 @@ function closePilot(){ $('pmodal').classList.remove('open'); openPilotName=''; }
 
 async function addLap(name, btn){
   const t=$('al-track').value.trim(), tm=$('al-time').value.trim();
-  if(!t || !lapSec(tm)){ toast('Укажите трассу и время, например 49.3 или 1:05.3','bad'); return; }
+  if(!t || !lapSec(tm)){ toast('Укажите трассу и время, например 49.35 или 1:05.32','bad'); return; }
   const dr=$('al-drone').value; if(!dr){ toast('Выберите дрон: Микро, Фристайл или Гоночные','bad'); return; }
   const rows=[...(data['Заезды']||[]), {'Дата':$('al-date').value.trim(),'Пилот':name,'Трасса':t,'Время круга':lapStore(tm),'Формат':trackFmt(t),'Аварии':String(Math.max(0,parseInt($('al-crash').value)||0)),'Дрон':dStore(dr,$('al-model').value)}];
   btn.disabled=true; btn.textContent='Сохраняю…';
@@ -1323,7 +1323,7 @@ function openSession(trk,drn){
     <div class="vb-l">3. Время пилотов</div><datalist id="ssMd"></datalist>
     <div class="tscroll"><table><thead><tr><th>Пилот</th><th>Сейчас лучший</th><th>Время</th><th>Аварии</th><th>Модель</th></tr></thead><tbody>
     ${ps.map((p,i)=>`<tr><td>${esc(p['Пилот'])}</td><td class="ss-best" data-i="${i}">-</td>
-      <td><input class="ss-time" data-i="${i}" placeholder="49.3 или 1:05.3" style="width:84px"></td>
+      <td><input class="ss-time" data-i="${i}" placeholder="49.35 или 1:05.32" style="width:84px"></td>
       <td><input class="ss-crash" data-i="${i}" type="number" min="0" value="0" inputmode="numeric" style="width:50px"></td>
       <td><input class="ss-md" data-i="${i}" list="ssMd" maxlength="30" placeholder="-"></td></tr>`).join('')}
     </tbody></table></div>
@@ -1363,7 +1363,7 @@ function openSession(trk,drn){
       const cr=Math.max(0,parseInt($('pbody').querySelector(`.ss-crash[data-i="${i}"]`).value)||0), md=$('pbody').querySelector(`.ss-md[data-i="${i}"]`).value.trim().replace(/\s+/g,' ');
       add.push({'Дата':d,'Пилот':p['Пилот'],'Трасса':T,'Время круга':lapStore(tm),'Формат':trackFmt(T),'Аварии':String(cr),'Дрон':dStore(D,md)});
     });
-    if(bad.length){ toast('Проверьте время: '+bad.join(', ')+' (пример 49.3 или 1:05.3)','bad'); return; }
+    if(bad.length){ toast('Проверьте время: '+bad.join(', ')+' (пример 49.35 или 1:05.32)','bad'); return; }
     if(!add.length){ toast('Не вписано ни одного времени','bad'); return; }
     btn.disabled=true; btn.textContent='Сохраняю…';
     try{ await postSheet('Заезды',[...(data['Заезды']||[]),...add]); curTrack=T; curSort='leaders'; SR.sim=simOf(T); SR.t=T; SR.d=D; srSave(); closePilot(); renderAll(); toast(`Заезд сохранён: ${add.length} пилот(ов), ${T}, ${D} ✓`,'ok'); }
@@ -1545,7 +1545,7 @@ const SCHEMA = {
 };
 const SELECTS = {'Тип':['симулятор','реал','другое'], 'Выполнено':['нет','да'], 'Формат':['Квадросим','Ворон','реал'], 'День':['Пн','Вт','Ср','Чт','Пт','Сб','Вс']};
 const LONG = new Set(['Текст','Особенности','Задача','Описание']);
-const HINT = {'Дата':'дд.мм.гггг','Время круга':'00:49.3','Лучший круг':'посчитается из заездов','Рейтинг':'посчитается сам','Время':'18:00','Адрес':'https://…','Налёт, ч':'часы'};
+const HINT = {'Дата':'дд.мм.гггг','Время круга':'00:49.35','Лучший круг':'посчитается из заездов','Рейтинг':'посчитается сам','Время':'18:00','Адрес':'https://…','Налёт, ч':'часы'};
 const todayStr = () => new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
 const PIN_KEY = 'vzlet_pin';
 const ss_ = { get(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){} }, del(k){ try{ sessionStorage.removeItem(k); }catch(e){} } };
@@ -1695,7 +1695,7 @@ function initRole(){
    (это проверяет и сервер: op "todayLaps", файл pomoshnik.gs). */
 function hlRow(l){ l=l||{}; const fm=l['Формат']||trackFmt(l['Трасса']||curTrack||'')||(window.SR_SIM&&SR_SIM())||'Квадросим';
   return `<div class="hlrow"><input class="hl-name" list="hlPilots" placeholder="ФИО или имя (класс)" value="${esc(l['Пилот']||'')}"><input class="hl-track" list="hlTracks" value="${esc(l['Трасса']||curTrack||'')}" placeholder="Трасса">
-  <input class="hl-time" placeholder="49.3 или 1:05.3" value="${esc(l['Время круга']||'')}"><select class="hl-fmt">${['Квадросим','Ворон','реал'].map(x=>`<option value="${x}" ${x===fm?'selected':''}>${simLbl(x)}</option>`).join('')}</select>${droneField('hl-drone', l['Дрон']||'', 'hlDrones', '')}<label class="hl-cl" title="Аварии">💥<input class="hl-crash" type="number" min="0" value="${esc(l['Аварии']||'0')}" inputmode="numeric" aria-label="Аварии"></label><button class="btn hl-del" title="Убрать строку">✕</button></div>`; }
+  <input class="hl-time" placeholder="49.35 или 1:05.32" value="${esc(l['Время круга']||'')}"><select class="hl-fmt">${['Квадросим','Ворон','реал'].map(x=>`<option value="${x}" ${x===fm?'selected':''}>${simLbl(x)}</option>`).join('')}</select>${droneField('hl-drone', l['Дрон']||'', 'hlDrones', '')}<label class="hl-cl" title="Аварии">💥<input class="hl-crash" type="number" min="0" value="${esc(l['Аварии']||'0')}" inputmode="numeric" aria-label="Аварии"></label><button class="btn hl-del" title="Убрать строку">✕</button></div>`; }
 const dkey=v=>{const m=String(v||'').trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})/);return m?m[1].padStart(2,'0')+'.'+m[2].padStart(2,'0')+'.'+(m[3].length===2?'20'+m[3]:m[3]):''};
 function openHelper(){
   if(VIEW==='all') return toast('Выберите площадку вверху страницы','bad');
@@ -1720,7 +1720,7 @@ function openHelper(){
       const n=tr.querySelector('.hl-name').value.trim(), t=tr.querySelector('.hl-track').value.trim(), tm=tr.querySelector('.hl-time').value.trim().replace(',','.');
       if(!n && !tm) continue;
       if(!n || !t){ toast('Укажите пилота и трассу в каждой строке','bad'); return; }
-      if(!lapSec(tm)){ toast(`Проверьте время у "${n}" - пример 49.3 или 1:05.3`,'bad'); return; }
+      if(!lapSec(tm)){ toast(`Проверьте время у "${n}" - пример 49.35 или 1:05.32`,'bad'); return; }
       if(!tr.querySelector('.hl-drone').value){ toast(`Выберите дрон у "${n}": Микро, Фристайл или Гоночные`,'bad'); return; }
       out.push({'Пилот':n,'Трасса':t,'Время круга':lapStore(tm),'Формат':tr.querySelector('.hl-fmt').value,'Аварии':String(Math.max(0,parseInt(tr.querySelector('.hl-crash').value)||0)),'Дрон':tr.querySelector('.hl-drone').value.trim().slice(0,40)});
     }
@@ -2235,7 +2235,7 @@ function vbDraw(){if(VB.ed&&ADM)return vbEdit();const sim='Ворон',TS=srTrac
    <div class="vb-l">Трасса</div><div class="vb-ch" id="vbT">${TS.map(t=>`<button class="${t===VB.t?'on':''}" data-t="${esc(t)}" title="${esc(trkFull(t)||t)}">${esc(t)}</button>`).join('')}</div>
    ${full?`<div class="vb-full">📍 <b>${esc(full)}</b></div>`:''}
    ${DR.length?`<div class="vb-l">Дрон</div><div class="vb-ch dr" id="vbD">${DR.map(d=>`<button class="${d===VB.d?'on':''}${onT.has(d)?'':' no'}" data-d="${esc(d)}">${esc(d)}</button>`).join('')}</div>`:''}
-   <div class="vb-lb">${rows.length?rows.map((r,i)=>`<button class="vb-r${i===0?' top':''}" data-p="${esc(r.pilot)}" style="--w:${(100*top/r.sec).toFixed(0)}%;--d:${Math.min(i,12)*35}ms"><i>${i<3?['🥇','🥈','🥉'][i]:i+1}</i><span><b>${esc(pnm(r.pilot))}</b><small>${r.drone?esc(r.model||r.drone)+' · ':''}${i?'+'+(r.sec-top).toFixed(1)+' с':'лидер'}${r.crash?' · 💥 '+r.crash:''}</small></span><em>${fmtLap(r.sec)}</em></button>`).join('')
+   <div class="vb-lb">${rows.length?rows.map((r,i)=>`<button class="vb-r${i===0?' top':''}" data-p="${esc(r.pilot)}" style="--w:${(100*top/r.sec).toFixed(0)}%;--d:${Math.min(i,12)*35}ms"><i>${i<3?['🥇','🥈','🥉'][i]:i+1}</i><span><b>${esc(pnm(r.pilot))}</b><small>${r.drone?esc(r.model||r.drone)+' · ':''}${i?'+'+(r.sec-top).toFixed(2)+' с':'лидер'}${r.crash?' · 💥 '+r.crash:''}</small></span><em>${fmtLap(r.sec)}</em></button>`).join('')
      :`<div class="sr-none"><b>Заездов пока нет</b><span>${VB.d?'На этом дроне трассу ещё не летали. Выбери другой дрон.':'Время записывает тренер после заезда.'}</span></div>`}</div>`;
   const b=$('pbody');
   b.querySelectorAll('#vbT button').forEach(x=>x.onclick=()=>{VB.t=x.dataset.t;st.set('vzlet_vb',VB);vbDraw()});
