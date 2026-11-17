@@ -1767,6 +1767,42 @@ setInterval(()=>{ if(sheetId() && !document.hidden && !document.querySelector('.
 </script>
 <a id="toSchool" href="https://centrspektr.gitverse.site/spektr/" title="В дашборд Спектра">&#8592; СПЕКТР</a>
 <style>#toSchool{position:absolute; left:8px; top:6px; z-index:50; display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; font:600 11px system-ui,sans-serif; text-decoration:none; color:#fff; background:rgba(59,91,253,.55); opacity:.6; transition:opacity .2s}#toSchool:hover,#toSchool:focus{opacity:1}@media print{#toSchool{display:none}}
+/* рейтинг пилотов: таблица пилот / трасса / время / дрон / аварии (ПК - колонки, телефон - карточки) */
+.sr{container-type:inline-size}
+.sr-tb{display:grid;gap:5px}
+.sr-th,.sr-tr{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.3fr) 76px minmax(0,1fr) 62px;gap:10px;align-items:center}
+.sr-tb.one .sr-th,.sr-tb.one .sr-tr{grid-template-columns:minmax(0,1.6fr) 76px minmax(0,1fr) 62px}
+.sr-tb.one .c-t,.sr-tb.one .sr-th span:nth-child(2){display:none}
+.sr-th{padding:0 10px 2px;font:700 11px Manrope,system-ui,sans-serif;color:var(--dim);text-transform:uppercase;letter-spacing:.4px}
+.sr-tr{padding:8px 10px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid var(--line);cursor:pointer;transition:border-color .2s}
+.sr-tr:hover{border-color:var(--accent)}
+.sr-tr.top{background:linear-gradient(90deg,rgba(255,200,80,.14),rgba(0,0,0,.2))}
+.sr-tb.an .sr-tr{animation:srin .45s cubic-bezier(.3,1.2,.5,1) backwards;animation-delay:var(--d)}
+.sr-tr .c-p{display:flex;gap:8px;align-items:center;min-width:0}
+.sr-tr .c-p i{font-style:normal;font:800 14px var(--fh);min-width:22px;text-align:center}
+.sr-tr .c-p b{font-size:14px;line-height:1.25;overflow-wrap:anywhere}
+.sr-tr .c-t,.sr-tr .c-d{font-size:13px;color:var(--dim);overflow-wrap:anywhere;line-height:1.3}
+.sr-tr .c-v{font:800 15px var(--fh);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sr-tr .c-c{font-size:13px;white-space:nowrap;text-align:right}
+.sr-th span:last-child{text-align:right}
+@container (max-width:520px){
+  .sr-th{display:none}
+  .sr-tr,.sr-tb.one .sr-tr{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"p v" "t c" "d d";row-gap:3px}
+  .sr-tb.one .sr-tr{grid-template-areas:"p v" "d c"}
+  .sr-tr .c-p{grid-area:p}.sr-tr .c-v{grid-area:v;text-align:right}.sr-tr .c-t{grid-area:t;padding-left:30px}.sr-tr .c-d{grid-area:d;padding-left:30px}.sr-tr .c-c{grid-area:c}
+  .sr-tr .c-d.no{display:none}
+  .sr-tr .c-d::before{content:"дрон: ";opacity:.7}
+}
+@media (prefers-reduced-motion: reduce){.sr-tb.an .sr-tr{animation:none}}
+.sr-h3{display:flex;margin:0 0 8px}.sr-h3 button{min-height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font:700 13px Manrope,system-ui,sans-serif;cursor:pointer}.sr-h3 button.on{border-color:#ffcf6a;color:#ffcf6a}
+
+/* форма помощника: на телефоне по строкам */
+.hl-cl{display:flex;align-items:center;gap:4px;min-width:0}
+.hl-cl input{min-width:0;width:100%}
+@media (max-width:700px){
+  .hlrow{grid-template-columns:1fr 1fr 1fr 44px;grid-template-areas:"n n n n" "t t t t" "tm tm f f" "d d c x"}
+  .hlrow .hl-name{grid-area:n}.hlrow .hl-track{grid-area:t}.hlrow .hl-time{grid-area:tm}.hlrow .hl-fmt{grid-area:f}.hlrow .hl-drone{grid-area:d}.hlrow .hl-cl{grid-area:c}.hlrow .hl-del{grid-area:x}
+}
 </style>
 <script>
 /* ===== Академия пилота: данные ===== */
@@ -2147,10 +2183,12 @@ function srDraw(anim){const box=q('sr');if(!box)return;
   }else{
     const TSD=TS.filter(t=>LS.some(l=>l.track===t&&l.drone===SR.d));if(SR.t&&!TSD.includes(SR.t))SR.t='';
     if(TSD.length>1)h+=`<div class="sr-trk"><select id="srSel" aria-label="Трасса">${[`<option value="">Все трассы с заездами (${TSD.length})</option>`,...TSD.map(t=>{const n=new Set(LS.filter(l=>l.track===t&&l.drone===SR.d).map(l=>normName(l.pilot))).size;return `<option value="${esc(t)}" ${t===SR.t?'selected':''}>${esc(t)} (${n})</option>`})].join('')}</select></div>`;
-    const rows=srTable(SR.sim,SR.t);{const fl=SR.t&&trkFull(SR.t);if(fl)h+=`<div class="vb-full">📍 <b>${esc(fl)}</b></div>`}
-    if(!rows.length)h+=`<div class="sr-none"><b>На дроне "${esc(SR.d)}" заездов пока нет</b><span>${coach?'Выберите другой дрон или нажмите "⏱ Вписать время".':'Выберите другой дрон. Время записывает тренер после заезда.'}</span></div>`;
+    const all0=srTable(SR.sim,SR.t),rows=SR.h3?all0.filter(r=>r.place>=3):all0;{const fl=SR.t&&trkFull(SR.t);if(fl)h+=`<div class="vb-full">📍 <b>${esc(fl)}</b></div>`}
+    if(all0.some(r=>r.place<3))h+=`<div class="sr-h3"><button type="button" id="srH3" class="${SR.h3?'on':''}" aria-pressed="${!!SR.h3}">${SR.h3?'👁 Показать топ-3':'🙈 Скрыть топ-3'}</button></div>`;
+    if(!rows.length&&all0.length)h+=`<div class="sr-none"><b>Дальше четвёртого места пока никого нет</b><span>Нажмите "Показать топ-3".</span></div>`;
+    else if(!rows.length)h+=`<div class="sr-none"><b>На дроне "${esc(SR.d)}" заездов пока нет</b><span>${coach?'Выберите другой дрон или нажмите "⏱ Вписать время".':'Выберите другой дрон. Время записывает тренер после заезда.'}</span></div>`;
     else{const lim=SR.all?rows.length:15;
-      h+=`<div class="sr-tb${anim?' an':''}"><div class="sr-th"><span>Пилот</span><span>Трасса</span><span>Время</span><span>Дрон</span><span>Аварии</span></div>${rows.slice(0,lim).map((r,i)=>`<div class="sr-tr${r.place===0?' top':''}" data-p="${esc(r.l.pilot)}" style="--d:${Math.min(i,12)*35}ms"><span class="c-p"><i>${r.place<3?['🥇','🥈','🥉'][r.place]:r.place+1}</i><b>${esc(pnm(r.l.pilot))}</b></span><span class="c-t">${esc(r.t)}</span><span class="c-v">${fmtLap(r.l.sec)}</span><span class="c-d${r.l.drone?'':' no'}">${esc(r.l.model||r.l.drone||'-')}</span><span class="c-c">${r.l.crash?'💥 '+r.l.crash:'0'}</span></div>`).join('')}</div>`;
+      h+=`<div class="sr-tb${anim?' an':''}${new Set(rows.map(r=>r.t)).size<2?' one':''}"><div class="sr-th"><span>Пилот</span><span>Трасса</span><span>Время</span><span>Дрон</span><span>Аварии</span></div>${rows.slice(0,lim).map((r,i)=>`<div class="sr-tr${r.place===0?' top':''}" data-p="${esc(r.l.pilot)}" style="--d:${Math.min(i,12)*35}ms"><span class="c-p"><i>${r.place<3?['🥇','🥈','🥉'][r.place]:r.place+1}</i><b>${esc(pnm(r.l.pilot))}</b></span><span class="c-t">${esc(r.t)}</span><span class="c-v">${fmtLap(r.l.sec)}</span><span class="c-d${r.l.drone?'':' no'}">${esc(r.l.model||r.l.drone||'-')}</span><span class="c-c">${r.l.crash?'💥 '+r.l.crash:'0'}</span></div>`).join('')}</div>`;
       if(rows.length>15)h+=`<div class="plcta"><button class="btn" id="srAll">${SR.all?'Свернуть':'Показать все ('+rows.length+')'}</button></div>`}
   }
   if(SR.sim==='Ворон'&&TS.length)h+=`<div class="sr-coach"><button class="btn" id="srVb">📊 Трассы и дроны</button></div>`;
@@ -2173,6 +2211,7 @@ function srBind(box){
   box.querySelectorAll('.sr-sims button').forEach(b=>b.onclick=()=>{if(SR.sim===b.dataset.m)return;SR.sim=b.dataset.m;SR.t='';SR.all=0;srSave();srDraw(1);srPeek()});
   const sel=q('srSel');if(sel)sel.onchange=()=>{SR.t=sel.value;SR.all=0;srSave();srDraw(1)};
   box.querySelectorAll('.sr-tr').forEach(li=>li.onclick=()=>openPilot(li.dataset.p));
+  const h3=q('srH3');if(h3)h3.onclick=()=>{SR.h3=SR.h3?0:1;SR.all=0;srSave();srDraw(1)};
   const a=q('srAll');if(a)a.onclick=()=>{SR.all=SR.all?0:1;srSave();srDraw()};
   const ad=q('srAdd');if(ad)ad.onclick=()=>trkAdd(SR.sim);
   const tm=q('srTime');if(tm)tm.onclick=()=>openSession(SR.t||'',SR.d);
