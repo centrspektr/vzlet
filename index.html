@@ -1589,6 +1589,13 @@ function openEditor(card, sheet){
       <button class="btn cancel">Отмена</button><button class="btn primary save">Сохранить</button></div>`;
   card.appendChild(ed);
   const list=ed.querySelector('.erows');
+  if(sheet==='Трассы'){ list.querySelectorAll('.erow').forEach((el,i)=>{ el.dataset.orig=String(rows[i]['Название']||'').trim(); });
+    /* заезды на названиях, которых нет в списке трасс (трассу переименовали раньше): даём перенести */
+    const have=new Set(trackList()), cnt={}; laps().forEach(l=>{ if(!have.has(l.track)) cnt[l.track]=(cnt[l.track]||0)+1; });
+    const orph=Object.keys(cnt);
+    if(orph.length){ const b=document.createElement('div'); b.className='orph'; b.style.cssText='margin:12px 0;padding:10px;border:1px dashed #f5a623;border-radius:10px';
+      b.innerHTML=`<p class="muted" style="margin:0 0 8px">Есть заезды на старых названиях. Выберите, на какую трассу их перенести (или оставьте как есть):</p>`+orph.map(o=>`<div style="display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap"><b>${esc(o)}</b><small>(${cnt[o]})</small><span>→</span><select data-o="${esc(o)}"><option value="">оставить</option>${[...have].map(t=>`<option>${esc(t)}</option>`).join('')}</select></div>`).join('');
+      list.after(b); } }
   const bindDel = el => el.querySelector('.del').onclick=()=>el.remove();
   list.querySelectorAll('.erow').forEach(bindDel);
   ed.querySelector('.add').onclick=()=>{
@@ -1622,7 +1629,21 @@ async function saveEditor(card, sheet, list, btn){
   }).filter(r=>Object.values(r).some(v=>v!=='' && v!=='нет'));
   if(sheet==='Статус') rows.push(...(data[sheet]||[]).filter(r=>String(r['Параметр']||'').startsWith('_')));
   btn.disabled=true; btn.textContent='Сохраняю…';
-  try{ await postSheet(sheet, rows); closeEditor(card); renderAll(); toast('Сохранено ✓','ok'); }
+  try{
+    let tMap={};
+    if(sheet==='Трассы'){
+      /* переименование: заезды хранят название строкой, поэтому переносим их на новое имя */
+      const rs=[...list.querySelectorAll('.erow')].filter(el=>{ const r={}; el.querySelectorAll('[data-c]').forEach(f=>r[f.dataset.c]=f.value.trim()); return Object.values(r).some(v=>v!==''&&v!=='нет'); });
+      const names=new Set(rs.map(el=>(el.querySelector('[data-c="Название"]')?.value||'').trim()));
+      rs.forEach(el=>{ const o=el.dataset.orig, n=(el.querySelector('[data-c="Название"]')?.value||'').trim(); if(o&&n&&o!==n&&!names.has(o)) tMap[o]=n; });
+      (card.querySelectorAll('.orph select')).forEach(sel=>{ if(sel.value&&!tMap[sel.dataset.o]) tMap[sel.dataset.o]=sel.value; });
+      if(Object.keys(tMap).length){ const Z=data['Заезды']||[]; let ch=false;
+        const Z2=Z.map(l=>{ const t=String(l['Трасса']||'').trim(); if(tMap[t]!==undefined){ ch=true; return Object.assign({},l,{'Трасса':tMap[t]}); } return l; });
+        if(ch) await postSheet('Заезды',Z2); }
+    }
+    await postSheet(sheet, rows);
+    Object.keys(tMap).forEach(a=>{ if(window.SR_RENAMED) SR_RENAMED(a,tMap[a]); });
+    closeEditor(card); renderAll(); toast('Сохранено ✓','ok'); }
   catch(e){ toast('Не сохранилось: '+e.message,'bad'); btn.disabled=false; btn.textContent='Сохранить'; }
 }
 
@@ -1745,39 +1766,7 @@ loadData(); loadSpkPilots();
 setInterval(()=>{ if(sheetId() && !document.hidden && !document.querySelector('.editing')) loadData(); }, REFRESH_MIN*60*1000);
 </script>
 <a id="toSchool" href="https://centrspektr.gitverse.site/spektr/" title="В дашборд Спектра">&#8592; СПЕКТР</a>
-<style>#toSchool{position:fixed; left:14px; bottom:14px; z-index:9999; display:inline-flex; align-items:center; gap:6px; padding:10px 16px; border-radius:999px; font:700 14px system-ui,sans-serif; text-decoration:none; color:#fff; background:linear-gradient(135deg,#3b5bfd,#8b5cf6); box-shadow:0 8px 22px rgba(59,91,253,.4); transition:transform .2s}#toSchool:hover{transform:translateY(-2px)}@media print{#toSchool{display:none}}
-/* рейтинг пилотов: таблица пилот / трасса / время / дрон / аварии */
-.sr{container-type:inline-size}
-.sr-tb{display:grid;gap:5px}
-.sr-th,.sr-tr{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.3fr) 76px minmax(0,1fr) 62px;gap:10px;align-items:center}
-.sr-th{padding:0 10px 2px;font:700 11px Manrope,system-ui,sans-serif;color:var(--dim);text-transform:uppercase;letter-spacing:.4px}
-.sr-tr{padding:8px 10px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid var(--line);cursor:pointer;transition:border-color .2s}
-.sr-tr:hover{border-color:var(--accent)}
-.sr-tr.top{background:linear-gradient(90deg,rgba(255,200,80,.14),rgba(0,0,0,.2))}
-.sr-tb.an .sr-tr{animation:srin .45s cubic-bezier(.3,1.2,.5,1) backwards;animation-delay:var(--d)}
-.sr-tr .c-p{display:flex;gap:8px;align-items:center;min-width:0}
-.sr-tr .c-p i{font-style:normal;font:800 14px var(--fh);min-width:22px;text-align:center}
-.sr-tr .c-p b{font-size:14px;line-height:1.25;overflow-wrap:anywhere}
-.sr-tr .c-t,.sr-tr .c-d{font-size:13px;color:var(--dim);overflow-wrap:anywhere;line-height:1.3}
-.sr-tr .c-v{font:800 15px var(--fh);font-variant-numeric:tabular-nums;white-space:nowrap}
-.sr-tr .c-c{font-size:13px;white-space:nowrap;text-align:right}
-.sr-th span:last-child{text-align:right}
-@container (max-width:520px){
-  .sr-th{display:none}
-  .sr-tr{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"p v" "t c" "d d";row-gap:3px}
-  .sr-tr .c-p{grid-area:p}.sr-tr .c-v{grid-area:v;text-align:right}.sr-tr .c-t{grid-area:t;padding-left:30px}.sr-tr .c-d{grid-area:d;padding-left:30px}.sr-tr .c-c{grid-area:c}
-  .sr-tr .c-d.no{display:none}
-  .sr-tr .c-d::before{content:"дрон: ";opacity:.7}
-}
-@media (prefers-reduced-motion: reduce){.sr-tb.an .sr-tr{animation:none}}
-
-/* форма помощника: на телефоне по строкам */
-.hl-cl{display:flex;align-items:center;gap:4px;min-width:0}
-.hl-cl input{min-width:0;width:100%}
-@media (max-width:700px){
-  .hlrow{grid-template-columns:1fr 1fr 1fr 44px;grid-template-areas:"n n n n" "t t t t" "tm tm f f" "d d c x"}
-  .hlrow .hl-name{grid-area:n}.hlrow .hl-track{grid-area:t}.hlrow .hl-time{grid-area:tm}.hlrow .hl-fmt{grid-area:f}.hlrow .hl-drone{grid-area:d}.hlrow .hl-cl{grid-area:c}.hlrow .hl-del{grid-area:x}
-}
+<style>#toSchool{position:absolute; left:8px; top:6px; z-index:50; display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; font:600 11px system-ui,sans-serif; text-decoration:none; color:#fff; background:rgba(59,91,253,.55); opacity:.6; transition:opacity .2s}#toSchool:hover,#toSchool:focus{opacity:1}@media print{#toSchool{display:none}}
 </style>
 <script>
 /* ===== Академия пилота: данные ===== */
@@ -2510,7 +2499,7 @@ zakApply();
   b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up)})();
 </script>
 <script src="trening.js"></script>
-<script src="oshibka.js" data-site="vzlet" defer></script>
+<script src="oshibka2.js" data-site="vzlet" defer></script>
 <script src="put.js" data-site="vzlet" defer></script>
 <script src="zadaniya-vzlet.js" defer></script>
 <script src="moduli2.js" defer></script>
