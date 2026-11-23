@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html class="mn" lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Клуб БПЛА Взлёт: рейтинг пилотов, шпаргалки по FPV, тесты, калькуляторы и тренажёр стиков.">
 <title>Взлёт - дашборд клуба</title>
 <link rel="manifest" href="app.webmanifest">
+<script>if(/[?&]rating(=|&|$)/.test(location.search)||location.hash==="#rating")document.documentElement.classList.add("rt")</script>
+<link rel="stylesheet" href="rating.css">
 <script src="perenos.js"></script>
 <script>/* Chrome может предложить установку раньше, чем загрузится вся страница - ловим сразу */addEventListener('beforeinstallprompt',function(e){window.__vzBIP=e});</script>
 <meta name="theme-color" content="#0d1117">
@@ -619,32 +621,39 @@ details[data-tab="Пилоты"]{display:none!important}
 <style>/* 17.11: ровная раскладка на ПК - если слева в пульте нет блоков (скрыты), рейтинг на всю ширину; нижние блоки в две равные колонки */
 @media(min-width:861px){.pult:not(:has(.pl:not(#plPod):not(#plChk):not([hidden]))) #plPod{grid-column:1/-1;grid-row:auto}.pult:not(:has(.pl:not(#plPod):not(#plChk):not([hidden]))){grid-template-columns:1fr}}
 @media(min-width:981px){#t-club>.grid{grid-template-columns:repeat(2,minmax(0,1fr))}#t-club>.grid>.card{grid-column:span 1}}</style>
+<link rel="stylesheet" href="mini.css">
 </head>
 <body>
 
-<header>
-  <div class="logo">
-    <div class="logo-badge vzb" id="vzb" title="Клуб Взлёт"><span class="vzo"></span><svg class="vzd" viewBox="6 6 88 88" aria-hidden="true"><g stroke="#5b7a96" stroke-width="7" stroke-linecap="round"><line x1="24" y1="24" x2="76" y2="76"/><line x1="76" y1="24" x2="24" y2="76"/></g><rect x="38" y="33" width="24" height="34" rx="8" fill="#0d2233" stroke="#00d4ff" stroke-width="2.5"/><circle cx="50" cy="39" r="4" fill="#a371f7"/><rect x="44" y="49" width="12" height="12" rx="3" fill="#ffb02e"/><circle cx="24" cy="24" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp" style="transform-origin:24px 24px"><ellipse cx="24" cy="24" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="24" cy="24" r="2.6" fill="#00d4ff"/></g><circle cx="76" cy="24" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp r" style="transform-origin:76px 24px"><ellipse cx="76" cy="24" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="76" cy="24" r="2.6" fill="#00d4ff"/></g><circle cx="24" cy="76" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp r" style="transform-origin:24px 76px"><ellipse cx="24" cy="76" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="24" cy="76" r="2.6" fill="#00d4ff"/></g><circle cx="76" cy="76" r="7" fill="#1b2633" stroke="#8be9ff" stroke-width="2"/><g class="vzp" style="transform-origin:76px 76px"><ellipse cx="76" cy="76" rx="17" ry="4" fill="#cdf6ff" opacity=".8"/><circle cx="76" cy="76" r="2.6" fill="#00d4ff"/></g></svg></div>
-    <div>
-      <h1>Клуб "Взлёт" <span class="grant-note">(при поддержке Росмолодёжь.Гранты)</span> <span class="coach-badge coach-only" id="coachBadge">тренер</span></h1>
-      <p id="vzSub">FPV-тренировки · с. Иртыш · Черлакский район · Омская область</p>
+<header class="mn-h">
+  <div class="mn-top">
+    <div class="logo-badge vzb" id="vzb" title="Клуб Взлёт"><span class="vzo"></span><svg class="vzd" viewBox="6 6 88 88" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M31 31l10 10M69 31l-10 10M31 69l10-10M69 69l-10-10"/><rect x="39" y="37" width="22" height="26" rx="7"/><circle cx="50" cy="45" r="2.2" fill="currentColor" stroke="none"/><circle cx="24" cy="24" r="9"/><g class="vzp" style="transform-origin:24px 24px"><line x1="9" y1="24" x2="39" y2="24"/></g><circle cx="76" cy="24" r="9"/><g class="vzp r" style="transform-origin:76px 24px"><line x1="61" y1="24" x2="91" y2="24"/></g><circle cx="24" cy="76" r="9"/><g class="vzp r" style="transform-origin:24px 76px"><line x1="9" y1="76" x2="39" y2="76"/></g><circle cx="76" cy="76" r="9"/><g class="vzp" style="transform-origin:76px 76px"><line x1="61" y1="76" x2="91" y2="76"/></g></svg></div>
+    <div class="mn-r">
+      <span class="coach-only" data-spk-panel data-club="vzlet" data-coach data-pin-key="vzlet_pin" data-btn="btn" data-accent="#c8a876"></span>
+      <button class="mn-ic" id="mnMenuBtn" type="button" aria-label="Разделы клуба" aria-expanded="false" aria-controls="mnMenu"><span class="mn-bars" aria-hidden="true"><i></i><i></i></span></button>
+      <button class="mn-ic" id="mnGearBtn" type="button" aria-label="Настройки" aria-expanded="false" aria-controls="mnGear"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.85 1.85M16.65 16.65l1.85 1.85M18.5 5.5l-1.85 1.85M7.35 16.65L5.5 18.5"/><circle cx="12" cy="12" r="6.6"/></svg></button>
     </div>
-    <!-- 26.10 владелец: кнопка "← Иртыш-портал" пока убрана. Вернуть: <div class="irtw"><a class="irt" href="https://glebbelov85.gitverse.site/irtysh.html" title="Иртыш-портал">← Иртыш-портал</a></div> -->
+    <div class="mn-pop" id="mnMenu" hidden><p class="mn-ph">Разделы</p><div id="mnMenuList"></div></div>
+    <div class="mn-pop" id="mnGear" hidden>
+      <p class="mn-ph">Настройки</p>
+      <div class="mn-st"><span class="status" id="status"><i></i><span>загрузка…</span></span></div>
+      <button class="mn-row coach-only" type="button" onclick="loadData(true)">Обновить</button>
+      <a class="mn-row coach-only" id="editBtn" target="_blank" href="#" title="Открыть Google Таблицу">Таблица</a>
+      <button class="mn-row inb" id="inBtn" type="button" title="Установить Взлёт на экран телефона">На экран телефона</button>
+      <button class="mn-row" type="button" data-fx-skin title="Сменить живой фон">Сменить фон</button>
+      <button class="mn-row" type="button" onclick="openModal()">Справка</button>
+      <button class="mn-row" id="lockBtn" type="button" onclick="lockClick()" style="display:none">Войти</button>
+    </div>
   </div>
-  <div class="toolbar">
-    <div class="tb-sub">
-      <span class="status" id="status"><i></i><span>загрузка…</span></span>
-      <button class="btn coach-only" onclick="loadData(true)">↻ Обновить</button>
-      <a class="btn coach-only" id="editBtn" target="_blank" href="#" title="Открыть Google Таблицу">▦ Таблица</a>
-      <span class="coach-only" data-spk-panel data-club="vzlet" data-coach data-pin-key="vzlet_pin" data-btn="btn" data-accent="#00d4ff"></span>
-      <button class="btn" id="lockBtn" onclick="lockClick()" style="display:none">✎ Войти</button>
-      <button class="btn inb" id="inBtn" type="button" title="Установить Взлёт на экран телефона" aria-label="Установить на экран телефона"><svg class="shico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5 21 11l-7 6.5v-3.8c-5 0-8.3 1.5-11 5.3.9-5.4 3.9-10.4 11-11.3z"/></svg><span>На экран</span></button>
-      <button class="btn tb-ic" data-fx-skin title="Сменить живой фон" aria-label="Сменить фон">🎨</button>
-    </div>
-    <div class="tb-main">
-      <button class="btn primary" id="zayBtn" onclick="openZay()">👋 Подать заявку</button>
-      <button class="btn tb-help" onclick="openModal()">📖 Справка</button>
-    </div>
+  <div class="mn-hero">
+    <svg class="mn-fly" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path class="mn-tr" pathLength="1" d="M-40 330 C 180 340 300 110 520 150 S 720 390 880 250 S 1060 50 1240 80"/><g class="mn-dot"><circle r="4.5" class="g"/><circle r="1.6"/><animateMotion id="mnFly1" dur="1.7s" begin="0.35s" fill="freeze" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines=".5 0 .2 1" path="M-40 330 C 180 340 300 110 520 150 S 720 390 880 250 S 1060 50 1240 80"/><animateMotion dur="16s" begin="mnFly1.end+1.2s" repeatCount="indefinite" calcMode="spline" keyPoints="1;0" keyTimes="0;1" keySplines=".45 .05 .55 .95" path="M-40 330 C 180 340 300 110 520 150 S 720 390 880 250 S 1060 50 1240 80"/></g></svg>
+    <p class="mn-cap">Клуб <span class="coach-badge coach-only" id="coachBadge">тренер</span></p>
+    <h1 class="mn-t" aria-label="Клуб Взлёт"><span class="mn-tl" aria-hidden="true"><span style="--i:0">В</span><span style="--i:1">з</span><span style="--i:2">л</span><span style="--i:3">ё</span><span style="--i:4">т</span></span></h1>
+    <i class="mn-rule" aria-hidden="true"></i>
+    <p class="mn-sub mn-s1">при поддержке Росмолодёжь.Гранты</p>
+    <p class="mn-sub mn-s2" id="vzSub">FPV-тренировки · Черлакский район · Омская область</p>
+    <button class="mn-imp" id="mnImp" type="button" aria-label="Важно: прочитайте про бета-версию"><i aria-hidden="true">!</i><span>Важно - прочитайте</span></button>
+    <button class="mn-cta" id="zayBtn" type="button" onclick="openZay()"><span>Подать заявку</span></button>
   </div>
 </header>
 
@@ -744,7 +753,7 @@ window.KURS_ONLY_LINK = true;
   </div>
 </div>
 
-<div class="vtab" id="t-komandy" hidden><div class="card" id="tmBox"></div></div>
+<div class="vtab" id="t-komandy" hidden></div><!-- 23.11: команды перенесены в блок "Рейтинг пилотов" -->
 
 <div class="vtab" id="t-me" hidden>
   <div class="card"><h3>🎖 Мои значки</h3><p class="muted">Прогресс хранится на этом устройстве.</p><div class="bdg" id="bdg"></div></div>
@@ -824,6 +833,7 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.index
   <details class="card col-12" open id="fgd-card">
     <summary>Новости Федерации гонок дронов России <span class="counter" id="c-fgd"></span></summary>
     <div id="fgd"></div>
+    <p class="fgd-alt">Telegram не открывается? Те же новости федерации: <a href="https://vk.com/fgdrus" target="_blank" rel="noopener noreferrer">ВКонтакте ФГД России</a> · <a href="https://vk.com/fgdomsk" target="_blank" rel="noopener noreferrer">ФГД Омской области</a></p>
     <p class="muted" style="margin-top:10px">Обновляется автоматически из <a href="https://t.me/droneracingfederation" target="_blank" rel="noopener">Telegram-канала ФГД России</a> каждые 3 часа.</p>
   </details>
   <details class="card col-12 coach-only" data-tab="more">
@@ -848,6 +858,7 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.index
 </div>
 
 <footer id="footer"></footer>
+<p class="mn-copy">© 2026 Клуб "Взлёт". Все права защищены. Разработчик: Наумов Александр</p>
 
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-card">
@@ -912,8 +923,7 @@ function setView(v){
 }
 function renderSelo(){
   const sub=document.getElementById('vzSub');
-  if(sub) sub.textContent = VIEW==='irtysh' ? 'FPV-тренировки · с. Иртыш · Черлакский район · Омская область'
-    : VIEW==='all' ? 'FPV-тренировки · все площадки клуба · Омская область' : 'FPV-тренировки · '+seloName(VIEW)+' · Омская область';
+  if(sub) sub.textContent = 'FPV-тренировки · Черлакский район · Омская область'; /* 23.11: площадка выбирается ниже, в шапке село не пишем */
   const bar=document.getElementById('selBar'); if(!bar) return;
   if(SELA.length<2 && !MY_SELO && !ADM){ bar.hidden=true; return; }
   bar.hidden=false;
@@ -1717,11 +1727,11 @@ function openLogin(){
 }
 function initRole(){
   const b=document.getElementById('lockBtn'); if(!b) return;
-  if(ROLE || trustedDev()) b.style.display='';
+  if(ROLE) b.style.display=''; /* 23.11: вход - удержанием дрона-логотипа */
   secretTap(document.querySelector('.logo-badge'), ()=>{ if(!ROLE) openLogin(); });
   const vh=()=>{ if(location.hash==='#vhod'){ history.replaceState(null,'',location.pathname+location.search); if(!ROLE) setTimeout(openLogin,300); } }; vh(); addEventListener('hashchange',vh);
   if(ROLE==='teacher'){ const cb=document.getElementById('coachBadge'); if(cb) cb.textContent='педагог'; }
-  if(ROLE){ b.textContent=(ROLE==='admin'?'🔓 Тренер':ROLE==='teacher'?'🔓 Педагог':'🔓 Помощник')+' · выйти'; b.title='Выйти из режима редактирования'; }
+  if(ROLE){ b.textContent=(ROLE==='admin'?'Тренер':ROLE==='teacher'?'Педагог':'Помощник')+' · выйти'; b.title='Выйти из режима редактирования'; }
   if(ROLE==='helper'||ROLE==='teacher'){
     const card=document.querySelector('details[data-tab="Пилоты"]'), chips=document.getElementById('sortChips');
     if(chips) chips.insertAdjacentHTML('afterend','<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn primary hlp-btn" onclick="openHelper()">✎ Заезды сегодня</button></div>');
@@ -1781,7 +1791,7 @@ initRole();
 loadData(); loadSpkPilots();
 setInterval(()=>{ if(sheetId() && !document.hidden && !document.querySelector('.editing')) loadData(); }, REFRESH_MIN*60*1000);
 </script>
-<a id="toSchool" href="https://centrspektr.gitverse.site/spektr/" title="В дашборд Спектра">&#8592; СПЕКТР</a>
+<a id="toSchool" href="https://centrspektr.gitverse.site/spektr/" title="В дашборд Спектра"><b>Спектр</b><i aria-hidden="true"></i></a>
 <style>#toSchool{position:absolute; left:8px; top:6px; z-index:50; display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; font:600 11px system-ui,sans-serif; text-decoration:none; color:#fff; background:rgba(59,91,253,.55); opacity:.6; transition:opacity .2s}#toSchool:hover,#toSchool:focus{opacity:1}@media print{#toSchool{display:none}}
 /* рейтинг пилотов: таблица пилот / трасса / время / дрон / аварии (ПК - колонки, телефон - карточки) */
 .sr{container-type:inline-size}
@@ -2182,7 +2192,8 @@ function srRows(sim,t){const P=allPilots(),L=laps(),key=p=>normName(p['Пило�
   r.sort((a,b)=>b.pts-a.pts||b.n-a.n||String(a.p['Пилот']).localeCompare(String(b.p['Пилот']),'ru'));return r}
 function srLeader(sim){const w={};srTable(sim,'',SR.d).forEach(r=>{if(r.place===0)w[r.l.pilot]=(w[r.l.pilot]||0)+1});const k=Object.keys(w).sort((a,b)=>w[b]-w[a])[0];return k?{p:{'Пилот':k}}:null}
 function renderPod(){const el=q('plPod');
-  el.innerHTML=`<h3>🏆 Рейтинг пилотов</h3><div class="sr" id="sr"></div>`;srDraw()}
+  el.innerHTML=`<h3>🏆 Рейтинг пилотов</h3><div class="sr" id="sr"></div><details class="tm-fold" id="tmFold"${window.tmOpen?' open':''}><summary>Команды</summary><div id="tmBox"></div></details>`;srDraw();
+  q('tmFold').ontoggle=e=>{window.tmOpen=e.target.open};if(typeof tmDraw==='function')try{tmDraw()}catch(e){}}
 /* таблица: лучший круг каждого пилота на каждой трассе симулятора; по трассам, внутри - по времени */
 function srTable(sim,t,d){d=d||SR.d;const L=laps().filter(l=>l.drone===d),TS=t?[t]:srTracks(sim),out=[];TS.forEach(x=>{Object.values(srBest(L,x)).sort((a,b)=>a.sec-b.sec).forEach((l,i)=>out.push({l,t:x,place:i}))});return out}
 function srDraw(anim){const box=q('sr');if(!box)return;
@@ -2236,12 +2247,13 @@ function tmPts(sim,d){const g={},r=srTable(sim,'',d);r.forEach(x=>{(g[x.t]=g[x.t
 function tmTop3(sim,d){const P=tmPts(sim,d);
   return allPilots().map(p=>p['Пилот']).filter(n=>P[tmKey(n)]).sort((a,b)=>P[tmKey(b)]-P[tmKey(a)]||String(a).localeCompare(String(b),'ru')).slice(0,3)}
 const tmFmt=sec=>{sec=Math.round(sec*100)/100;const m=Math.floor(sec/60);return m+':'+(sec-m*60).toFixed(2).padStart(5,'0')};
+function tmNew(list,label){return `<div class="tm-add tm-new"><select id="tmNewCap" aria-label="${label}"><option value="">${label}</option>${list.map(n=>`<option value="${esc(n)}">${esc(pnm(n))}</option>`).join('')}</select></div>`}
 async function tmSave(v){try{await sPut('_команды',{cap:v.cap,teams:v.teams,sim:v.sim,d:v.d,track:v.track});toast('Сохранено ✓','ok')}catch(e){toast('Не сохранилось: '+e.message,'bad')}tmDraw()}
 function tmDraw(){const box=q('tmBox');if(!box)return;
   const T=tmGet(),sims=srSims();if(!sims.includes(T.sim))T.sim=sims[0];if(!DTYPES.includes(T.d))T.d=DTYPES[0];
   const TS=srTracks(T.sim);if(!TS.includes(T.track))T.track='';
   const best=T.track?srBest(laps().filter(l=>l.drone===T.d),T.track):{},tm=n=>{const b=best[tmKey(n)];return b?b.sec:null};
-  let h=`<h3>🤝 Командная игра</h3><p class="sub">Тройка лидеров - капитаны, каждый набирает команду. Тренер выбирает одну трассу: все пилоты команды по очереди, начиная с капитана, проходят её. Время каждого - его лучшее на этой трассе и дроне. Побеждает команда с наименьшей общей суммой времени.</p>`;
+  let h=`<p class="sub">Капитанов назначает тренер: любые пилоты или тройка лидеров. Каждый капитан набирает команду. Тренер выбирает одну трассу: все пилоты команды по очереди, начиная с капитана, проходят её. Время каждого - его лучшее на этой трассе и дроне. Побеждает команда с наименьшей общей суммой времени.</p>`;
   if(ADM){
     h+=`<div class="sr-sims" role="group">${sims.map(m=>`<button type="button" class="${m===T.sim?'on':''}" data-sim="${esc(m)}"><i>${SR_ICON[m]||'🏁'}</i>${esc(simLbl(m))}</button>`).join('')}</div>
     <div class="sr-dr" role="group" aria-label="Дрон">${DTYPES.map(d=>`<button type="button" class="${d===T.d?'on':''}" data-d="${esc(d)}">${dIc(d)} ${esc(d)}</button>`).join('')}</div>
@@ -2250,16 +2262,17 @@ function tmDraw(){const box=q('tmBox');if(!box)return;
   if(ADM&&T.track)h+=`<p class="sub">Время подтягивается из рейтинга. Нет времени у пилота - впишите его через "⏱ Вписать время" на этой трассе и дроне.</p>`;
   const caps=T.cap;
   if(!caps.length){const top=tmTop3(T.sim,T.d);
-    h+=top.length?`<div class="sr-none"><b>Капитаны пока не выбраны</b><span>Сейчас лидеры рейтинга: ${top.map(n=>esc(pnm(n))).join(', ')}.${ADM?'':' Тренер соберёт команды.'}</span>${ADM?'<button class="btn primary" id="tmFix">⭐ Зафиксировать капитанов (топ-3)</button>':''}</div>`:`<div class="sr-none"><b>Пока нет результатов</b><span>Нужны заезды на выбранном симуляторе и дроне.</span></div>`;
+    h+=top.length?`<div class="sr-none"><b>Капитаны пока не выбраны</b><span>Сейчас лидеры рейтинга: ${top.map(n=>esc(pnm(n))).join(', ')}.${ADM?'':' Тренер соберёт команды.'}</span>${ADM?'<button class="btn primary" id="tmFix">Капитаны - тройка лидеров</button>':''}</div>`:`<div class="sr-none"><b>Команд пока нет</b><span>${ADM?'Выберите капитана первой команды ниже.':'Тренер соберёт команды.'}</span></div>`;
+    if(ADM)h+=tmNew(allPilots().map(p=>p['Пилот']),'Создать команду: выбрать капитана');
   }else{
     const teams=caps.map((c,i)=>{const all=[c,...(T.teams[i]||[])],ts=all.map(tm),miss=all.filter((n,j)=>ts[j]==null),ok=!!T.track&&!miss.length;
       return{i,c,all,ts,miss,ok,sum:ok?ts.reduce((a,b)=>a+b,0):Infinity}}).sort((a,b)=>a.sum-b.sum||a.i-b.i);
     const taken=new Set(caps.concat(...T.teams).map(tmKey)),free=allPilots().map(p=>p['Пилот']).filter(n=>!taken.has(tmKey(n)));
-    h+=`<div class="tm-list">${teams.map((t,k)=>`<div class="tm-card${t.ok&&k===0?' top':''}"><div class="tm-h"><i>${t.ok?(['🥇','🥈','🥉'][k]||k+1):'⏳'}</i><b>Команда ${esc(pnm(t.c).replace(/\s*\(.*\)$/,''))}</b><span class="tm-s">${t.ok?tmFmt(t.sum):'-'}<small>${t.ok?'общее время':T.track?'не в зачёте':'нужна трасса'}</small></span></div>
+    h+=`<div class="tm-list">${teams.map((t,k)=>`<div class="tm-card${t.ok&&k===0?' top':''}"><div class="tm-h"><i>${t.ok?(['🥇','🥈','🥉'][k]||k+1):'⏳'}</i><b>Команда ${esc(pnm(t.c).replace(/\s*\(.*\)$/,''))}</b>${ADM?`<button type="button" class="tm-x" data-capdel="${t.i}" aria-label="Удалить команду" title="Удалить команду">✕</button>`:''}<span class="tm-s">${t.ok?tmFmt(t.sum):'-'}<small>${t.ok?'общее время':T.track?'не в зачёте':'нужна трасса'}</small></span></div>
       <div class="tm-m">${t.all.map((n,j)=>`<div class="tm-r"><span>${j+1}. ${j?'':'⭐ '}${esc(pnm(n))}</span><span>${t.ts[j]==null?(T.track?'нет времени':'-'):tmFmt(t.ts[j])}${ADM&&j?` <button type="button" class="tm-x" data-up="${t.i}|${j}" aria-label="Выше в очереди" ${j<2?'disabled':''}>↑</button><button type="button" class="tm-x" data-del="${t.i}|${j}" aria-label="Убрать">✕</button>`:''}</span></div>`).join('')}</div>
       ${T.track&&t.miss.length?`<p class="sub" style="margin:6px 0 0">Ждём время: ${t.miss.map(n=>esc(pnm(n))).join(', ')}. Пока все не пролетят, команда не в зачёте.</p>`:''}
-      ${ADM?`<div class="tm-add"><select data-add="${t.i}" aria-label="Добавить пилота"><option value="">+ Добавить пилота</option>${free.map(n=>`<option value="${esc(n)}">${esc(pnm(n))}</option>`).join('')}</select></div>`:''}</div>`).join('')}</div>`;
-    if(free.length)h+=`<p class="sub">Свободные пилоты: ${free.map(n=>esc(pnm(n))).join(', ')}.</p>`;
+      ${ADM?`<div class="tm-add"><select data-add="${t.i}" aria-label="Добавить пилота"><option value="">+ Добавить пилота</option>${free.map(n=>`<option value="${esc(n)}">${esc(pnm(n))}</option>`).join('')}</select><select data-capset="${t.i}" aria-label="Сменить капитана"><option value="">Сменить капитана</option>${free.concat(T.teams[t.i]||[]).map(n=>`<option value="${esc(n)}">${esc(pnm(n))}</option>`).join('')}</select></div>`:''}</div>`).join('')}</div>`;
+    if(ADM&&free.length)h+=tmNew(free,'+ Новая команда: выбрать капитана');
     if(ADM)h+=`<div class="sr-coach"><button class="btn" id="tmReset">↺ Собрать заново</button></div>`}
   box.innerHTML=h;
   const sv=o=>tmSave(Object.assign({},T,o));
@@ -2268,12 +2281,15 @@ function tmDraw(){const box=q('tmBox');if(!box)return;
   const tt=q('tmTrk');if(tt)tt.onchange=()=>sv({track:tt.value});
   const fx=q('tmFix');if(fx)fx.onclick=()=>sv({cap:tmTop3(T.sim,T.d),teams:[[],[],[]]});
   const rs=q('tmReset');if(rs)rs.onclick=()=>{if(confirm('Сбросить команды и выбрать капитанов заново?'))sv({cap:[],teams:[]})};
+  const nc=q('tmNewCap');if(nc)nc.onchange=()=>{if(!nc.value)return;const tms=T.cap.map((c,i)=>(T.teams[i]||[]).slice());sv({cap:T.cap.concat(nc.value),teams:tms.concat([[]])})};
+  box.querySelectorAll('[data-capdel]').forEach(x=>x.onclick=()=>{const i=+x.dataset.capdel;if(!confirm('Удалить команду? Её пилоты станут свободными.'))return;const tms=T.cap.map((c,k)=>(T.teams[k]||[]).slice());sv({cap:T.cap.filter((c,k)=>k!==i),teams:tms.filter((a,k)=>k!==i)})});
+  box.querySelectorAll('[data-capset]').forEach(x=>x.onchange=()=>{if(!x.value)return;const i=+x.dataset.capset,cap=T.cap.slice(),tms=T.cap.map((c,k)=>(T.teams[k]||[]).slice());tms[i]=tms[i].filter(n=>tmKey(n)!==tmKey(x.value));cap[i]=x.value;sv({cap,teams:tms})});
   box.querySelectorAll('[data-add]').forEach(x=>x.onchange=()=>{if(!x.value)return;const tms=T.teams.map(a=>a.slice()),i=+x.dataset.add;while(tms.length<=i)tms.push([]);tms[i].push(x.value);sv({teams:tms})});
   box.querySelectorAll('[data-del]').forEach(x=>x.onclick=()=>{const[i,j]=x.dataset.del.split('|').map(Number),tms=T.teams.map(a=>a.slice());tms[i].splice(j-1,1);sv({teams:tms})});
   box.querySelectorAll('[data-up]').forEach(x=>x.onclick=()=>{const[i,j]=x.dataset.up.split('|').map(Number),tms=T.teams.map(a=>a.slice()),a=tms[i];if(j<2)return;[a[j-2],a[j-1]]=[a[j-1],a[j-2]];sv({teams:tms})})}
 document.head.insertAdjacentHTML('beforeend','<style>.tm-list{display:grid;gap:10px;margin:12px 0}.tm-card{padding:12px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid var(--line)}.tm-card.top{background:linear-gradient(90deg,rgba(255,200,80,.14),rgba(0,0,0,.2))}.tm-h{display:flex;align-items:center;gap:10px}.tm-h i{font-style:normal;font-size:22px}.tm-h b{flex:1;min-width:0;font-size:16px}.tm-s{font:800 18px var(--fh);text-align:right}.tm-s small{display:block;font:600 11px Manrope,system-ui,sans-serif;color:var(--dim)}.tm-m{margin-top:8px;display:grid;gap:4px}.tm-r{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:4px 0;border-top:1px solid var(--line)}.tm-r span:last-child{color:var(--dim);white-space:nowrap}.tm-x{border:0;background:none;color:var(--dim);cursor:pointer;min-width:32px;min-height:32px}.tm-add select{width:100%;margin-top:8px;height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--text);padding:0 10px;font:700 14px Manrope,system-ui,sans-serif}</style>');
 document.querySelector('#vt button[data-t="komandy"]').addEventListener('click',()=>tmDraw());
-if(location.hash==='#komandy')setTimeout(tmDraw,800);
+if(location.hash==='#komandy')setTimeout(()=>{window.tmOpen=true;const f=q('tmFold');if(f){f.open=true;f.scrollIntoView({block:'center'})}},800);
 function srBind(box){
   box.querySelectorAll('.sr-sims button').forEach(b=>b.onclick=()=>{if(SR.sim===b.dataset.m)return;SR.sim=b.dataset.m;SR.t='';SR.all=0;srSave();srDraw(1);srPeek()});
   const sel=q('srSel');if(sel)sel.onchange=()=>{SR.t=sel.value;SR.all=0;srSave();srDraw(1)};
@@ -2339,7 +2355,7 @@ function vbDraw(){if(VB.ed&&ADM)return vbEdit();const sim='Ворон',TS=srTrac
   const ed=q('vbEd');if(ed)ed.onclick=()=>{VB.ed=1;vbDraw()};
   const on=b.querySelector('#vbT .on');if(on)on.scrollIntoView({block:'nearest',inline:'center'});const od=b.querySelector('#vbD .on');if(od)od.scrollIntoView({block:'nearest',inline:'center'})}
 window.SRX={srSims,srTracks,SR,SR_ICON,simLbl,srSave};window.SR_SIM=()=>SR.sim;window.SR_RENAMED=(a,b)=>{if(SR.t===a){SR.t=b;srSave()}};
-function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=simLbl(SR.sim)+': '+(L?'быстрее всех - '+pnm(L.p['Пилот']):'ждём первых заездов')}
+function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=simLbl(SR.sim)+': '+(L?'больше всех 1-х мест на трассах - '+pnm(L.p['Пилот']):'ждём первых заездов')}
 /* ---- вопрос дня ---- */
 /* банк: 30 вопросов из тестов + 38 вопросов только для "вопроса дня" = 68 дней без повторов */
 const DAILY=[
@@ -2457,7 +2473,7 @@ function fold(el,peek){const h=el.querySelector(':scope>h3');if(!h)return;const 
   h.onclick=e=>{if(e.target.closest('button:not(.fh),a'))return;const c=!el.classList.contains('closed');el.classList.toggle('closed',c);fsave(k,c)};
   h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();h.click()}}}
 const _ev=renderEv;renderEv=function(){_ev();const ev=evT?Math.max(0,Math.ceil((evT-Date.now())/864e5)):null;fold(q('plEv'),ev===null?'скоро объявим':ev===0?'сегодня!':'через '+ev+' дн.')};
-const _pd=renderPod;renderPod=function(){_pd();const L=srLeader(SR.sim);fold(q('plPod'),simLbl(SR.sim)+': '+(L?'быстрее всех - '+pnm(L.p['Пилот']):'ждём первых заездов'))};
+const _pd=renderPod;renderPod=function(){_pd();const L=srLeader(SR.sim);fold(q('plPod'),simLbl(SR.sim)+': '+(L?'больше всех 1-х мест на трассах - '+pnm(L.p['Пилот']):'ждём первых заездов'))};
 const _dy=renderDay;renderDay=function(){_dy();const S=st.get('vzlet_daily',{});fold(q('plDay'),(S.d===dayN()?(S.ok?'✅ отвечено':'❌ завтра новый вопрос'):'ждёт ответа')+(S.streak&&S.d>=dayN()-1?' · 🔥 '+S.streak:''))};
 const _ck=renderChk;renderChk=function(){_ck();fold(q('plChk'),CS.length===CK.length?'✅ готов к взлёту':'отмечено '+CS.length+' из '+CK.length)};
 /* карточки-раскрывашки (details): плавная высота */
@@ -2606,10 +2622,20 @@ zakApply();
 </script>
 <script src="trening.js"></script>
 <script src="oshibka2.js" data-site="vzlet" defer></script>
+<script>/* 23.11: свой текст плашки "Бета" для Взлёта (на портале общий текст не трогаем) */
+window.VZ_BETA={h:'Бета-версия: тестируем вместе',
+  top:'Это бета-версия страницы клуба "Взлёт". Она ещё дорабатывается, и вы помогаете её тестировать.',
+  li:['Здесь рейтинг пилотов: лучшее время каждого пилота по трассам.',
+      'Здесь же демо-версия обучающего курса FPV: за прохождение заданий начисляются очки и место в рейтинге.',
+      'У заданий курса есть кнопки 👍 и 👎. Понравилось - жми 👍, скучно или непонятно - 👎. По ним тренер улучшает задания.',
+      'Пока идёт тестирование, очки и задания могут меняться.'],
+  bot:'Что-то не работает или есть идея? Жми "?" внизу справа.'};</script>
 <script src="put.js" data-site="vzlet" defer></script>
 <script src="zadaniya-vzlet.js" defer></script>
 <script src="moduli2.js" defer></script>
 <script src="trener-panel.js" defer></script>
+<script src="mini.js" defer></script>
+<script src="rating.js" defer></script>
 <script>if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{});</script>
 <script>
 /* "На экран": установка клуба на телефон как приложение (по образцу дашборда Спектра) */
