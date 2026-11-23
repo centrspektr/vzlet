@@ -830,6 +830,7 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.index
   <details class="card col-12" open id="fgd-card">
     <summary>Новости Федерации гонок дронов России <span class="counter" id="c-fgd"></span></summary>
     <div id="fgd"></div>
+    <p class="fgd-alt">Telegram не открывается? Те же новости федерации: <a href="https://vk.com/fgdrus" target="_blank" rel="noopener noreferrer">ВКонтакте ФГД России</a> · <a href="https://vk.com/fgdomsk" target="_blank" rel="noopener noreferrer">ФГД Омской области</a></p>
     <p class="muted" style="margin-top:10px">Обновляется автоматически из <a href="https://t.me/droneracingfederation" target="_blank" rel="noopener">Telegram-канала ФГД России</a> каждые 3 часа.</p>
   </details>
   <details class="card col-12 coach-only" data-tab="more">
@@ -854,6 +855,7 @@ document.querySelectorAll('#vt button').forEach(function (b) { if (ZAKRYTO.index
 </div>
 
 <footer id="footer"></footer>
+<p class="mn-copy">© 2026 Клуб "Взлёт". Все права защищены. Разработчик: Наумов Александр</p>
 
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-card">
@@ -2618,6 +2620,14 @@ zakApply();
 </script>
 <script src="trening.js"></script>
 <script src="oshibka2.js" data-site="vzlet" defer></script>
+<script>/* 23.11: свой текст плашки "Бета" для Взлёта (на портале общий текст не трогаем) */
+window.VZ_BETA={h:'Бета-версия: тестируем вместе',
+  top:'Это бета-версия страницы клуба "Взлёт". Она ещё дорабатывается, и вы помогаете её тестировать.',
+  li:['Здесь рейтинг пилотов: лучшее время каждого пилота по трассам.',
+      'Здесь же демо-версия обучающего курса FPV: за прохождение заданий начисляются очки и место в рейтинге.',
+      'У заданий курса есть кнопки 👍 и 👎. Понравилось - жми 👍, скучно или непонятно - 👎. По ним тренер улучшает задания.',
+      'Пока идёт тестирование, очки и задания могут меняться.'],
+  bot:'Что-то не работает или есть идея? Жми "?" внизу справа.'};</script>
 <script src="put.js" data-site="vzlet" defer></script>
 <script src="zadaniya-vzlet.js" defer></script>
 <script src="moduli2.js" defer></script>
