@@ -232,3 +232,31 @@ html.mn .spk-card:before{display:none}
 html.mn .mn-r [data-spk-panel] .btn{border:0!important;background:none!important;color:var(--dim)!important;border-radius:0}
 html.mn .mn-r [data-spk-panel] .btn:hover{color:var(--text)!important}
 html.mn .selbar>.btn{border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;color:var(--dim)!important}
+
+/* =====================================================================
+   23.11: меню и шестерёнка без окошка. От кнопки справа налево пробегает
+   тонкая линия, под ней сверху вниз по очереди проявляются слова с чёрточкой.
+   Страница за ними мягко затемняется. Только transform и opacity.
+   ===================================================================== */
+.mn-veil{position:fixed;inset:0;z-index:25;background:rgba(14,14,13,.9);opacity:0;pointer-events:none;transition:opacity .45s var(--mn-e)}
+.mn-veil.on{opacity:1;pointer-events:auto}
+.mn-pop{background:none!important;border:0!important;box-shadow:none!important;border-radius:0;padding:0;top:calc(100% + 16px);width:min(340px,calc(100vw - 40px));animation:none;text-align:right}
+.mn-pop::before{content:"";display:block;height:1px;margin:0 0 10px;background:linear-gradient(270deg,var(--mn-a),rgba(200,168,118,.15));transform-origin:100% 50%;transform:scaleX(0);animation:mnLine .55s var(--mn-e) forwards}
+.mn-ph{margin:0 0 8px;opacity:0;animation:mnWord .5s var(--mn-e) .3s forwards}
+.mn-st{border:0!important;padding:0 0 6px;margin:0;display:flex;justify-content:flex-end;opacity:0;animation:mnWord .5s var(--mn-e) .36s forwards}
+.mn-row{justify-content:flex-start;flex-direction:row-reverse;gap:14px;min-height:48px;padding:0;border-radius:0;background:none!important;
+  font:400 clamp(22px,6vw,26px)/1.1 var(--mn-serif);letter-spacing:.01em;color:var(--text);
+  opacity:0;animation:mnWord .55s var(--mn-e) forwards;animation-delay:calc(var(--k,0)*70ms + .42s);transition:color .3s,transform .45s var(--mn-e)}
+.mn-row::after{width:18px;opacity:.35;flex:none}
+.mn-row:hover{padding:0;transform:translateX(-8px);color:var(--mn-a2)}
+.mn-row:hover::after{width:28px;opacity:.9}
+.mn-row.on{color:var(--mn-a2)}
+.mn-row small{order:0;margin:0;font:600 10px/1 Manrope,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+/* закрытие: слова уходят вверх, линия сворачивается к кнопке */
+.mn-pop.out::before{transform:scaleX(1);animation:mnLineOut .4s var(--mn-e) .05s forwards}
+.mn-pop.out .mn-ph,.mn-pop.out .mn-st,.mn-pop.out .mn-row{opacity:1;animation:mnWordOut .25s ease-in forwards;animation-delay:0s}
+@keyframes mnLine{to{transform:scaleX(1)}}
+@keyframes mnLineOut{to{transform:scaleX(0)}}
+@keyframes mnWord{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes mnWordOut{to{opacity:0;transform:translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){.mn-pop::before{transform:none;animation:none}.mn-ph,.mn-st,.mn-row{opacity:1;animation:none}.mn-veil{transition:none}}
