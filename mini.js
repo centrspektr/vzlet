@@ -93,6 +93,6 @@
         el.classList.add('mn-rv'); io.observe(el);
       });
     };
-    setTimeout(arm, 1600);
+    setTimeout(arm, 3200);
   }
 })();
