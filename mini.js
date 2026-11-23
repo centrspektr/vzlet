@@ -7,8 +7,14 @@
 
   /* ---------- меню разделов и шестерёнка ---------- */
   var pops = [['mnMenuBtn', 'mnMenu'], ['mnGearBtn', 'mnGear']];
+  /* 23.11: без окошка - вуаль на фоне страницы, линия от кнопки справа налево, слова по очереди сверху вниз; закрытие так же плавно */
+  var veil = D.createElement('div'); veil.className = 'mn-veil'; D.body.appendChild(veil);
   function closeAll(except) {
-    pops.forEach(function (p) { var b = $(p[0]), m = $(p[1]); if (!b || !m || m === except) return; m.hidden = true; b.setAttribute('aria-expanded', 'false'); });
+    pops.forEach(function (p) { var b = $(p[0]), m = $(p[1]); if (!b || !m || m === except || m.hidden) return;
+      b.setAttribute('aria-expanded', 'false');
+      if (RED) { m.hidden = true; return; }
+      m.classList.add('out'); clearTimeout(m._t); m._t = setTimeout(function () { m.hidden = true; m.classList.remove('out'); }, 420); });
+    if (!except) setTimeout(function () { if (!D.querySelector('.mn-pop:not([hidden]):not(.out)')) veil.classList.remove('on'); }, 240);
   }
   function rows(m) { [].slice.call(m.querySelectorAll('.mn-row')).filter(function (r) { return r.offsetParent !== null; }).forEach(function (r, i) { r.style.setProperty('--k', i); }); }
   pops.forEach(function (p) {
@@ -17,12 +23,14 @@
       e.stopPropagation();
       var open = m.hidden; closeAll(m);
       if (open && p[1] === 'mnMenu') fillMenu();
-      m.hidden = !open; b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) { clearTimeout(m._t); m.classList.remove('out'); m.hidden = false; veil.classList.add('on'); } else closeAll();
+      b.setAttribute('aria-expanded', open ? 'true' : 'false');
       if (open) rows(m);
     });
     m.addEventListener('click', function (e) { if (e.target.closest('.mn-row')) closeAll(); else e.stopPropagation(); });
   });
   D.addEventListener('click', function () { closeAll(); });
+  veil.addEventListener('click', function () { closeAll(); });
   D.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
 
   /* разделы берём из прежних вкладок: они скрыты, но работают как раньше (замочки, права тренера) */
@@ -101,6 +109,6 @@
         el.classList.add('mn-rv'); io.observe(el);
       });
     };
-    setTimeout(arm, 1600);
+    setTimeout(arm, 3200);
   }
 })();
