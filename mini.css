@@ -175,3 +175,60 @@ html.mn #t-club{animation:mnRise 1s var(--mn-e) 1.5s both}
 html:not(.mn) .mn-copy{font-size:11px;text-transform:none;letter-spacing:0}
 .fgd-alt{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--dim);font-size:13px}
 .fgd-alt a{color:var(--accent)}
+
+/* =====================================================================
+   23.11: ОБЩИЕ ПРАВИЛА СТИЛЯ "ВАРИАНТ A" ДЛЯ ВСЕЙ СТРАНИЦЫ
+   Любая новая кнопка, окно или поле получает этот вид само:
+   - главная кнопка (одна на экран): класс btn primary / pri - тонкая латунная рамка, заливка только при наведении;
+   - все остальные кнопки тихие: тонкая рамка, без заливки и свечения;
+   - окна: графит, рамка 1px, скругление 18px; поля ввода: тёмные с тонкой рамкой.
+   Яркие заливки, градиенты и неоновое свечение здесь гасятся.
+   ===================================================================== */
+html.mn{--mn-btn-ln:rgba(255,255,255,.14);--mn-pri-ln:rgba(200,168,118,.75)}
+
+/* кнопки: тихие */
+html.mn .btn,html.mn .spk-btn,html.mn .tp-btn,html.mn .tp-c,html.mn .tp-x,html.mn .chip,html.mn .nd-b button{
+  background:transparent!important;border:1px solid var(--mn-btn-ln)!important;color:var(--text)!important;box-shadow:none!important;
+  border-radius:999px;font-family:Manrope,system-ui,sans-serif;font-weight:600;transition:border-color .3s,color .3s,background .35s}
+html.mn .btn:hover,html.mn .spk-btn:hover,html.mn .tp-btn:hover,html.mn .tp-c:hover,html.mn .chip:hover{border-color:var(--mn-pri-ln)!important;color:var(--mn-a2)!important}
+html.mn .tp-x{border-radius:50%!important}
+/* выбранное (переключатели) - тонкая латунная рамка */
+html.mn .tp-c.on,html.mn .chip.on{border-color:var(--mn-a)!important;color:var(--mn-a2)!important;background:rgba(200,168,118,.1)!important}
+/* главная кнопка: латунная рамка, при наведении заливка */
+html.mn .btn.primary,html.mn .spk-btn.pri,html.mn .tp-btn.pri,html.mn #kursLink .btn{
+  background:transparent!important;border:1px solid var(--mn-pri-ln)!important;color:var(--mn-a2)!important;
+  letter-spacing:.14em;text-transform:uppercase;font-size:12px!important;font-weight:600!important}
+html.mn .btn.primary:hover,html.mn .spk-btn.pri:hover,html.mn .tp-btn.pri:hover,html.mn #kursLink .btn:hover{background:var(--mn-a)!important;color:#141413!important}
+
+/* окна */
+html.mn .modal-card,html.mn .tp-sh,html.mn .spk-card{background:#191918!important;border:1px solid var(--line)!important;border-radius:18px!important;box-shadow:0 30px 70px -30px rgba(0,0,0,.9)!important;
+  --tp-bg:#191918;--tp-bg2:#1f1f1d;--tp-ln:rgba(255,255,255,.1);--tp-tx:#ece8df;--tp-dim:#918b80;--spk-a:#c8a876;--spk-b:#c8a876;--spk-on:#141413}
+html.mn .modal-card h2,html.mn .tp-sh h2,html.mn .tp-sh h3{font-family:var(--mn-serif);font-weight:400;letter-spacing:.01em}
+html.mn .tp-r{background:#1f1f1d!important;border-color:var(--line)!important}
+html.mn .tp-n,html.mn .tp-k{background:var(--mn-a)!important;color:#141413!important}
+html.mn .spk-ava{background:none!important;border:1px solid var(--mn-pri-ln);color:var(--mn-a2)!important}
+
+/* поля ввода */
+html.mn input:not([type=checkbox]):not([type=radio]):not([type=range]),html.mn select,html.mn textarea{
+  background:#141413!important;border:1px solid var(--line)!important;color:var(--text)!important;border-radius:12px;box-shadow:none!important}
+html.mn input:focus,html.mn select:focus,html.mn textarea:focus{outline:none;border-color:var(--mn-pri-ln)!important}
+
+/* режим тренера: метки "Видят все / Скрыто от всех" спокойными словами */
+html.mn .vbtn{background:#191918!important;border:1px solid var(--mn-btn-ln)!important;color:var(--dim)!important;font:600 10px/1 Manrope,system-ui,sans-serif!important;letter-spacing:.14em;text-transform:uppercase}
+html.mn .vbtn.off{border-color:rgba(200,168,118,.5)!important;color:var(--mn-a2)!important}
+html.mn .hid4all{outline:1px dashed rgba(200,168,118,.45)!important;outline-offset:-1px}
+
+/* вкладка "Курс FPV": карточка без жёлтых и неоновых заливок */
+html.mn #kursLink{background:#191918!important;border:1px solid var(--line)!important;box-shadow:none!important}
+html.mn #kursLink .kx-tag{background:none!important;color:var(--mn-a)!important;border:1px solid rgba(200,168,118,.5);font-weight:600!important;letter-spacing:.18em!important}
+html.mn #kursLink h3{font-family:var(--mn-serif)!important;font-weight:400!important;font-size:26px!important}
+html.mn #kursLink li{background:none!important;border-color:var(--line)!important}
+
+/* блок "Академия пилота" над вкладками обучения: без неона */
+html.mn .ahero .ah-scan,html.mn .ahero .ah-osd{display:none}
+html.mn .spk{--spk-a:#c8a876;--spk-b:#c8a876;--spk-on:#141413}
+html.mn .spk-card:before{display:none}
+/* Заявки и Ошибки в шапке остаются тихими словами, без рамок */
+html.mn .mn-r [data-spk-panel] .btn{border:0!important;background:none!important;color:var(--dim)!important;border-radius:0}
+html.mn .mn-r [data-spk-panel] .btn:hover{color:var(--text)!important}
+html.mn .selbar>.btn{border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;color:var(--dim)!important}
