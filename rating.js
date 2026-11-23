@@ -11,8 +11,10 @@ function siteUrl(){var u=selUrl();u.hash='';u.searchParams.delete('rating');retu
 
 /* ---------- кнопки на основном сайте (всегда) ---------- */
 function addLinks(){
-  var tb=document.querySelector('.tb-main');
-  if(tb&&!g('rtLink'))tb.insertAdjacentHTML('afterbegin','<a class="btn primary" id="rtLink" href="'+rtUrl()+'" title="Рейтинг на весь экран - для проектора и ноутбука">🖥 Рейтинг на весь экран</a>');
+  var mn=g('mnMenuList');
+  if(mn&&!g('rtLink'))mn.insertAdjacentHTML('afterend','<a class="mn-row rt-mn" id="rtLink" href="'+rtUrl()+'">🖥 Рейтинг на весь экран</a>');
+  var h=document.querySelector('#plPod>h3');
+  if(h&&!h.querySelector('.rt-hb')){var sp=h.querySelector('.sp');var a=document.createElement('a');a.className='rt-hb';a.href=rtUrl();a.title='Рейтинг на весь экран - для проектора и ноутбука';a.textContent='🖥 На весь экран';a.addEventListener('click',function(e){e.stopPropagation()});if(sp)h.insertBefore(a,sp);else h.appendChild(a)}
   var box=g('sr');
   if(box&&!box.querySelector('.rt-open'))box.insertAdjacentHTML('afterbegin','<a class="rt-open" href="'+rtUrl()+'">🖥 Открыть рейтинг на весь экран<small>для проектора, ноутбука и телефона</small></a>');
 }
@@ -28,7 +30,7 @@ if(!RT.d)RT.d=(window.SRX&&window.SRX.SR.d)||'';
 function save(){try{localStorage.setItem(LSK,JSON.stringify({sim:RT.sim,d:RT.d,t:RT.t,view:RT.view,h3:RT.h3}))}catch(e){}}
 var E={open:0,pilot:'',isNew:0,q:'',crash:0,res:null};
 var MEDAL=['🥇','🥈','🥉'];
-var VIEWS=[['track','🏁','Трасса'],['matrix','🗂','Все трассы'],['pilot','👤','Пилот'],['feed','⚡','Лента'],['rec','🥇','Рекорды']];
+var VIEWS=[['track','🏁','Трасса'],['medals','🏅','Медали'],['matrix','🗂','Все трассы'],['pilot','👤','Пилот'],['feed','⚡','Лента'],['rec','🥇','Рекорды']];
 function fmt(sec){sec=Math.round(sec*100+1e-6)/100;var m=Math.floor(sec/60),r=sec-m*60;return m?m+':'+r.toFixed(2).padStart(5,'0'):r.toFixed(2)}
 function sims(){return window.SRX.srSims()}
 function tracksOf(s){return window.SRX.srTracks(s)}
@@ -36,9 +38,14 @@ function srBest(L,t){var m={};L.forEach(function(l){if(l.track!==t)return;var k=
 function lapsDS(s,d){return laps().filter(function(l){return l.drone===d&&simOf(l.track)===s})}
 function board(t,d){return Object.values(srBest(laps().filter(function(l){return l.drone===d}),t)).sort(function(a,b){return a.sec-b.sec})}
 function hasRes(t,d){return laps().some(function(l){return l.track===t&&l.drone===d})}
+var picked=0;
 function fix(){
   var S=sims();if(S.indexOf(RT.sim)<0)RT.sim=S[0];
   if(DTYPES.indexOf(RT.d)<0)RT.d=DTYPES[0];
+  if(!picked&&laps().length){picked=1;var L=laps(),cnt=function(f){return L.filter(f).length};
+    if(!cnt(function(l){return simOf(l.track)===RT.sim}))RT.sim=S.slice().sort(function(a,b){return cnt(function(l){return simOf(l.track)===b})-cnt(function(l){return simOf(l.track)===a})})[0];
+    if(!cnt(function(l){return l.drone===RT.d&&simOf(l.track)===RT.sim}))RT.d=DTYPES.slice().sort(function(a,b){return cnt(function(l){return l.drone===b&&simOf(l.track)===RT.sim})-cnt(function(l){return l.drone===a&&simOf(l.track)===RT.sim})})[0];
+    RT.t=''}
   var TS=tracksOf(RT.sim);
   if(TS.indexOf(RT.t)<0)RT.t=TS.filter(function(t){return hasRes(t,RT.d)})[0]||TS[0]||'';
   return TS;
@@ -103,6 +110,15 @@ function viewTrack(){
   if(rest.length)h+='<div class="rt-list">'+rest.map(function(r,k){var i=RT.h3?k:k+3;return '<button type="button" class="rt-r" data-p="'+esc(r.pilot)+'" style="--i:'+Math.min(k,14)+';--w:'+(100*top/r.sec).toFixed(0)+'%"><i>'+(RT.h3&&i<3?MEDAL[i]:i+1)+'</i><span class="n"><b>'+esc(pnm(r.pilot))+'</b><small>'+(r.model?esc(r.model)+' · ':'')+(r.crash?'💥 '+r.crash:'без аварий')+'</small></span><em>'+fmt(r.sec)+'</em><u>+'+(r.sec-top).toFixed(2)+'</u></button>'}).join('')+'</div>';
   return h;
 }
+function viewMedals(){
+  var d=RT.d,TS=tracksOf(RT.sim).filter(function(t){return hasRes(t,d)});
+  if(!TS.length)return none('Для класса «'+esc(d)+'» заездов пока нет','Выберите другой класс дрона сверху.');
+  var M={};TS.forEach(function(t){board(t,d).forEach(function(l,i){var k=normName(l.pilot);var o=M[k]=M[k]||{name:l.pilot,m:[0,0,0],n:0};o.n++;if(i<3)o.m[i]++})});
+  var R=Object.values(M).sort(function(a,b){return b.m[0]-a.m[0]||b.m[1]-a.m[1]||b.m[2]-a.m[2]||b.n-a.n||String(a.name).localeCompare(String(b.name),'ru')});
+  var h='<div class="rt-hd"><h2>Медали по трассам</h2><span class="rt-d">'+dIc(d)+' '+esc(d)+'</span><span class="rt-n">'+TS.length+' '+plural(TS.length,'трасса','трассы','трасс')+' с заездами</span></div>'+
+   '<p class="rt-full">На каждой трассе 1-е место - 🥇, 2-е - 🥈, 3-е - 🥉. Выше тот, у кого больше золота, потом серебра, потом бронзы. Очков нет.</p>';
+  return h+'<div class="rt-list">'+R.map(function(o,i){return '<button type="button" class="rt-r feed" data-p="'+esc(o.name)+'" style="--i:'+Math.min(i,14)+'"><i>'+(i+1)+'</i><span class="n"><b>'+esc(pnm(o.name))+'</b><small>летал на '+o.n+' из '+TS.length+'</small></span><em class="md">🥇'+o.m[0]+' 🥈'+o.m[1]+' 🥉'+o.m[2]+'</em><u></u></button>'}).join('')+'</div>';
+}
 function viewMatrix(){
   var d=RT.d,TS=tracksOf(RT.sim).filter(function(t){return hasRes(t,d)});
   if(!TS.length)return none('Для класса «'+esc(d)+'» заездов пока нет','Выберите другой класс дрона сверху.');
@@ -143,7 +159,7 @@ function viewRec(){
 function mainDraw(anim){
   var m=g('rtMain'),h;
   if(typeof source!=='undefined'&&source==='sample'&&!laps().length)h=none('Загружаю данные…','Если долго - проверьте интернет.');
-  else h=({track:viewTrack,matrix:viewMatrix,pilot:viewPilot,feed:viewFeed,rec:viewRec}[RT.view]||viewTrack)();
+  else h=({track:viewTrack,medals:viewMedals,matrix:viewMatrix,pilot:viewPilot,feed:viewFeed,rec:viewRec}[RT.view]||viewTrack)();
   m.innerHTML='<div class="rt-in'+(anim?' an':'')+'">'+h+'</div>'+(RT.auto?'<div class="rt-prog"><i></i></div>':'');
   m.querySelectorAll('[data-p]').forEach(function(b){b.onclick=function(){openPilot(b.dataset.p)}});
   var h3=g('rtH3');if(h3)h3.onclick=function(){RT.h3=RT.h3?0:1;save();mainDraw(1)};

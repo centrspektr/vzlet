@@ -144,3 +144,8 @@ html.rt #toast{z-index:400}
   .rt-pc em{font-size:1.4em}.rt-pc b{font-size:.95em}
 }
 @media(prefers-reduced-motion:reduce){.rt-in.an,.rt-pc,.rt-r{animation:none}.rt-prog i{animation:none;width:100%}}
+
+.rt-hb{display:inline-flex;align-items:center;margin-left:10px;padding:3px 10px;border-radius:999px;font:700 12px Manrope,system-ui,sans-serif;letter-spacing:0;text-transform:none;text-decoration:none;color:#04121b;background:var(--accent,#00d4ff);white-space:nowrap}
+.rt-mn{text-decoration:none}
+.rt-r em.md{font-size:1em;font-family:inherit;white-space:nowrap}
+@media(max-width:820px),(max-height:520px){.rt-r em.md{font-size:.85em}}

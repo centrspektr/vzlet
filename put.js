@@ -405,14 +405,16 @@
     d.id = 'pnBeta';
     if (!seen) d.className = 'o';
     /* текст плашки правится на портале (✎ Плашка БЕТА, по PIN) и хранится на общем сервере: запись "бета-плашка" */
-    var DEF = { h: 'Дашборд в бета-версии: тестируем вместе', top: 'Ребята, вы первые! Дашборд ещё дорабатывается, и вы помогаете его тестировать.',
+    /* 23.11: страница может задать свой текст плашки (window.VZ_BETA) - тогда общий текст с сервера не берётся */
+    var OWN = window.VZ_BETA || null;
+    var DEF = OWN || { h: 'Дашборд в бета-версии: тестируем вместе', top: 'Ребята, вы первые! Дашборд ещё дорабатывается, и вы помогаете его тестировать.',
       li: ['Очки иногда могут обнуляться, а задания меняться.', 'Заявки подтверждаем быстро.',
         'У заданий курса есть кнопки 👍 и 👎. Понравилось - жми 👍, скучно или непонятно - 👎. По ним тренер правит и меняет задания.',
         'Вместе сделаем удобное место для зачётов, рейтинга, тестов, тренировок и шпаргалок.'],
       bot: 'Что-то не работает или есть идея? Жми "Нашёл ошибку?" внизу справа.' };
     var TK = 'spk_beta_txt', esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
     var parse = function (t) { try { var o = JSON.parse(t); if (o && o.h && Array.isArray(o.li)) return o; } catch (e) {} return null; };
-    var cur = null; try { cur = parse(localStorage.getItem(TK)); } catch (e) {}
+    var cur = null; if (!OWN) try { cur = parse(localStorage.getItem(TK)); } catch (e) {}
     var fill = function (o) {
       o = o || DEF;
       d.innerHTML = '<button class="bt" type="button"><i>БЕТА</i><span>' + esc(o.h) + '</span><u>Подробнее</u></button>' +
@@ -424,7 +426,7 @@
     fill(cur);
     at.parentNode.insertBefore(d, at);
     var last = 0; try { last = +localStorage.getItem(TK + '_at') || 0; } catch (e) {}
-    if (Date.now() - last > 3600000) try {
+    if (!OWN && Date.now() - last > 3600000) try {
       try { localStorage.setItem(TK + '_at', String(Date.now())); } catch (e) {}
       fetch('https://functions.yandexcloud.net/d4e4vhndceg7scc0mh3b?hub=spectr', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
         var it = j && j.ok && j.data && (j.data.news || []).filter(function (x) { return x.date === 'бета-плашка'; })[0], o = it ? parse(it.text) : null, t = o ? JSON.stringify(o) : '';
