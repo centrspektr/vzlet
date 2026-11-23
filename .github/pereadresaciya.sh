@@ -59,5 +59,9 @@ self.addEventListener('activate', e => e.waitUntil((async () => {
   for (const c of await self.clients.matchAll({ type: 'window' })) c.navigate(c.url);
 })()));
 JS
+# Пробная копия настоящего сайта для проверки владельцем: https://centrspektr.github.io/vzlet/proba/new.html
+# (основной адрес клуба по-прежнему GitVerse; сюда попадает всё, что слито в main).
+mkdir -p _site/proba
+tar --exclude=./.git --exclude=./.github --exclude=./_site -cf - . | tar -xf - -C _site/proba
 touch _site/.nojekyll
 find _site -type f | sort
