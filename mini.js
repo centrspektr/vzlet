@@ -91,6 +91,14 @@
     if (!b.classList.contains('o')) { var t = b.querySelector('.bt'); if (t) t.click(); else b.classList.add('o'); }
     b.scrollIntoView({ behavior: RED ? 'auto' : 'smooth', block: 'center' });
     b.classList.remove('mn-flash'); void b.offsetWidth; b.classList.add('mn-flash');
+    b.dataset.mnBack = '1';
+  });
+  /* 24.11: пришли по "Важно - прочитайте" и нажали "Понятно" - плавно обратно наверх */
+  D.addEventListener('click', function (e) {
+    var ok = e.target.closest && e.target.closest('#pnBeta .ok'), b = $('pnBeta');
+    if (!ok || !b || b.dataset.mnBack !== '1') return;
+    delete b.dataset.mnBack;
+    setTimeout(function () { scrollTo({ top: 0, behavior: RED ? 'auto' : 'smooth' }); }, 120);
   });
   if (!betaDown()) { var n = 0, iv = setInterval(function () { if (betaDown() || ++n > 40) clearInterval(iv); }, 250); }
 

@@ -268,3 +268,6 @@ html.mn .selbar>.btn{border:0!important;border-bottom:1px solid var(--line)!impo
 #pnBeta.mn-flash{animation:mnFlash 1.8s ease 1}
 @keyframes mnFlash{0%,100%{box-shadow:0 0 0 0 rgba(200,168,118,0)}25%,60%{box-shadow:0 0 0 4px rgba(200,168,118,.75)}}
 @media(prefers-reduced-motion:reduce){.mn-imp i,#pnBeta.mn-flash{animation:none}}
+/* 24.11: "Важно - прочитайте" - отдельной строкой под "Подать заявку", появляется последней */
+.mn-hero .mn-imp{display:flex;width:max-content;max-width:100%;margin:16px auto 0;animation:mnRise .9s var(--mn-e) 3.05s both}
+@media (prefers-reduced-motion:reduce){.mn-hero .mn-imp{animation:none}}
