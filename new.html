@@ -6,6 +6,8 @@
 <meta name="description" content="Клуб БПЛА Взлёт: рейтинг пилотов, шпаргалки по FPV, тесты, калькуляторы и тренажёр стиков.">
 <title>Взлёт - дашборд клуба</title>
 <link rel="manifest" href="app.webmanifest">
+<script>if(/[?&]rating(=|&|$)/.test(location.search)||location.hash==="#rating")document.documentElement.classList.add("rt")</script>
+<link rel="stylesheet" href="rating.css">
 <script src="perenos.js"></script>
 <script>/* Chrome может предложить установку раньше, чем загрузится вся страница - ловим сразу */addEventListener('beforeinstallprompt',function(e){window.__vzBIP=e});</script>
 <meta name="theme-color" content="#0d1117">
@@ -2610,6 +2612,7 @@ zakApply();
 <script src="zadaniya-vzlet.js" defer></script>
 <script src="moduli2.js" defer></script>
 <script src="trener-panel.js" defer></script>
+<script src="rating.js" defer></script>
 <script>if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{});</script>
 <script>
 /* "На экран": установка клуба на телефон как приложение (по образцу дашборда Спектра) */
