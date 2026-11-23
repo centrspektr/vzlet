@@ -84,6 +84,14 @@
     if (f && f.parentNode) f.parentNode.insertBefore(b, f); else D.body.appendChild(b);
     return true;
   }
+  /* кнопка "Важно - прочитайте" в шапке: плавно вниз к плашке "Бета" и подсветка */
+  var imp = $('mnImp');
+  if (imp) imp.addEventListener('click', function () {
+    var b = $('pnBeta'); if (!b) return;
+    if (!b.classList.contains('o')) { var t = b.querySelector('.bt'); if (t) t.click(); else b.classList.add('o'); }
+    b.scrollIntoView({ behavior: RED ? 'auto' : 'smooth', block: 'center' });
+    b.classList.remove('mn-flash'); void b.offsetWidth; b.classList.add('mn-flash');
+  });
   if (!betaDown()) { var n = 0, iv = setInterval(function () { if (betaDown() || ++n > 40) clearInterval(iv); }, 250); }
 
   /* ---------- блоки проявляются по мере прокрутки ---------- */

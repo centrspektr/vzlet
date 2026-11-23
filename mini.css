@@ -260,3 +260,11 @@ html.mn .selbar>.btn{border:0!important;border-bottom:1px solid var(--line)!impo
 @keyframes mnWord{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 @keyframes mnWordOut{to{opacity:0;transform:translateY(-6px)}}
 @media (prefers-reduced-motion:reduce){.mn-pop::before{transform:none;animation:none}.mn-ph,.mn-st,.mn-row{opacity:1;animation:none}.mn-veil{transition:none}}
+/* 24.11: кнопка "Важно - прочитайте" -> к плашке "Бета" внизу */
+.mn-imp{display:inline-flex;align-items:center;gap:8px;margin:10px auto 0;padding:6px 14px 6px 8px;border-radius:999px;border:1px solid rgba(200,168,118,.55);background:rgba(200,168,118,.08);color:#e9d6b4;font:600 12px/1 Manrope,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s,border-color .2s}
+.mn-imp:hover,.mn-imp:focus-visible{background:rgba(200,168,118,.18);border-color:#c8a876}
+.mn-imp i{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#c8a876;color:#1a1612;font:800 12px/1 Manrope,system-ui,sans-serif;font-style:normal;animation:mnImpP 2.4s ease-in-out infinite}
+@keyframes mnImpP{0%,100%{box-shadow:0 0 0 0 rgba(200,168,118,.55)}50%{box-shadow:0 0 0 7px rgba(200,168,118,0)}}
+#pnBeta.mn-flash{animation:mnFlash 1.8s ease 1}
+@keyframes mnFlash{0%,100%{box-shadow:0 0 0 0 rgba(200,168,118,0)}25%,60%{box-shadow:0 0 0 4px rgba(200,168,118,.75)}}
+@media(prefers-reduced-motion:reduce){.mn-imp i,#pnBeta.mn-flash{animation:none}}
