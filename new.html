@@ -6,6 +6,8 @@
 <meta name="description" content="Клуб БПЛА Взлёт: рейтинг пилотов, шпаргалки по FPV, тесты, калькуляторы и тренажёр стиков.">
 <title>Взлёт - дашборд клуба</title>
 <link rel="manifest" href="app.webmanifest">
+<script>if(/[?&]rating(=|&|$)/.test(location.search)||location.hash==="#rating")document.documentElement.classList.add("rt")</script>
+<link rel="stylesheet" href="rating.css">
 <script src="perenos.js"></script>
 <script>/* Chrome может предложить установку раньше, чем загрузится вся страница - ловим сразу */addEventListener('beforeinstallprompt',function(e){window.__vzBIP=e});</script>
 <meta name="theme-color" content="#0d1117">
@@ -650,6 +652,7 @@ details[data-tab="Пилоты"]{display:none!important}
     <i class="mn-rule" aria-hidden="true"></i>
     <p class="mn-sub mn-s1">при поддержке Росмолодёжь.Гранты</p>
     <p class="mn-sub mn-s2" id="vzSub">FPV-тренировки · Черлакский район · Омская область</p>
+    <button class="mn-imp" id="mnImp" type="button" aria-label="Важно: прочитайте про бета-версию"><i aria-hidden="true">!</i><span>Важно - прочитайте</span></button>
     <button class="mn-cta" id="zayBtn" type="button" onclick="openZay()"><span>Подать заявку</span></button>
   </div>
 </header>
@@ -2270,7 +2273,6 @@ function tmDraw(){const box=q('tmBox');if(!box)return;
       ${T.track&&t.miss.length?`<p class="sub" style="margin:6px 0 0">Ждём время: ${t.miss.map(n=>esc(pnm(n))).join(', ')}. Пока все не пролетят, команда не в зачёте.</p>`:''}
       ${ADM?`<div class="tm-add"><select data-add="${t.i}" aria-label="Добавить пилота"><option value="">+ Добавить пилота</option>${free.map(n=>`<option value="${esc(n)}">${esc(pnm(n))}</option>`).join('')}</select><select data-capset="${t.i}" aria-label="Сменить капитана"><option value="">Сменить капитана</option>${free.concat(T.teams[t.i]||[]).map(n=>`<option value="${esc(n)}">${esc(pnm(n))}</option>`).join('')}</select></div>`:''}</div>`).join('')}</div>`;
     if(ADM&&free.length)h+=tmNew(free,'+ Новая команда: выбрать капитана');
-    if(free.length)h+=`<p class="sub">Свободные пилоты: ${free.map(n=>esc(pnm(n))).join(', ')}.</p>`;
     if(ADM)h+=`<div class="sr-coach"><button class="btn" id="tmReset">↺ Собрать заново</button></div>`}
   box.innerHTML=h;
   const sv=o=>tmSave(Object.assign({},T,o));
@@ -2353,7 +2355,7 @@ function vbDraw(){if(VB.ed&&ADM)return vbEdit();const sim='Ворон',TS=srTrac
   const ed=q('vbEd');if(ed)ed.onclick=()=>{VB.ed=1;vbDraw()};
   const on=b.querySelector('#vbT .on');if(on)on.scrollIntoView({block:'nearest',inline:'center'});const od=b.querySelector('#vbD .on');if(od)od.scrollIntoView({block:'nearest',inline:'center'})}
 window.SRX={srSims,srTracks,SR,SR_ICON,simLbl,srSave};window.SR_SIM=()=>SR.sim;window.SR_RENAMED=(a,b)=>{if(SR.t===a){SR.t=b;srSave()}};
-function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=simLbl(SR.sim)+': '+(L?'быстрее всех - '+pnm(L.p['Пилот']):'ждём первых заездов')}
+function srPeek(){const p=q('plPod')&&q('plPod').querySelector('.peek');if(!p)return;const L=srLeader(SR.sim);p.textContent=simLbl(SR.sim)+': '+(L?'больше всех 1-х мест на трассах - '+pnm(L.p['Пилот']):'ждём первых заездов')}
 /* ---- вопрос дня ---- */
 /* банк: 30 вопросов из тестов + 38 вопросов только для "вопроса дня" = 68 дней без повторов */
 const DAILY=[
@@ -2471,7 +2473,7 @@ function fold(el,peek){const h=el.querySelector(':scope>h3');if(!h)return;const 
   h.onclick=e=>{if(e.target.closest('button:not(.fh),a'))return;const c=!el.classList.contains('closed');el.classList.toggle('closed',c);fsave(k,c)};
   h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();h.click()}}}
 const _ev=renderEv;renderEv=function(){_ev();const ev=evT?Math.max(0,Math.ceil((evT-Date.now())/864e5)):null;fold(q('plEv'),ev===null?'скоро объявим':ev===0?'сегодня!':'через '+ev+' дн.')};
-const _pd=renderPod;renderPod=function(){_pd();const L=srLeader(SR.sim);fold(q('plPod'),simLbl(SR.sim)+': '+(L?'быстрее всех - '+pnm(L.p['Пилот']):'ждём первых заездов'))};
+const _pd=renderPod;renderPod=function(){_pd();const L=srLeader(SR.sim);fold(q('plPod'),simLbl(SR.sim)+': '+(L?'больше всех 1-х мест на трассах - '+pnm(L.p['Пилот']):'ждём первых заездов'))};
 const _dy=renderDay;renderDay=function(){_dy();const S=st.get('vzlet_daily',{});fold(q('plDay'),(S.d===dayN()?(S.ok?'✅ отвечено':'❌ завтра новый вопрос'):'ждёт ответа')+(S.streak&&S.d>=dayN()-1?' · 🔥 '+S.streak:''))};
 const _ck=renderChk;renderChk=function(){_ck();fold(q('plChk'),CS.length===CK.length?'✅ готов к взлёту':'отмечено '+CS.length+' из '+CK.length)};
 /* карточки-раскрывашки (details): плавная высота */
@@ -2633,6 +2635,7 @@ window.VZ_BETA={h:'Бета-версия: тестируем вместе',
 <script src="moduli2.js" defer></script>
 <script src="trener-panel.js" defer></script>
 <script src="mini.js" defer></script>
+<script src="rating.js" defer></script>
 <script>if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{});</script>
 <script>
 /* "На экран": установка клуба на телефон как приложение (по образцу дашборда Спектра) */
