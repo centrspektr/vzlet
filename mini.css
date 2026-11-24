@@ -3,6 +3,8 @@
 @font-face{font-family:"Playfair Display";font-style:normal;font-weight:400 900;font-display:swap;src:url(fonts/PlayfairDisplay-cyrillic.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
 @font-face{font-family:"Playfair Display";font-style:normal;font-weight:400 900;font-display:swap;src:url(fonts/PlayfairDisplay-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD}
 
+@font-face{font-family:"Jost";font-style:normal;font-weight:100 900;font-display:swap;src:url(fonts/Jost-cyrillic.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Jost";font-style:normal;font-weight:100 900;font-display:swap;src:url(fonts/Jost-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 html.mn{
   --bg:#111110; --panel:#191918; --panel2:#1f1f1d; --line:rgba(255,255,255,.1);
   --text:#ece8df; --dim:#918b80; --accent:#c8a876;
@@ -42,19 +44,19 @@ html.mn .vzb.hold .vzo{opacity:1;animation:vzr .9s linear}
 /* Заявки и Ошибки (после входа по PIN) - тихими словами */
 html.mn .mn-r [data-spk-panel]{display:flex;gap:2px;align-items:center;margin:0}
 html.mn .mn-r [data-spk-panel][hidden]{display:none}
-html.mn .mn-r [data-spk-panel] button{all:unset;box-sizing:border-box;cursor:pointer;min-height:44px;padding:0 9px;display:inline-flex;align-items:center;gap:5px;color:var(--dim);font:600 10.5px/1 Manrope,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;transition:color .3s}
+html.mn .mn-r [data-spk-panel] button{all:unset;box-sizing:border-box;cursor:pointer;min-height:44px;padding:0 9px;display:inline-flex;align-items:center;gap:5px;color:var(--dim);font:400 10.5px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;transition:color .3s}
 html.mn .mn-r [data-spk-panel] button:hover{color:var(--text)}
 html.mn .mn-r [data-spk-panel] button>span[aria-hidden]{display:none}
-html.mn .mn-r [data-spk-panel] .tp-n{all:unset;font:700 10px/1 Manrope,system-ui,sans-serif;letter-spacing:0;color:#111;background:var(--mn-a);border-radius:99px;padding:3px 5px;min-width:8px;text-align:center}
+html.mn .mn-r [data-spk-panel] .tp-n{all:unset;font:500 10px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:0;color:#111;background:var(--mn-a);border-radius:99px;padding:3px 5px;min-width:8px;text-align:center}
 html.mn .mn-r [data-spk-panel] .tp-n:empty{display:none}
 
 /* выпадающие окна: разделы и настройки */
 .mn-pop{position:absolute;right:0;top:calc(100% + 10px);z-index:40;width:min(290px,calc(100vw - 32px));padding:8px;border-radius:18px;border:1px solid var(--line);background:#1a1a19;box-shadow:0 24px 60px -24px rgba(0,0,0,.9);transform-origin:100% 0;animation:mnPop .28s var(--mn-e) both}
 .mn-pop[hidden]{display:none}
-.mn-ph{margin:8px 12px 6px;color:var(--dim);font:600 10px/1 Manrope,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.mn-ph{margin:8px 12px 6px;color:var(--dim);font:400 10px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase}
 .mn-st{padding:6px 12px 10px;border-bottom:1px solid var(--line);margin-bottom:6px}
 .mn-st .status{font-size:12px}
-.mn-row{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:46px;padding:0 12px;border-radius:12px;cursor:pointer;color:var(--text);font:500 14px/1.2 Manrope,system-ui,sans-serif;transition:background .25s,color .25s,padding .35s var(--mn-e);animation:mnRow .45s var(--mn-e) both;animation-delay:calc(var(--k,0)*35ms + 60ms);-webkit-tap-highlight-color:transparent}
+.mn-row{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:46px;padding:0 12px;border-radius:12px;cursor:pointer;color:var(--text);font:400 14px/1.2 "Jost",Manrope,system-ui,sans-serif;transition:background .25s,color .25s,padding .35s var(--mn-e);animation:mnRow .45s var(--mn-e) both;animation-delay:calc(var(--k,0)*35ms + 60ms);-webkit-tap-highlight-color:transparent}
 .mn-row::after{content:"";width:14px;height:1px;background:currentColor;opacity:.25;transition:width .35s var(--mn-e),opacity .3s}
 .mn-row:hover{background:rgba(255,255,255,.04);color:var(--mn-a2);padding-left:16px}
 .mn-row:hover::after{width:22px;opacity:.8}
@@ -71,20 +73,20 @@ html.mn .mn-r [data-spk-panel] .tp-n:empty{display:none}
 .mn-dot{color:var(--mn-a2);opacity:0;animation:mnFade .35s ease .1s both}
 .mn-dot circle{fill:currentColor}
 .mn-dot .g{opacity:.18}
-.mn-cap{margin:0;color:var(--dim);font:600 11px/1 Manrope,system-ui,sans-serif;letter-spacing:.42em;text-indent:.42em;text-transform:uppercase;animation:mnCap 1s var(--mn-e) 1.9s both}
+.mn-cap{margin:0;color:var(--dim);font:400 11px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.42em;text-indent:.42em;text-transform:uppercase;animation:mnCap 1s var(--mn-e) 1.9s both}
 html.mn .mn-cap .coach-badge{all:unset;margin-left:8px;color:var(--mn-a);letter-spacing:.2em;font-size:10px}
 html.mn .mn-cap .coach-badge::before{content:"· "}
 html.mn h1.mn-t{margin:12px 0 0;font:400 clamp(52px,13.5vw,104px)/1.08 var(--mn-serif);letter-spacing:.01em;color:var(--text)}
 .mn-tl{display:inline-flex;overflow:hidden;padding:.12em .06em .1em;margin:-.12em -.06em -.1em}
 .mn-tl span{display:block;transform:translateY(112%);animation:mnUp 1.1s var(--mn-e) both;animation-delay:calc(var(--i)*80ms + 2s)}
 .mn-rule{display:block;width:56px;height:1px;margin:18px auto 20px;background:var(--mn-a);transform-origin:50% 50%;animation:mnRule 1s var(--mn-e) 2.55s both}
-html.mn .mn-sub{margin:0;color:var(--dim);font:500 11px/1.9 Manrope,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;text-wrap:balance}
+html.mn .mn-sub{margin:0;color:var(--dim);font:400 11px/1.9 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;text-wrap:balance}
 .mn-s1{animation:mnRise .9s var(--mn-e) 2.7s both}
 .mn-s2{animation:mnRise .9s var(--mn-e) 2.8s both}
 html.mn .mn-s1{color:#b3aa9a}
 
 /* единственная кнопка шапки: тихая, с рамкой; при наведении заливка проявляется из центра */
-.mn-cta{all:unset;box-sizing:border-box;position:relative;overflow:hidden;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;margin-top:26px;min-height:46px;padding:0 30px;border-radius:999px;border:1px solid rgba(200,168,118,.75);color:var(--mn-a2);font:600 11px/1 Manrope,system-ui,sans-serif;letter-spacing:.22em;text-indent:.22em;text-transform:uppercase;animation:mnRise .9s var(--mn-e) 2.95s both;transition:color .45s var(--mn-e),border-color .45s,letter-spacing .6s var(--mn-e);-webkit-tap-highlight-color:transparent}
+.mn-cta{all:unset;box-sizing:border-box;position:relative;overflow:hidden;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;margin-top:26px;min-height:46px;padding:0 30px;border-radius:999px;border:1px solid rgba(200,168,118,.75);color:var(--mn-a2);font:400 11px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.22em;text-indent:.22em;text-transform:uppercase;animation:mnRise .9s var(--mn-e) 2.95s both;transition:color .45s var(--mn-e),border-color .45s,letter-spacing .6s var(--mn-e);-webkit-tap-highlight-color:transparent}
 .mn-cta[hidden]{display:none}
 .mn-cta::before{content:"";position:absolute;inset:0;background:var(--mn-a);transform:scaleX(0);transition:transform .55s var(--mn-e);border-radius:inherit}
 .mn-cta span{position:relative}
@@ -93,7 +95,7 @@ html.mn .mn-s1{color:#b3aa9a}
 
 /* ---------- лишнее с первого экрана ---------- */
 html.mn #vtb{display:none}                       /* вкладки - в меню */
-html.mn #toSchool{position:fixed;left:0;top:44%;z-index:60;display:flex;align-items:center;gap:0;padding:0;border-radius:0 12px 12px 0;border:1px solid var(--line);border-left:0;background:#191918;color:var(--dim);opacity:1;text-decoration:none;font:600 10px/1 Manrope,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;transform:translateX(calc(-100% + 15px));transition:transform .55s var(--mn-e),color .3s,border-color .3s}
+html.mn #toSchool{position:fixed;left:0;top:44%;z-index:60;display:flex;align-items:center;gap:0;padding:0;border-radius:0 12px 12px 0;border:1px solid var(--line);border-left:0;background:#191918;color:var(--dim);opacity:1;text-decoration:none;font:400 10px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;transform:translateX(calc(-100% + 15px));transition:transform .55s var(--mn-e),color .3s,border-color .3s}
 html.mn #toSchool b{font-weight:600;writing-mode:vertical-rl;transform:rotate(180deg);padding:14px 4px 14px 9px}
 html.mn #toSchool i{display:block;width:15px;align-self:stretch;position:relative}
 html.mn #toSchool i::before{content:"";position:absolute;left:5px;top:50%;width:5px;height:5px;border-left:1px solid currentColor;border-bottom:1px solid currentColor;transform:translateY(-50%) rotate(225deg);transition:transform .5s var(--mn-e)}
@@ -106,36 +108,36 @@ html.mn #toSchool.out i::before{transform:translateY(-50%) rotate(45deg);left:3p
 html.mn .selbar{justify-content:center;text-align:center;margin:0 0 22px;gap:10px 12px}
 html.mn .selbar.mn-on>label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .mn-sel{flex:0 0 100%;display:flex;flex-wrap:wrap;justify-content:center;gap:2px 6px}
-.mn-sel button{all:unset;cursor:pointer;position:relative;padding:12px 10px;color:var(--dim);font:600 11px/1 Manrope,system-ui,sans-serif;letter-spacing:.2em;text-indent:.2em;text-transform:uppercase;transition:color .3s;-webkit-tap-highlight-color:transparent}
+.mn-sel button{all:unset;cursor:pointer;position:relative;padding:12px 10px;color:var(--dim);font:400 11px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.2em;text-indent:.2em;text-transform:uppercase;transition:color .3s;-webkit-tap-highlight-color:transparent}
 .mn-sel button::after{content:"";position:absolute;left:10px;right:10px;bottom:6px;height:1px;background:var(--mn-a);transform:scaleX(0);transition:transform .5s var(--mn-e)}
 .mn-sel button:hover{color:var(--text)}
 .mn-sel button.on{color:var(--text)}
 .mn-sel button.on::after{transform:scaleX(1)}
 html.mn .selbar .muted{flex:0 0 100%;font-size:12px}
-html.mn .selbar>.btn{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:6px 2px;color:var(--dim);font:600 10.5px/1 Manrope,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+html.mn .selbar>.btn{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:6px 2px;color:var(--dim);font:400 10.5px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
 
 /* плашка "Бета" - в самом низу, тихой строкой */
 html.mn #pnBeta{margin:26px auto 0;padding:0;max-width:760px}
-html.mn #pnBeta .bt{justify-content:center;gap:10px;border:0;background:none;padding:10px;color:var(--dim);font:600 10.5px/1.5 Manrope,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;text-align:center;flex-wrap:wrap}
+html.mn #pnBeta .bt{justify-content:center;gap:10px;border:0;background:none;padding:10px;color:var(--dim);font:400 10.5px/1.5 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;text-align:center;flex-wrap:wrap}
 html.mn #pnBeta .bt i{background:none;color:var(--mn-a);border:1px solid rgba(200,168,118,.5);font-weight:600;letter-spacing:.2em;padding:4px 9px}
 html.mn #pnBeta .bt span{flex:0 1 auto;opacity:1}
 html.mn #pnBeta .bt u{opacity:1;font-size:inherit;border-bottom:1px solid currentColor}
 html.mn #pnBeta .bx{border-color:var(--line);background:#191918;text-align:left}
-html.mn #pnBeta .ok{background:none;border:1px solid var(--mn-a);color:var(--mn-a2);border-radius:999px;font:600 11px/1 Manrope,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase}
+html.mn #pnBeta .ok{background:none;border:1px solid var(--mn-a);color:var(--mn-a2);border-radius:999px;font:400 11px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase}
 
 /* ---------- остальная страница в том же тоне ---------- */
 html.mn .card{background:rgba(25,25,24,.86);border-color:var(--line);border-radius:18px;box-shadow:none!important}
-html.mn details.card>summary,html.mn .pl>h3{font-family:Manrope,system-ui,sans-serif;font-weight:600;letter-spacing:.16em}
+html.mn details.card>summary,html.mn .pl>h3{font-family:"Jost",Manrope,system-ui,sans-serif;font-weight:600;letter-spacing:.16em}
 html.mn .btn{border-radius:999px;background:none}
 html.mn .btn.primary{background:none;color:var(--mn-a2);border:1px solid rgba(200,168,118,.75);box-shadow:none;font-weight:600}
 html.mn .btn.primary:hover{background:var(--mn-a);color:#141413;opacity:1}
 html.mn .sr-sims button.on,html.mn .sr-dr button.on,html.mn .sr-scope button.on{background:rgba(200,168,118,.14)!important;color:var(--text)!important;box-shadow:inset 0 0 0 1px rgba(200,168,118,.7)!important}
-html.mn .sr-sims button,html.mn .sr-dr button,html.mn .sr-scope button{font-family:Manrope,system-ui,sans-serif;font-weight:700}
+html.mn .sr-sims button,html.mn .sr-dr button,html.mn .sr-scope button{font-family:"Jost",Manrope,system-ui,sans-serif;font-weight:700}
 html.mn footer,html.mn #footer{color:var(--dim);letter-spacing:.14em;text-transform:uppercase;font-size:10.5px}
 
 /* команды внутри блока "Рейтинг пилотов" */
 .tm-fold{margin-top:14px;border-top:1px solid var(--line);padding-top:4px}
-.tm-fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;min-height:46px;color:var(--text);font:600 11px/1 Manrope,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;-webkit-tap-highlight-color:transparent}
+.tm-fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;min-height:46px;color:var(--text);font:400 11px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;-webkit-tap-highlight-color:transparent}
 .tm-fold>summary::-webkit-details-marker{display:none}
 .tm-fold>summary::after{content:"";width:7px;height:7px;border-right:1px solid var(--accent);border-bottom:1px solid var(--accent);transform:rotate(45deg);transition:transform .45s cubic-bezier(.2,.7,.2,1);margin-right:4px}
 .tm-fold[open]>summary::after{transform:rotate(225deg)}
@@ -145,7 +147,7 @@ html.mn footer,html.mn #footer{color:var(--dim);letter-spacing:.14em;text-transf
 .tm-new{margin-top:6px}
 
 /* ---------- плавное появление: содержимое после шапки, блоки ниже экрана - при прокрутке ---------- */
-html.mn #t-club{animation:mnRise 1s var(--mn-e) 3.1s both}
+html.mn #t-club{animation:mnRise 1s var(--mn-e) 3.4s both}
 .mn-rv{opacity:0;translate:0 18px}
 .mn-rv.mn-in{opacity:1;translate:0 0;transition:opacity .8s var(--mn-e),translate .9s var(--mn-e);transition-delay:calc(var(--d,0)*90ms)}
 
@@ -171,7 +173,7 @@ html.mn #t-club{animation:mnRise 1s var(--mn-e) 3.1s both}
 }
 
 /* 23.11: строка прав в самом низу */
-.mn-copy{margin:6px auto 18px;text-align:center;color:var(--dim);opacity:.75;font:500 10px/1.6 Manrope,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.mn-copy{margin:6px auto 18px;text-align:center;color:var(--dim);opacity:.75;font:400 10px/1.6 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase}
 html:not(.mn) .mn-copy{font-size:11px;text-transform:none;letter-spacing:0}
 .fgd-alt{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--dim);font-size:13px}
 .fgd-alt a{color:var(--accent)}
@@ -189,7 +191,7 @@ html.mn{--mn-btn-ln:rgba(255,255,255,.14);--mn-pri-ln:rgba(200,168,118,.75)}
 /* кнопки: тихие */
 html.mn .btn,html.mn .spk-btn,html.mn .tp-btn,html.mn .tp-c,html.mn .tp-x,html.mn .chip,html.mn .nd-b button{
   background:transparent!important;border:1px solid var(--mn-btn-ln)!important;color:var(--text)!important;box-shadow:none!important;
-  border-radius:999px;font-family:Manrope,system-ui,sans-serif;font-weight:600;transition:border-color .3s,color .3s,background .35s}
+  border-radius:999px;font-family:"Jost",Manrope,system-ui,sans-serif;font-weight:600;transition:border-color .3s,color .3s,background .35s}
 html.mn .btn:hover,html.mn .spk-btn:hover,html.mn .tp-btn:hover,html.mn .tp-c:hover,html.mn .chip:hover{border-color:var(--mn-pri-ln)!important;color:var(--mn-a2)!important}
 html.mn .tp-x{border-radius:50%!important}
 /* выбранное (переключатели) - тонкая латунная рамка */
@@ -214,7 +216,7 @@ html.mn input:not([type=checkbox]):not([type=radio]):not([type=range]),html.mn s
 html.mn input:focus,html.mn select:focus,html.mn textarea:focus{outline:none;border-color:var(--mn-pri-ln)!important}
 
 /* режим тренера: метки "Видят все / Скрыто от всех" спокойными словами */
-html.mn .vbtn{background:#191918!important;border:1px solid var(--mn-btn-ln)!important;color:var(--dim)!important;font:600 10px/1 Manrope,system-ui,sans-serif!important;letter-spacing:.14em;text-transform:uppercase}
+html.mn .vbtn{background:#191918!important;border:1px solid var(--mn-btn-ln)!important;color:var(--dim)!important;font:400 10px/1 "Jost",Manrope,system-ui,sans-serif!important;letter-spacing:.14em;text-transform:uppercase}
 html.mn .vbtn.off{border-color:rgba(200,168,118,.5)!important;color:var(--mn-a2)!important}
 html.mn .hid4all{outline:1px dashed rgba(200,168,118,.45)!important;outline-offset:-1px}
 
@@ -251,7 +253,7 @@ html.mn .selbar>.btn{border:0!important;border-bottom:1px solid var(--line)!impo
 .mn-row:hover{padding:0;transform:translateX(-8px);color:var(--mn-a2)}
 .mn-row:hover::after{width:28px;opacity:.9}
 .mn-row.on{color:var(--mn-a2)}
-.mn-row small{order:0;margin:0;font:600 10px/1 Manrope,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.mn-row small{order:0;margin:0;font:400 10px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
 /* закрытие: слова уходят вверх, линия сворачивается к кнопке */
 .mn-pop.out::before{transform:scaleX(1);animation:mnLineOut .4s var(--mn-e) .05s forwards}
 .mn-pop.out .mn-ph,.mn-pop.out .mn-st,.mn-pop.out .mn-row{opacity:1;animation:mnWordOut .25s ease-in forwards;animation-delay:0s}
@@ -261,9 +263,9 @@ html.mn .selbar>.btn{border:0!important;border-bottom:1px solid var(--line)!impo
 @keyframes mnWordOut{to{opacity:0;transform:translateY(-6px)}}
 @media (prefers-reduced-motion:reduce){.mn-pop::before{transform:none;animation:none}.mn-ph,.mn-st,.mn-row{opacity:1;animation:none}.mn-veil{transition:none}}
 /* 24.11: кнопка "Важно - прочитайте" -> к плашке "Бета" внизу */
-.mn-imp{display:inline-flex;align-items:center;gap:8px;margin:10px auto 0;padding:6px 14px 6px 8px;border-radius:999px;border:1px solid rgba(200,168,118,.55);background:rgba(200,168,118,.08);color:#e9d6b4;font:600 12px/1 Manrope,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s,border-color .2s}
+.mn-imp{display:inline-flex;align-items:center;gap:8px;margin:10px auto 0;padding:6px 14px 6px 8px;border-radius:999px;border:1px solid rgba(200,168,118,.55);background:rgba(200,168,118,.08);color:#e9d6b4;font:400 12px/1 "Jost",Manrope,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s,border-color .2s}
 .mn-imp:hover,.mn-imp:focus-visible{background:rgba(200,168,118,.18);border-color:#c8a876}
-.mn-imp i{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#c8a876;color:#1a1612;font:800 12px/1 Manrope,system-ui,sans-serif;font-style:normal;animation:mnImpP 2.4s ease-in-out infinite}
+.mn-imp i{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#c8a876;color:#1a1612;font:600 12px/1 "Jost",Manrope,system-ui,sans-serif;font-style:normal;animation:mnImpP 2.4s ease-in-out infinite}
 @keyframes mnImpP{0%,100%{box-shadow:0 0 0 0 rgba(200,168,118,.55)}50%{box-shadow:0 0 0 7px rgba(200,168,118,0)}}
 #pnBeta.mn-flash{animation:mnFlash 1.8s ease 1}
 @keyframes mnFlash{0%,100%{box-shadow:0 0 0 0 rgba(200,168,118,0)}25%,60%{box-shadow:0 0 0 4px rgba(200,168,118,.75)}}
@@ -271,3 +273,85 @@ html.mn .selbar>.btn{border:0!important;border-bottom:1px solid var(--line)!impo
 /* 24.11: "Важно - прочитайте" - отдельной строкой под "Подать заявку", появляется последней */
 .mn-hero .mn-imp{display:flex;width:max-content;max-width:100%;margin:16px auto 0;animation:mnRise .9s var(--mn-e) 3.05s both}
 @media (prefers-reduced-motion:reduce){.mn-hero .mn-imp{animation:none}}
+
+/* =====================================================================
+   24.11 (2): ТОНКИЙ СТИЛЬ. Шрифт Jost из папки fonts (тонкий гротеск),
+   заголовки - Playfair. Тонкие линии вместо коробок, кнопки без кругов
+   и заливок, эмодзи в блоке рейтинга убраны, живой фон приглушён.
+   Заставка: плашка "Бета" не мелькает наверху до переезда вниз.
+   ===================================================================== */
+html.mn{--mn-sans:"Jost",Manrope,system-ui,sans-serif;--fh:var(--mn-serif)}
+html.mn body{font-family:var(--mn-sans);font-weight:300;letter-spacing:.01em}
+html.mn b,html.mn strong{font-weight:500}
+html.mn .vtb .tbt button,html.mn .btn,html.mn input,html.mn select,html.mn textarea{font-family:var(--mn-sans)}
+
+/* заставка первой: плашка "Бета" видна только когда уже стоит внизу */
+html.mn #pnBeta:not(.mn-dn){display:none!important}
+
+/* живой фон - едва заметно, без ярких пятен */
+html.mn #bgfx{opacity:.22;transition:opacity 1.2s}
+
+/* тонкие вертикальные линии по краям содержимого: прорисовываются сверху вниз при входе */
+@media(min-width:900px){
+  html.mn body::before{content:"";position:fixed;top:0;bottom:0;left:50%;width:min(1240px,calc(100% - 24px));translate:-50% 0;
+    border-left:1px solid rgba(236,232,223,.08);border-right:1px solid rgba(236,232,223,.08);pointer-events:none;z-index:0;
+    transform-origin:top;animation:mnRail 1.6s var(--mn-e) .2s both}
+}
+@keyframes mnRail{from{transform:scaleY(0)}to{transform:none}}
+
+/* шапка: значки без кружков, только тонкие линии */
+html.mn .vzb{border-color:transparent}
+html.mn .vzb:hover{border-color:transparent}
+.mn-ic{border-color:transparent}
+.mn-ic svg{stroke-width:1.2}
+.mn-ic:hover,.mn-ic[aria-expanded="true"]{border-color:transparent;color:var(--mn-a2)}
+
+/* главная кнопка - прямоугольник в тонкую линию, заливка проявляется слева направо */
+.mn-cta{border-radius:0;border-color:rgba(200,168,118,.6);padding:0 36px;min-height:48px}
+/* "Важно - прочитайте" - тихая строка с тонкой линией, без значка и пульса */
+.mn-hero .mn-imp{gap:0;padding:8px 2px;border:0;border-radius:0;background:none;color:var(--dim);font:400 10.5px/1 var(--mn-sans);letter-spacing:.2em;text-indent:.2em;position:relative}
+.mn-hero .mn-imp i{display:none}
+.mn-hero .mn-imp::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:1px;background:rgba(200,168,118,.55);transform:scaleX(.35);transition:transform .5s var(--mn-e)}
+.mn-hero .mn-imp:hover,.mn-hero .mn-imp:focus-visible{background:none;color:var(--text)}
+.mn-hero .mn-imp:hover::after,.mn-hero .mn-imp:focus-visible::after{transform:scaleX(1)}
+
+/* блоки страницы: без коробок, разделены тонкой линией сверху */
+html.mn .card{background:none!important;border:0!important;border-top:1px solid var(--line)!important;border-radius:0!important;padding-left:2px;padding-right:2px}
+html.mn details.card>summary,html.mn .pl>h3{font-weight:400;letter-spacing:.22em;font-size:11px}
+html.mn details.card>summary::after{content:"";width:7px;height:7px;border-right:1px solid var(--mn-a);border-bottom:1px solid var(--mn-a);transform:rotate(45deg);transition:transform .45s var(--mn-e);margin-right:4px;font-size:0}
+html.mn details.card[open]>summary::after{transform:rotate(225deg)}
+html.mn .fh .fa{width:22px;height:22px;border:0;border-radius:0;background:none!important;font-size:0;position:relative}
+html.mn .fh .fa::before{content:"";position:absolute;left:7px;top:5px;width:7px;height:7px;border-right:1px solid var(--mn-a);border-bottom:1px solid var(--mn-a);transform:rotate(225deg)}
+html.mn .fold.closed .fh .fa{transform:none}
+html.mn .fold.closed .fh .fa::before{transform:rotate(45deg);top:3px}
+
+/* рейтинг на сайте: переключатели - слова с латунной чертой снизу, без плиток и эмодзи */
+html.mn .sr-scope,html.mn .sr-sims,html.mn .sr-dr{display:flex;flex-wrap:wrap;gap:0 26px;background:none!important;border:0!important;padding:0!important;box-shadow:none!important}
+html.mn .sr-scope button,html.mn .sr-sims button,html.mn .sr-dr button{flex:none;width:auto;min-height:44px;padding:6px 0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+  color:var(--dim)!important;font:400 11px/1.3 var(--mn-sans)!important;letter-spacing:.18em;text-transform:uppercase;position:relative;transition:color .3s}
+html.mn .sr-scope button::after,html.mn .sr-sims button::after,html.mn .sr-dr button::after{content:"";position:absolute;left:0;right:0;bottom:4px;height:1px;background:var(--mn-a);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--mn-e)}
+html.mn .sr-scope button.on,html.mn .sr-sims button.on,html.mn .sr-dr button.on{color:var(--text)!important;background:none!important;box-shadow:none!important}
+html.mn .sr-scope button.on::after,html.mn .sr-sims button.on::after,html.mn .sr-dr button.on::after{transform:scaleX(1)}
+html.mn .sr-scope button:hover,html.mn .sr-sims button:hover,html.mn .sr-dr button:hover{color:var(--text)!important}
+html.mn .sr-sims button i{display:none}
+html.mn .sr-sims button small,html.mn .sr-dr button small{display:block;margin-top:3px;font-size:10px;letter-spacing:.08em;text-transform:none;color:var(--dim)}
+html.mn .sr-how{color:var(--dim);font-size:13px}
+html.mn .sr-none{background:none!important;border:0!important;border-left:1px solid rgba(200,168,118,.5)!important;border-radius:0!important;padding:4px 0 4px 14px!important}
+html.mn .rt-hb{padding:6px 0;border:0;border-radius:0;background:none;color:var(--mn-a2);font:400 10px/1 var(--mn-sans);letter-spacing:.2em;text-transform:uppercase;position:relative}
+html.mn .rt-hb::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:1px;background:rgba(200,168,118,.55)}
+
+/* кнопка "Нашёл ошибку?" - тонкое кольцо без заливки */
+html.mn .spkbug{background:none!important;border:1px solid var(--line)!important;box-shadow:none!important;color:var(--dim)!important;font-family:var(--mn-sans)!important;font-weight:300!important}
+html.mn .spkbug:hover{color:var(--mn-a2)!important;border-color:rgba(200,168,118,.6)!important}
+
+@media(prefers-reduced-motion:reduce){html.mn body::before{animation:none}}
+html.mn .sr-scope button,html.mn .sr-sims button,html.mn .sr-dr button{text-align:left}
+html.mn .sr-how{display:none}
+html.mn #pnBeta .bt i{border-radius:0!important}
+/* все кнопки - прямые углы, как "Подать заявку" */
+html.mn .btn,html.mn .vbtn,html.mn .spk-btn,html.mn .tp-btn,html.mn #pnBeta .ok{border-radius:0!important}
+/* карточка курса: без коробок, пункты - строки с тонкой линией */
+html.mn #kursLink{background:none!important;border:0!important;border-top:1px solid var(--line)!important;border-radius:0!important;padding-left:2px!important;padding-right:2px!important}
+html.mn #kursLink .kx-tag{border:0!important;padding:0!important;font:400 10.5px/1 var(--mn-sans)!important;text-transform:uppercase}
+html.mn #kursLink ul{gap:0!important}
+html.mn #kursLink li{border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;padding-left:0!important;font-weight:300}

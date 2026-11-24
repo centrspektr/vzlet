@@ -80,7 +80,7 @@
   /* ---------- плашка "Бета" - в самый низ ---------- */
   function betaDown() {
     var b = $('pnBeta'), f = $('footer') || D.querySelector('footer'); if (!b) return false;
-    b.classList.remove('o');
+    b.classList.remove('o'); b.classList.add('mn-dn');
     if (f && f.parentNode) f.parentNode.insertBefore(b, f); else D.body.appendChild(b);
     return true;
   }
@@ -101,6 +101,18 @@
     setTimeout(function () { scrollTo({ top: 0, behavior: RED ? 'auto' : 'smooth' }); }, 120);
   });
   if (!betaDown()) { var n = 0, iv = setInterval(function () { if (betaDown() || ++n > 40) clearInterval(iv); }, 250); }
+
+  /* ---------- блок "Рейтинг пилотов": без эмодзи в подписях (строгий вид) ---------- */
+  var EMO = /(?:\p{Extended_Pictographic}|\p{Regional_Indicator})[\uFE0F\u200D\p{Extended_Pictographic}]*\s?/gu;
+  function noEmo(root) {
+    if (!root) return;
+    var w = D.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, v;
+    while ((n = w.nextNode())) { v = n.nodeValue; if (EMO.test(v)) { EMO.lastIndex = 0; n.nodeValue = v.replace(EMO, ''); } EMO.lastIndex = 0; }
+  }
+  try {
+    var pod = $('plPod');
+    if (pod) { noEmo(pod); var mt = null; new MutationObserver(function () { clearTimeout(mt); mt = setTimeout(function () { noEmo(pod); }, 30); }).observe(pod, { childList: true, subtree: true }); }
+  } catch (e) {}
 
   /* ---------- блоки проявляются по мере прокрутки ---------- */
   if (!RED && 'IntersectionObserver' in window) {
