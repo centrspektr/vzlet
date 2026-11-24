@@ -1,6 +1,6 @@
 // vzlet: офлайн-копия страницы. Данные (ученики, рейтинг, курс) всегда берутся с сервера напрямую.
 // Работает на любом адресе: кэширует только файлы из своей папки (scope).
-const C = 'vzlet-v2'; // 24.11: новая основная версия (строгий вид)
+const C = 'vzlet-v3'; // 24.11 (2): тонкий стиль, рейтинг на весь экран строго
 const BASE = new URL('./', self.registration.scope).pathname;
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(['./', './manifest.webmanifest', './icon-192.png'])).catch(() => {})); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('vzlet-') && k !== C).map(k => caches.delete(k))))); self.clients.claim(); });
