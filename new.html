@@ -621,7 +621,7 @@ details[data-tab="Пилоты"]{display:none!important}
 <style>/* 17.11: ровная раскладка на ПК - если слева в пульте нет блоков (скрыты), рейтинг на всю ширину; нижние блоки в две равные колонки */
 @media(min-width:861px){.pult:not(:has(.pl:not(#plPod):not(#plChk):not([hidden]))) #plPod{grid-column:1/-1;grid-row:auto}.pult:not(:has(.pl:not(#plPod):not(#plChk):not([hidden]))){grid-template-columns:1fr}}
 @media(min-width:981px){#t-club>.grid{grid-template-columns:repeat(2,minmax(0,1fr))}#t-club>.grid>.card{grid-column:span 1}}</style>
-<link rel="stylesheet" href="mini.css">
+<link rel="stylesheet" href="mini.css?v=20261124t">
 </head>
 <body>
 
@@ -690,10 +690,10 @@ window.KURS_URL = 'https://centrspektr.gitverse.site/kurs-fpv/';
 window.KURS_ONLY_LINK = true;
 (function () {
   var U = window.KURS_URL; if (!U) return;
-  var card = '<div id="kursLink"><span class="kx-tag">★ ОТДЕЛЬНЫЙ ПОЛНЫЙ КУРС</span>' +
-    '<h3>🎓 Обучающий курс FPV</h3>' +
+  var card = '<div id="kursLink"><span class="kx-tag">Отдельный полный курс</span>' +
+    '<h3>Обучающий курс FPV</h3>' +
     '<p>Полноценный курс от первого взлёта до гонок: всё по порядку, с проверками и своим рейтингом. Это не шпаргалка - здесь учатся по-настоящему.</p>' +
-    '<ul><li>📚 Модули по шагам</li><li>🕹 Тренажёры</li><li>✅ Проверки и задания</li><li>🏆 Свой рейтинг курса</li></ul>' +
+    '<ul><li>Модули по шагам</li><li>Тренажёры</li><li>Проверки и задания</li><li>Свой рейтинг курса</li></ul>' +
     '<a class="btn" style="background:linear-gradient(135deg,#fde047,#38bdf8 60%,#0077ff);color:#04121b;border:0;font-weight:800" href="' + U + '" onclick="kursGo(this)">Открыть курс →</a>' +
     '<div style="color:var(--dim);font-size:12.5px;margin-top:10px">Вход тем же личным кодом, что и в клубе.</div></div>';
   /* Вход ученика переносим в курс: #perenos=base64(UTF-8 JSON {"spk_vzlet": ...}) */
@@ -2634,7 +2634,7 @@ window.VZ_BETA={h:'Бета-версия: тестируем вместе',
 <script src="zadaniya-vzlet.js" defer></script>
 <script src="moduli2.js" defer></script>
 <script src="trener-panel.js" defer></script>
-<script src="mini.js" defer></script>
+<script src="mini.js?v=20261124t" defer></script>
 <script src="rating.js" defer></script>
 <script>if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{});</script>
 <script>
