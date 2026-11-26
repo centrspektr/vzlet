@@ -11,6 +11,7 @@ function siteUrl(){var u=selUrl();u.hash='';u.searchParams.delete('rating');retu
 
 /* ---------- кнопки на основном сайте (всегда) ---------- */
 function addLinks(){
+  if(window.VZ_NO_RT_LINKS)return;
   var mn=g('mnMenuList');
   if(mn&&!g('rtLink'))mn.insertAdjacentHTML('afterend','<a class="mn-row rt-mn" id="rtLink" href="'+rtUrl()+'">Рейтинг на весь экран</a>');
   var h=document.querySelector('#plPod>h3');
@@ -64,7 +65,7 @@ function topDraw(){
   var role=ROLE?'<button type="button" class="rt-b" id="rtPin">Выйти<span class="rt-rl"> · '+(ROLE==='admin'?'Тренер':ROLE==='teacher'?'Педагог':'Помощник')+'</span></button>':'<button type="button" class="rt-b rt-pinb" id="rtPin">Войти</button>';
   g('rtTop').innerHTML='<div class="rt-ttl"><b>Рейтинг клуба "Взлёт"</b><small>'+esc(vil)+'</small></div><div class="rt-tools">'+sel+
    '<button type="button" class="rt-b'+(RT.auto?' on':'')+'" id="rtAuto" title="Листать трассы само (клавиша Пробел)">'+(RT.auto?'Пауза':'Показ')+'</button>'+
-   (document.fullscreenEnabled?'<button type="button" class="rt-b" id="rtFs" title="Во весь экран (клавиша F)">Весь экран</button>':'')+role+
+   (document.fullscreenEnabled&&!window.VZ_NO_RT_LINKS?'<button type="button" class="rt-b" id="rtFs" title="Во весь экран (клавиша F)">Весь экран</button>':'')+role+
    '<a class="rt-b rt-back" href="'+siteUrl()+'">На сайт</a></div>';
   var v=g('rtVil');if(v)v.onchange=function(){var u=selUrl();u.hash='';u.searchParams.set('selo',v.value);u.searchParams.set('rating','1');location.href=u.toString()};
   g('rtPin').onclick=function(){if(ROLE){logout()}else openLogin()};
