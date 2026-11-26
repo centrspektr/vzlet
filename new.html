@@ -198,6 +198,18 @@
   .pstats{display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 16px;}
   .pstat{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:8px 12px; min-width:110px;}
   .pstat b{display:block; font-size:18px; color:var(--accent);} .pstat span{font-size:12px; color:var(--dim);}
+  .pt-cls{display:flex; gap:6px; margin:4px 0 10px; flex-wrap:wrap;}
+  .pt-cls button{flex:1 1 90px; min-height:44px; background:none; border:1px solid var(--line); border-radius:10px; color:var(--text); font:inherit; font-size:14px; cursor:pointer;}
+  .pt-cls button.on{border-color:var(--accent); color:var(--accent);}
+  .pt-cls small{display:block; font-size:11px; color:var(--dim);}
+  .pt-sum{font-size:14px; margin:0 0 8px;} .pt-sum b{color:var(--accent);}
+  .pt-bar{height:4px; border-radius:2px; background:var(--line); margin:0 0 10px; overflow:hidden;} .pt-bar i{display:block; height:100%; background:var(--accent);}
+  .pt-h{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin:12px 0 6px;}
+  .pt-row{display:flex; align-items:center; gap:8px; min-height:44px; padding:6px 10px; border:1px solid var(--line); border-radius:10px; margin-bottom:6px; font-size:15px;}
+  .pt-row .n{flex:1; min-width:0; overflow-wrap:anywhere;} .pt-row small{color:var(--dim); font-size:11px;}
+  .pt-row .t{font-variant-numeric:tabular-nums; color:var(--ok); white-space:nowrap;}
+  .pt-row.todo{border-color:var(--accent); background:rgba(200,168,118,.08);}
+  .pt-row.todo .t{color:var(--accent); font-size:12px; letter-spacing:.08em; text-transform:uppercase;}
   .ptrack{border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px; background:var(--panel2);}
   .ptrack h4{display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:15px; margin-bottom:4px;}
   .ptrack .prog{font-size:13px; color:var(--dim); margin-bottom:8px;} .ptrack .prog b{color:var(--ok);}
@@ -621,7 +633,7 @@ details[data-tab="Пилоты"]{display:none!important}
 <style>/* 17.11: ровная раскладка на ПК - если слева в пульте нет блоков (скрыты), рейтинг на всю ширину; нижние блоки в две равные колонки */
 @media(min-width:861px){.pult:not(:has(.pl:not(#plPod):not(#plChk):not([hidden]))) #plPod{grid-column:1/-1;grid-row:auto}.pult:not(:has(.pl:not(#plPod):not(#plChk):not([hidden]))){grid-template-columns:1fr}}
 @media(min-width:981px){#t-club>.grid{grid-template-columns:repeat(2,minmax(0,1fr))}#t-club>.grid>.card{grid-column:span 1}}</style>
-<link rel="stylesheet" href="mini.css?v=20261124t">
+<link rel="stylesheet" href="mini.css?v=20261126a">
 </head>
 <body>
 
@@ -1218,6 +1230,27 @@ function spark(ls){
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline points="${pts.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>`+
     pts.map(p=>`<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="3.5" fill="var(--accent)"/>`).join('')+`</svg>`;
 }
+let ptCls='';
+function ptBlock(name){
+  const my=laps().filter(l=>normName(l.pilot)===normName(name)), all=allTracks().filter(t=>t&&t!=='Без названия');
+  const used=DTYPES.filter(d=>d!=='Гоночные'||laps().some(l=>l.drone==='Гоночные'));
+  if(!all.length) return '';
+  if(!used.includes(ptCls)) ptCls=(my.length&&my.slice().sort((a,b)=>(parseDate(b.date)||0)-(parseDate(a.date)||0))[0].drone)||used[0];
+  if(!used.includes(ptCls)) ptCls=used[0];
+  const best={}; my.filter(l=>l.drone===ptCls).forEach(l=>{ if(!best[l.track]||l.sec<best[l.track]) best[l.track]=l.sec; });
+  const cnt=d=>all.filter(t=>my.some(l=>l.drone===d&&l.track===t)).length;
+  const done=all.filter(t=>best[t]!==undefined), todo=all.filter(t=>best[t]===undefined), pc=all.length?Math.round(done.length/all.length*100):0;
+  const row=(t,ok)=>`<div class="pt-row ${ok?'':'todo'}"><span class="n">${esc(t)} <small>${esc(simLbl(simOf(t)))}</small></span><span class="t">${ok?fmtLap(best[t]):'осталось'}</span></div>`;
+  return `<h3 style="margin-top:6px">Трассы: пройдено и осталось</h3>
+    <div class="pt-cls">${used.map(d=>`<button type="button" data-d="${esc(d)}" class="${d===ptCls?'on':''}">${dIc(d)} ${esc(d)}<small>${cnt(d)} из ${all.length}</small></button>`).join('')}</div>
+    <p class="pt-sum">Класс ${esc(ptCls)}: пройдено <b>${done.length}</b> из ${all.length}, осталось <b>${todo.length}</b></p><div class="pt-bar"><i style="width:${pc}%"></i></div>
+    ${todo.length?`<div class="pt-h">Осталось пролететь (${todo.length})</div>${todo.map(t=>row(t,0)).join('')}`:'<p class="sub">Все трассы этого класса пройдены 🎉</p>'}
+    ${done.length?`<div class="pt-h">Пройдено, лучшее время (${done.length})</div>${done.map(t=>row(t,1)).join('')}`:''}`;
+}
+function ptWire(name){
+  const b=document.getElementById('ptBox'); if(!b) return;
+  b.querySelectorAll('.pt-cls button').forEach(x=>x.onclick=()=>{ ptCls=x.dataset.d; b.innerHTML=ptBlock(name); ptWire(name); });
+}
 let openPilotName='';
 function openPilot(name){
   openPilotName=name;
@@ -1231,6 +1264,7 @@ function openPilot(name){
     <div class="pstat"><b>${my.length}</b><span>заездов записано</span></div>
     <div class="pstat"><b>${my.reduce((a,l)=>a+l.crash,0)}</b><span>аварий всего</span></div>
     <div class="pstat"><b>${best?fmtLap(best.sec):'-'}</b><span>лучший круг${best?' · '+esc(best.track):''}</span></div></div>`;
+  html += `<div id="ptBox">${ptBlock(name)}</div>`;
   html += Object.entries(byTrack).map(([t,ls])=>{
     ls.sort((a,b)=>(parseDate(a.date)||0)-(parseDate(b.date)||0));
     const bst=Math.min(...ls.map(l=>l.sec)), first=ls[0].sec, f=String(ls[0].fmt||'').toLowerCase();
@@ -1254,6 +1288,7 @@ function openPilot(name){
         <button class="btn primary" id="al-save">+ Добавить</button></div>`;
   }
   $('pbody').innerHTML=html; $('pmodal').classList.add('open');
+  ptWire(name);
   const sv=document.getElementById('al-save'); if(sv) sv.onclick=()=>addLap(name, sv);
   $('pbody').querySelectorAll('.lapdel').forEach(b=>b.onclick=async()=>{ const i=+b.dataset.i, r=(data['Заезды']||[])[i]; if(!r) return;
     if(!confirm(`Удалить заезд ${r['Дата']||''} · ${r['Трасса']} · ${r['Время круга']}?`)) return;
@@ -2635,6 +2670,7 @@ window.VZ_BETA={h:'Бета-версия: тестируем вместе',
 <script src="moduli2.js" defer></script>
 <script src="trener-panel.js" defer></script>
 <script src="mini.js?v=20261124t" defer></script>
+<script>window.VZ_NO_RT_LINKS=1;</script>
 <script src="rating.js" defer></script>
 <script>if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{});</script>
 <script>
