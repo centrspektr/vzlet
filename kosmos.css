@@ -1,0 +1,45 @@
+/* Взлёт, 28.11.2026: космическое появление слова "Взлёт" - буквы рисуются тонкой линией (точка -> штрих -> буква).
+   Только для new.html (класс kz у <html>). Свой файл клуба, ничего внешнего.
+   Отключить: убрать класс kz у <html>, строки kosmos.css/kosmos.js и вернуть старый h1 (откат в проекте). */
+html.kz .mn-hero{--mn-a:#4fb3ff;--mn-a2:#9bd6ff}
+/* глубина: тёмно-синее свечение за словом */
+html.kz .mn-hero::before{content:"";position:absolute;left:50%;top:46%;width:min(120%,900px);aspect-ratio:2/1;translate:-50% -50%;z-index:-2;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(22,60,130,.38),rgba(10,24,60,.16) 55%,transparent 75%);opacity:0;animation:kzGlow 2.4s ease .3s both}
+@keyframes kzGlow{to{opacity:1}}
+
+/* слово */
+html.kz h1.mn-t{margin:14px 0 0;line-height:0}
+.kz-w{display:block;width:clamp(230px,66vw,430px);height:auto;margin:0 auto;overflow:visible;
+  filter:drop-shadow(0 0 10px rgba(56,150,255,.35))}
+.kz-w path{fill:none;stroke:url(#kzG);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:0 1;stroke-dashoffset:0;opacity:0;
+  animation:kzPop .35s ease calc(var(--i)*110ms + .45s) both,kzDraw 1.15s cubic-bezier(.65,0,.25,1) calc(var(--i)*170ms + 1.05s) both}
+.kz-w .kz-d{stroke-dasharray:none;animation:kzDot .6s var(--mn-e) calc(var(--i)*170ms + 2s) both}
+@keyframes kzPop{from{opacity:0}to{opacity:1}}
+@keyframes kzDraw{from{stroke-dasharray:0 1}to{stroke-dasharray:1 1}}
+@keyframes kzDot{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:none}}
+.kz-w .kz-d{transform-box:fill-box;transform-origin:center}
+/* повтор по касанию слова (как цикл в примере) */
+.kz-w.kz-re path{animation:none;opacity:1;stroke-dasharray:1 1}
+.kz-w.kz-re .kz-d{animation:none;opacity:1}
+
+/* звёзды и орбита */
+.kz-sky{position:absolute;inset:-10px -20px;width:calc(100% + 40px);height:calc(100% + 20px);z-index:-1;pointer-events:none;overflow:visible}
+.kz-sky circle{fill:#cfe6ff;opacity:0;animation:kzTw var(--t,5s) ease-in-out var(--d,0s) infinite}
+@keyframes kzTw{0%,100%{opacity:.05}50%{opacity:var(--o,.7)}}
+.kz-orb{fill:none;stroke:#4fb3ff;stroke-width:1;vector-effect:non-scaling-stroke;opacity:.22;stroke-dasharray:1;stroke-dashoffset:1;animation:mnDraw 2.6s cubic-bezier(.5,0,.2,1) .6s both}
+
+/* акценты рамок/линий в шапке - синие */
+html.kz .mn-rule{background:#4fb3ff}
+html.kz .mn-cta{border-color:rgba(79,179,255,.6)}
+html.kz .mn-hero .mn-imp::after{background:rgba(79,179,255,.55)}
+html.kz .mn-hero .mn-cap{color:#8fa8c4}
+html.kz .mn-hero .mn-s1{color:#9fb3cc}
+
+@media (prefers-reduced-motion:reduce){
+  .kz-w path{animation:none!important;opacity:1;stroke-dasharray:1 1}
+  .kz-w .kz-d{animation:none!important;opacity:1;transform:none}
+  .kz-sky circle{animation:none!important;opacity:.35}
+  .kz-orb{animation:none!important;stroke-dashoffset:0}
+  html.kz .mn-hero::before{animation:none;opacity:1}
+}
